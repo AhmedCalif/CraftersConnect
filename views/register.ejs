@@ -5,45 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
     <link rel="stylesheet" href="/auth.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orelega+One&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="header">
-        <div class="header-images">
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d965e4482ad9bffe354d5896e3b09afd361a2a47e0aad984574c8af7cc7639c?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="Boat" class="boat-image" />
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/0ea3d7f2ad88b996a5d5a7a633050c81371a42148ef20446491b4f99345e5d38?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="Waves" class="waves-image" /> 
-        </div>
-    </div>
-    
     <div class="container">
-        <h2 class="form-title">Create An Account</h2>
-        <form action="/auth/register" method="POST" class="form-auth">
-            <div class="form-group">
-                <label for="username" class="form-label">Username:</label>
-                <input type="text" name="username" id="username" class="text-input" required>
+        <div class="login-container">
+            <div></div>    
+            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/39f8664a4cb8e1d79c375d70d49357c512a0be146f87e9f33d98852407c52c3b?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="logo" class="logo"/>
+            
+            <h2 class="title">Create An Account</h2>
+            <form action="/auth/login" method="POST" class="login-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" name="username" id="username" class="text-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" name="password" id="password" class="text-input" required>
+
+                <div class="form-group"
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" name="email" id="email" class="text-input" required>
             </div>
-
-            <div class="form-group">
-                <label for="password" class="form-label">Password:</label>
-                <input type="password" name="password" id="password" class="text-input" required>
-            </div>
-
-            <div class="form-group">
-                <label for="email" class="form-label">Email:</label>
-                <input type="email" name="email" id="email" class="text-input" required>
-            </div>
-
-            <a href="/auth/login">Have An Account Already? Login here!!</a>
-
-            <button type="submit" class="button-action">Register</button> 
-        </form>
+                </div>
+                <button type="submit" class="button-action">Create Account</button>
+            </form>
+            <a href="/auth/login" class="register-link">Already Have an Account? Login Here!</a>
+        </div>
     </div>
 </body>
 </html>
-
-
-
-<!-- <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d965e4482ad9bffe354d5896e3b09afd361a2a47e0aad984574c8af7cc7639c?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="Boat" class="boat-image" />
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/0ea3d7f2ad88b996a5d5a7a633050c81371a42148ef20446491b4f99345e5d38?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="Waves" class="waves-image" /> -->

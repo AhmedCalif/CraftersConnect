@@ -1,83 +1,80 @@
 @import url('https://fonts.googleapis.com/css2?family=Orgela+One&display=swap');
 
 body {
+    margin: 0;
+    padding: 0;
     background-color: #F5E2C2;
+    font-family: Arial, sans-serif; /* or your preferred font */
 }
 
-.header {
-    text-align: center;
-}
-
-.header-images {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.boat-image {
-    width: 100px; 
-    height: auto;
-    margin-right: 20px; 
-}
-
-.waves-image {
-    height: 50px; 
-    flex-grow: 1;
-}
-
-.form-title {
-    font-size: 24px;
-    font-family: 'Orgela One', sans-serif;
-    text-align: center; 
-    margin-top: 1em; 
-    margin-bottom: 2em; 
-}
-
-
+.logo {
+    aspect-ratio: 1.72;
+    max-width: 305px;
+    object-fit: cover;
+    object-position: center;
+    width: 100%;
+    padding-left: 20px;
+  }
+  
 
 .container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-    height: calc(100vh - 100px); 
-    padding: 20px;
+    align-items: center;
+    min-height: 100vh;
 }
 
-.form-auth {
+.login-container {
+    background: #FFFFFF;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 320px; 
+    max-width: 360px;
+    margin: auto;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
 }
 
 .form-group {
-    margin-bottom: 1em;
-    width: 100%;
+    margin-bottom: 15px;
 }
 
 .text-input {
-    height:30px;
-    width: 285pt;
-    padding: 12px; 
+    width: 100%;
+    padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 3.75px;
-    margin-bottom: 1em;
+    border-radius: 4px;
 }
 
 .button-action {
-    width: 100%; 
-    padding: 12px;
+    width: 100%;
+    padding: 10px;
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 20px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 16px; 
-    margin-top: 1em; 
+    font-size: 16px;
+    margin-top: 10px;
 }
 
-.button-action:hover {
-    background-color: #0056b3; 
+.register-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #007bff;
+    text-decoration: none;
 }
 
-
+.register-link:hover {
+    text-decoration: underline;
+}

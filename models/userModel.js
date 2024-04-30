@@ -1,5 +1,3 @@
-
-
 // Fake users
 const bcrypt = require('bcryptjs');
 
