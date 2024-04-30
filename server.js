@@ -9,10 +9,10 @@ const path = require('path');
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 app.get('/', (req, res) => {
-res.send('Welcome');
-});
+    res.redirect('/auth/login');
+}
+);
 
 app.get('/dashboard', (req, res) => {
 res.render('dashboard');
