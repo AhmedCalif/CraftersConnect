@@ -4,21 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <link rel="stylesheet" href="/auth.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orelega+One&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h2>Register page</h2>
-    <div>
-        <form action="/auth/register" method="POST">
-            <label for="username">Username:</label>
-            <input type="text" name="username" id="username" required>
+    <div class="header">
+        <div class="header-images">
+            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d965e4482ad9bffe354d5896e3b09afd361a2a47e0aad984574c8af7cc7639c?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="Boat" class="boat-image" />
+            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/0ea3d7f2ad88b996a5d5a7a633050c81371a42148ef20446491b4f99345e5d38?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="Waves" class="waves-image" /> 
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2 class="form-title">Create An Account</h2>
+        <form action="/auth/register" method="POST" class="form-auth">
+            <div class="form-group">
+                <label for="username" class="form-label">Username:</label>
+                <input type="text" name="username" id="username" class="text-input" required>
+            </div>
 
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" required>
+            <div class="form-group">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" name="password" id="password" class="text-input" required>
+            </div>
 
-            <label for="email">Email:</label>
-            <input type="email" name="email" id="email" required>
+            <div class="form-group">
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" name="email" id="email" class="text-input" required>
+            </div>
 
-            <button type="submit">Register</button>
+            <a href="/auth/login">Have An Account Already? Login here!!</a>
+
+            <button type="submit" class="button-action">Register</button> 
         </form>
     </div>
-</bo
+</body>
+</html>
+
+
+
+<!-- <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d965e4482ad9bffe354d5896e3b09afd361a2a47e0aad984574c8af7cc7639c?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="Boat" class="boat-image" />
+            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/0ea3d7f2ad88b996a5d5a7a633050c81371a42148ef20446491b4f99345e5d38?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="Waves" class="waves-image" /> -->

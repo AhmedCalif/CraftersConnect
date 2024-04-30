@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Orgela+One&display=swap');
+
+body {
+    background-color: #F5E2C2;
+}
+
+.header {
+    text-align: center;
+}
+
+.header-images {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.boat-image {
+    width: 100px; 
+    height: auto;
+    margin-right: 20px; 
+}
+
+.waves-image {
+    height: 50px; 
+    flex-grow: 1;
+}
+
+.form-title {
+    font-size: 24px;
+    font-family: 'Orgela One', sans-serif;
+    text-align: center; 
+    margin-top: 1em; 
+    margin-bottom: 2em; 
+}
+
+
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 100px); 
+    padding: 20px;
+}
+
+.form-auth {
+    width: 100%;
+    max-width: 320px; 
+}
+
+.form-group {
+    margin-bottom: 1em;
+    width: 100%;
+}
+
+.text-input {
+    height:30px;
+    width: 285pt;
+    padding: 12px; 
+    border: 1px solid #ccc;
+    border-radius: 3.75px;
+    margin-bottom: 1em;
+}
+
+.button-action {
+    width: 100%; 
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px; 
+    margin-top: 1em; 
+}
+
+.button-action:hover {
+    background-color: #0056b3; 
+}
+
+

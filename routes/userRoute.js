@@ -14,7 +14,7 @@ router.post('/login', (req, res) => {
             if (err) {
                 res.status(500).send('Error checking password');
             } else if (result) {
-                res.render("dashboard", { user });
+                res.redirect('/dashboard');
             } else {
                 res.send('Login failed');
             }
@@ -42,7 +42,7 @@ router.post("/register", async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         users.push({ username, password: hashedPassword, email });
-       res.render('dashboard', { user: { username, email } });
+       res.redirect('/dashboard');
     } catch (error) {
         console.error("Registration error:", error);
         res.status(500).send("An error occurred during registration");

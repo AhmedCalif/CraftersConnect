@@ -4,18 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="/auth.css">
 </head>
 <body>
-    <h2>Login page</h2>
-    <div>
-       
-        <form action="/auth/login" method="POST">
-            <label for="username">Username:</label>
-            <input type="text" name="username" id="username" required>
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" required>
-            <button type="submit">Login</button>
+    <div class="header">
+        <div class="header-images">
+            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d965e4482ad9bffe354d5896e3b09afd361a2a47e0aad984574c8af7cc7639c?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="Boat" class="boat-image" />
+            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/0ea3d7f2ad88b996a5d5a7a633050c81371a42148ef20446491b4f99345e5d38?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="Waves" class="waves-image" /> 
+        </div>
+    </div>
+    <div class="container">
+        <h2 class="title">Login page</h2>
+        <form action="/auth/login" method="POST" class="login-form">
+            <div class="form-group">
+                <label for="username" class="form-label">Username:</label>
+                <input type="text" name="username" id="username" class="text-input" required>
+            </div>
+            <div class="form-group">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" name="password" id="password" class="text-input" required>
+            </div>
+            <a href="/auth/register">Dont Have an Account? Create An Account Here!</a>
+            <button type="submit" class="button-action">Login</button>
         </form>
     </div>
 </body>
 </html>
+
