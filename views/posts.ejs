@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/posts.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap" rel="stylesheet">
+
+  
+  <title>Community Posts</title>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="profile-section">
+            <img src="https://cdn.iconscout.com/icon/free/png-256/free-avatar-370-456322.png" alt="User profile" class="profile-pic">
+            <h2><%= username %></h2>  
+        </div>
+        <ul class="menu-items">
+            <li> <a href="/profile"><i class="fas fa-user"></i>Profile</a></li>
+            <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="header">
+        <div class="menu-icon">
+            <a href="#" id="menu-toggle">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Hamburger_icon.svg/1200px-Hamburger_icon.svg.png" alt="Menu icon">
+            </a>
+        </div>
+        <div class="action-buttons">
+            <a href="/new-post">
+                <button>Add post</button>
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+        <% posts.forEach(post => { %>
+        <div class="card">
+            <div class="profile-section">
+                <img src="https://cdn.iconscout.com/icon/free/png-256/free-avatar-370-456322.png" alt="<%= post.name %>" class="profile-pic">
+                <div class="post-info">
+                    <div class="post-date"><%= post.date %></div>
+                    <div class="post-title"><%= post.title %></div>
+                </div>
+            </div>
+            <p class="post-description"><%= post.description %></p>
+            <a href="#" class="read-more">Read more</a>
+        </div>
+        <% }) %>  
+    </div>
+    <script defer src="/script.js"></script>  
+</body>
+</html>
+
+
+<!--  https://cdn.iconscout.com/icon/free/png-256/free-avatar-370-456322.png-->
