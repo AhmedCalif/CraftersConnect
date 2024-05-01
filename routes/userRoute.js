@@ -47,7 +47,7 @@ router.post("/register", async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         users.push({ username, password: hashedPassword, email });
-       res.redirect('/posts');
+       res.redirect('/auth/login');
     } catch (error) {
         console.error("Registration error:", error);
         res.status(500).send("An error occurred during registration");
