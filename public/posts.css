@@ -18,13 +18,15 @@ body, html {
   margin-left: 250px; /* Offset for sidebar */
 }
 
-.menu-icon, .chat-icon {
+.menu-icon {
   cursor: pointer;
   color: #424B4F;
   font-family: 'Mada', sans-serif;
+  z-index: 500; 
+  position: relative;
 }
 
-.menu-icon img, .chat-icon img {
+.menu-icon img {
   height: 30px;
   width: 30px;
 }

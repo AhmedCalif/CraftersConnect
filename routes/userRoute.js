@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
-const users = require('../models/userModel');
+const {users} = require('../models/userModel');
 
 router.get('/login', (req, res) => {
     res.render("login")
@@ -30,8 +30,12 @@ router.post('/login', (req, res) => {
 });
 
 
-router.get("/register", (req, res) => {
-    res.render("register");
+router.get('/register', (req, res) => {
+    if (req.session.username) {
+        res.redirect('/');  
+    } else {
+        res.render('register');
+    }
 });
 
 router.post("/register", async (req, res) => {

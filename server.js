@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const userRouter = require('./routes/userRoute');
 const postsRouter = require('./routes/postsRoute');
 const middleware = require('./middleware/middleware');
+const profileRouter = require('./routes/profileRoute');
 
 // Configure session middleware first
 app.use(session({
@@ -29,6 +30,7 @@ app.use(middleware.attachUser);
 // Route handlers
 app.use('/auth', userRouter);
 app.use('/posts', postsRouter);
+app.use('/profile', profileRouter);
 
 // Middleware to ensure user is authenticated
 app.use('/dashboard', middleware.ensureAuthenticated, (req, res) => {

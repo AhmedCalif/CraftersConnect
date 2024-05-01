@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const posts = require('../models/postModel');
-const users = require('../models/userModel');
+const {users} = require('../models/userModel');
 const userRouter = require('./userRoute');
 
 
@@ -11,8 +11,9 @@ router.get('/', (req, res) => {
     if (!user) {
         return res.status(404).send("User not found");  
     }
-    res.render('posts', { posts: posts, username: user.username });  
+    res.render('posts', { posts: posts, user: user, avatar: user.avatar});  
 });
+
 router.get('/create', (req, res) => {
     res.render('create');
 });
@@ -42,13 +43,5 @@ router.post('/delete/:id', (req, res) => {
     posts.splice(postIndex, 1);
     res.redirect('/posts');
 });
-
-
-
-
-
-
-
-
 
 module.exports = router;
