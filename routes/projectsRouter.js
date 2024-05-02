@@ -44,17 +44,7 @@ router.post("/create", (req, res) => {
   }
 });
 
-// router.post("/create", (req, res) => {
-//   try {
-//     const {  title, description, steps, username } = req.body;
-//     const newProject = db.addProject(title, description, steps, username);
-//     console.log("New Form Created:", req.body);
-//     res.redirect("/projects");
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Failed to create project. Please try again.");
-//   }
-// });
+
 
 router.get("/:id", (req, res) => {
   const id = parseInt(req.params.id);
@@ -77,10 +67,11 @@ router.get('/:id/update', (req, res) => {
         res.status(404).send("Project not found");
     }
 });
-
+//fix the way it is being updated
 router.post('/:id/update', (req, res) => {
     const id = parseInt(req.params.id);
     const { title, description, date, steps } = req.body;
+    console.log("update details:", req.body);
     const updatedProject = db.updateProject(id, { title, description, date, steps });
     if (updatedProject) {
         res.redirect(`/projects/${id}`);

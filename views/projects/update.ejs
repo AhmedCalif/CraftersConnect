@@ -20,7 +20,7 @@
         
         <label for="steps">Steps:</label>
         <% project.steps.forEach((step, index) => { %>
-            <input type="text" id="step<%= index + 1 %>" name="steps" value="<%= step %>">
+            <input type="text" id="step<%= index + 1 %>" name="steps[<%= index%>]" value="<%= step.description %>">
         <% }); %>
         
         

@@ -22,22 +22,6 @@ function generateId() {
     return projects.length > 0 ? projects[projects.length - 1].id + 1 : 1;
 }
 
-// Function to add a new project to the database
-// function addProject(title, description, steps, username) {
-//     const newProject = {
-//         id: generateId(),
-//         username: username,
-//         title: title,
-//         description: description,
-//         date: new Date().toLocaleDateString("en-US"),
-//         steps: steps,
-//     };
-//     projects.push(newProject);
-//     return newProject;
-// }
-
-
-//////
 function addProject(title, description, steps, username) {
     console.log('Steps before processing:', steps);
 
