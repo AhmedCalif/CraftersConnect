@@ -27,7 +27,7 @@ body, html {
 
 .profile-pic {
     width: 75px;
-    height: 50px;
+    height: 75px; /* Adjusted for a circular shape */
     border-radius: 50%;
     margin-bottom: 10px;
 }
@@ -59,23 +59,36 @@ h2 {
     text-align: left;
 }
 
-.action-buttons {
-    text-align: center;
-    padding: 20px;
-}
-
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    color: white;
-    background-color: #007BFF;
+.action-buttons button {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px 15px;
+    background-color: #0CB0EA;
+    color: #fff;
+    font-weight: bold;
+    font-family: 'Mada', sans-serif;
+    font-size: 14pt;
     border: none;
-    border-radius: 5px;
+    border-radius: 20px;
     cursor: pointer;
+    box-shadow: 0 4px #999;
+    transition: all 0.3s ease;
+    display: inline-block;
+    white-space: nowrap;
 }
 
-button:hover {
-    background-color: #0056b3;
+.action-buttons button:hover {
+    background-color: #0A97D9;
+    box-shadow: 0 6px #666;
+    transform: translateY(-2px);
+}
+
+.action-buttons button:active {
+    background-color: #0884C6;
+    box-shadow: 0 2px #333;
+    transform: translateY(1px);
 }
 
 @media (max-width: 768px) {
@@ -84,12 +97,8 @@ button:hover {
         align-items: center;
     }
 
-    .label {
+    .label, .value {
         text-align: center;
         padding-right: 0;
-    }
-
-    .value {
-        text-align: center;
     }
 }

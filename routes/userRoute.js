@@ -32,35 +32,35 @@ router.post('/login', (req, res) => {
 
 router.get('/register', (req, res) => {
     if (req.session.username) {
-        res.redirect('/');  
+        res.redirect('/posts');  
     } else {
         res.render('auth/register');
     }
 });
 
-router.post("/register", async (req, res) => {
+router.post('/register', (req, res) => {
     const { username, password, email } = req.body;
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    const randomAvatar = users[Math.floor(Math.random() * users.length)].avatar; 
 
-    if (!username || !password || !email) {
-        return res.status(400).send("Please fill all fields");
-    }
-    if (!email.includes('@')) {
-        return res.status(400).send("Please enter a valid email address");
-    }
+    const newUser = {
+        username: username,
+        password: hashedPassword,
+        email: email,
+        avatar: randomAvatar  
+    };
 
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        users.push({ username, password: hashedPassword, email });
-       res.redirect('/auth/login');
-    } catch (error) {
-        console.error("Registration error:", error);
-        res.status(500).send("An error occurred during registration");
-    }
+    users.push(newUser);  
+    res.redirect('/posts');  
 });
 
 router.get('/logout', (req, res) => {
-    res.redirect('/auth/login');
+    req.session.destroy(() => {  
+        res.redirect('/auth/login');  
+    });
 });
 
 
 module.exports = router;
+
+
