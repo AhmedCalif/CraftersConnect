@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const {users} = require('../models/userModel');
 
 router.get('/login', (req, res) => {
-    res.render("login")
+    res.render("auth/login")
 });
 
 
@@ -34,7 +34,7 @@ router.get('/register', (req, res) => {
     if (req.session.username) {
         res.redirect('/');  
     } else {
-        res.render('register');
+        res.render('auth/register');
     }
 });
 

@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
     if (!user) {
         return res.status(404).send("User not found");  
     }
-    res.render('posts', { posts: posts, user: user, avatar: user.avatar});  
+    res.render('posts/posts', { posts: posts, user: user, avatar: user.avatar});  
 });
 
 router.get('/create', (req, res) => {
@@ -31,7 +31,7 @@ router.post('/update/:id', (req, res) => {
     const post = posts.find(post => post.id === parseInt(req.params.id));
     post.title = req.body.title;
     post.content = req.body.content;
-    res.redirect('/posts');
+    res.redirect('posts/posts');
 });
 
 router.get('/delete/:id', (req, res) => {
@@ -41,7 +41,7 @@ router.get('/delete/:id', (req, res) => {
 router.post('/delete/:id', (req, res) => {
     const postIndex = posts.findIndex(post => post.id === parseInt(req.params.id));
     posts.splice(postIndex, 1);
-    res.redirect('/posts');
+    res.redirect('posts/posts');
 });
 
 module.exports = router;

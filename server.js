@@ -18,6 +18,7 @@ app.use(session({
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+app.set('views', __dirname + '/views');
 
 // Body parser to parse request body
 app.use(bodyParser.urlencoded({ extended: true }));
