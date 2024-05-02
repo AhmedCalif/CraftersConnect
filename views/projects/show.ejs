@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Project</title>
+</head>
+<body>
+    <a href="/projects">Back to My Projects</a>
+
+    <h1>Project Details</h1>
+    <div>
+        <h2><%= project.title %></h2>
+        <p><strong>Description:</strong> <%= project.description %></p>
+        <p><strong>Date:</strong> <%= project.date %></p>
+        <p><strong>Steps:</strong></p>
+        <ul>
+            <% project.steps.forEach(step => { %>
+                <li><%= step.description %></li>
+            <% }); %>
+        </ul>
+
+        <a href="/projects/<%= project.id %>/update">Edit Project</a>
+        <a href="/projects/<%= project.id %>/delete">Delete Project</a>
+    </div>
+</body>
+</html>

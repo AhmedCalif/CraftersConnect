@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create a New Project</title>
+  </head>
+  <body>
+    <h1>Create a New Project</h1>
+    <form action="/projects/create" method="post">
+      <input type="hidden" name="username" value="<%= username %>" />
+
+      <label for="title"> Project Name</label>
+
+      <input
+        type="text"
+        name="title"
+        placeholder="What do you want to do?"
+        required
+      />
+      <label for="description">About the Project</label>
+      <input
+        type="text"
+        name="description"
+        placeholder="What's it all about?"
+        required
+      />
+      <div id="stepsContainer">
+        <div>
+          <label for="step1">Step 1:</label>
+          <input type="text" id="step1" name="steps[]" data-id="1" />
+          <button type="button" class="deleteStepBtn">Delete</button>
+        </div>
+      </div>
+      <button type="button" id="addStepBtn">Add Step</button>
+
+      <button type="submit">Create Project</button>
+    </form>
+
+    <script>
+      document
+        .getElementById("addStepBtn")
+        .addEventListener("click", function () {
+          // Get the steps container
+          var stepsContainer = document.getElementById("stepsContainer");
+
+          // Create new step div
+          var newStepDiv = document.createElement("div");
+
+          // Create label
+          var newLabel = document.createElement("label");
+          newLabel.textContent =
+            "Step " + (stepsContainer.children.length + 1) + ":";
+
+          // Create input
+          var newInput = document.createElement("input");
+          newInput.name = "steps[]"; // Changed to steps[]
+          newInput.dataset.id = stepsContainer.children.length + 1; // Added data-id attribute
+
+          // Create delete button
+          var newDeleteBtn = document.createElement("button");
+          newDeleteBtn.type = "button";
+          newDeleteBtn.className = "deleteStepBtn";
+          newDeleteBtn.textContent = "Delete";
+
+          // Add event listener to delete button
+          newDeleteBtn.addEventListener("click", function () {
+            if (stepsContainer.children.length > 1) {
+              stepsContainer.removeChild(newStepDiv);
+              updateStepNumbers();
+            }
+          });
+
+          // Append elements to new step div
+          newStepDiv.appendChild(newLabel);
+          newStepDiv.appendChild(newInput);
+          newStepDiv.appendChild(newDeleteBtn);
+
+          // Append new step div to steps container
+          stepsContainer.appendChild(newStepDiv);
+        });
+
+      function updateStepNumbers() {
+        var stepsContainer = document.getElementById("stepsContainer");
+        for (var i = 0; i < stepsContainer.children.length; i++) {
+          stepsContainer.children[i].children[0].textContent =
+            "Step " + (i + 1) + ":";
+          stepsContainer.children[i].children[1].name = "step" + (i + 1);
+        }
+      }
+
+      document
+        .querySelector("form")
+        .addEventListener("submit", function (event) {
+          // Prevent the form from being submitted normally
+          event.preventDefault();
+
+          // Create a new FormData object from the form
+          var formData = new FormData(event.target);
+
+          // Get the username, title, and description from the FormData object
+          var username = formData.get("username");
+          var title = formData.get("title");
+          var description = formData.get("description");
+
+          // Get the steps from the FormData object
+          var steps = formData.getAll("steps[]");
+
+          // Convert the steps into an array of objects
+          steps = steps.map((step, index) => ({
+            id: index + 1,
+            description: step,
+          }));
+
+          // Create a new object to send to the server
+          var data = {
+            username: username,
+            title: title,
+            description: description,
+            steps: steps,
+          };
+
+          // Submit the form using the Fetch API
+          fetch("/projects/create", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          })
+            .then(function (response) {
+              if (response.ok) {
+                // If the response was ok, redirect to the projects page
+                window.location.href = "/projects";
+              } else {
+                // If there was an error, log it
+                console.error("Error:", response.statusText);
+              }
+            })
+            .catch(function (error) {
+              // If there was an error, log it
+              console.error("Error:", error);
+            });
+        });
+    </script>
+  </body>
+</html>

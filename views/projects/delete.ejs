@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Project</title>
+</head>
+<body>
+    <h1>Delete Project</h1>
+    <p>Are you sure you want to delete "<%= project.title %>"?</p>
+    <form action="/projects/<%= project.id %>/delete" method="POST">
+        <button type="submit">Delete</button>
+        <a href="/projects/<%= project.id %>">Cancel</a>
+    </form>
+</body>
+</html>
