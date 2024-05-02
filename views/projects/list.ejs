@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Projects</title>
+    <link rel="stylesheet" href="/projects.css"
+</head>
+<body>
+    <div class="sidebar">
+        <div class="profile-section">
+            <img src="<%= avatar %>" alt="User profile" class="profile-pic">
+            <h2><%= username %></h2>  
+        </div>
+        <ul class="menu-items">
+            <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+        </ul>
+    </div>
+    <div class="header">
+        <div class="menu-icon">
+            <a href="#" id="menu-toggle">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Hamburger_icon.svg/1200px-Hamburger_icon.svg.png" alt="Menu icon">
+            </a>
+        </div>
+        
+        <div class="action-buttons">
+        <a href="/projects/create"  class="add-projects-button" onclick="document.getElementById('addProjectForm').style.display='block'">
+            <button>Add Project</button>
+        </a>
+        </div>
+    </div>
+    <h1>List of Projects</h1>
+    <ul>
+        <% projects.forEach(project => { %>
+            <li>
+                <h2><%= project.title %></h2>
+                <p><strong>Description:</strong> <%= project.description %></p>
+                <p><strong>Date:</strong> <%= project.date %></p>
+                <p><strong>Steps:</strong></p>
+                
+            </a>
+            <ul>
+                <% project.steps.forEach(step => { %>
+                    <li><%= step %></li>
+                    <% }); %>
+                </ul>
+            </li>
+            <% }); %>
+
+    </ul>
+    
+    <script defer src="/script.js"></script>
+</body>
+</html>
+

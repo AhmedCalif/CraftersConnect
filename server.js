@@ -5,6 +5,7 @@ const userRouter = require('./routes/userRoute');
 const postsRouter = require('./routes/postsRoute');
 const middleware = require('./middleware/middleware');
 const profileRouter = require('./routes/profileRoute');
+const projectsRouter = require('./routes/projectsRouter');
 
 const app = express();
 const port = 8000;
@@ -17,6 +18,7 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24
      }
 }));
+
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -31,10 +33,17 @@ app.use(middleware.attachUser);
 app.use('/auth', userRouter);
 app.use('/posts', postsRouter);
 app.use('/profile', profileRouter);
+app.use('/projects', projectsRouter);
 
 app.use('/dashboard', middleware.ensureAuthenticated, (req, res) => {
     res.render('dashboard');
 });
+
+
+
+
+
+
 
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
