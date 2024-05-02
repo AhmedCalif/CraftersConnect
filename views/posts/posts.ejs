@@ -38,8 +38,10 @@
             <div><strong>By <%= post.createdBy %></strong></div>
             <h2><%= post.title %></h2>
             <p><%= post.description %></p>
+            <div class="action-buttons">
             <button onclick="likePost('<%= post.id %>')">Like</button> 
             <span>Likes: <span id="likes-count-<%= post.id %>"><%= typeof post.currentLikes === 'number' ? post.currentLikes : 0 %></span></span>
+        </div>
           </div>
         <% }); %>
       </div>

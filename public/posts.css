@@ -185,6 +185,26 @@ body, html {
   box-shadow: 0 2px #333;
   transform: translateY(1px);
 }
+input[type="text"], textarea {
+  width: 90%; 
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: 'Mada', sans-serif; 
+  font-size: 16px; 
+  color: #333; 
+  background-color: #f8f8f8; 
+}
+label {
+  margin-left: 5%;
+  font-family: Arial, sans-serif;
+  color: #666;
+}
+
 
 .menu-items {
   list-style: none;
