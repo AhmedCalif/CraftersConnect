@@ -11,9 +11,13 @@ router.get('/', (req, res) => {
     if (!user) {
         return res.status(404).send("User not found");
     }
+    const postsWithIndex = posts.map((post, index) => ({
+        ...post,
+        index
+    }));
 
     res.render('posts/posts', {
-        posts: posts,
+        posts: postsWithIndex,
         username: user.username,
         avatar: user.avatar
     });
@@ -68,6 +72,8 @@ router.post('/create', (req, res) => {
         content: content,
         description: description,
         date: new Date().toLocaleDateString("en-US"), 
+        likes: 0,
+        likedBy: [],
         avatar: user.avatar
     };
 
@@ -108,14 +114,24 @@ router.post('/delete/:id', (req, res) => {
 });
 
 router.post('/like/:index', (req, res) => {
-    const postIndex = parseInt(req.params.index);
-    if (postIndex >= 0 && postIndex < posts.length) {
-        posts[postIndex].likes += 1;  // Increment likes
-        res.status(200).send(`Likes updated to ${posts[postIndex].likes}`);
+    const index = parseInt(req.params.index, 10);
+    if (index < 0 || index >= posts.length) {
+        return res.status(404).send('Post not found');
+    }
+    console.log("Accessing post at index:", index);
+    console.log("Current post data:", posts[index]);
+    console.log("Liked by array:", posts[index].likedBy);
+    const username = req.session.username; 
+    if (!posts[index].likedBy) {
+        posts[index].likedBy = [];
+    }
+    if (!posts[index].likedBy.includes(username)) {
+        posts[index].likes += 1;
+        posts[index].likedBy.push(username);  
+        res.json({ likes: posts[index].likes });
     } else {
-        res.status(404).send('Post not found');
+        res.status(409).send('User has already liked this post'); 
     }
 });
-
-
+    
 module.exports = router;
