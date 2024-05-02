@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Mada:wght@400&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background: #f4f4f4;
+}
+
+.profile-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.profile-header {
+    background-color: #f9f9f9;
+    text-align: center;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.profile-pic {
+    width: 75px;
+    height: 75px; /* Adjusted for a circular shape */
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+h2 {
+    margin: 10px 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.profile-info {
+    padding: 20px;
+}
+
+.info {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.label {
+    width: 30%;
+    font-weight: bold;
+    padding-right: 10px;
+    text-align: right;
+}
+
+.value {
+    flex: 1;
+    text-align: left;
+}
+
+.action-buttons button {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px 15px;
+    background-color: #0CB0EA;
+    color: #fff;
+    font-weight: bold;
+    font-family: 'Mada', sans-serif;
+    font-size: 14pt;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px #999;
+    transition: all 0.3s ease;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.action-buttons button:hover {
+    background-color: #0A97D9;
+    box-shadow: 0 6px #666;
+    transform: translateY(-2px);
+}
+
+.action-buttons button:active {
+    background-color: #0884C6;
+    box-shadow: 0 2px #333;
+    transform: translateY(1px);
+}
+
+@media (max-width: 768px) {
+    .info {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .label, .value {
+        text-align: center;
+        padding-right: 0;
+    }
+}

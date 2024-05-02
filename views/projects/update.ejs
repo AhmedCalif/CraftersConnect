@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Project</title>
+
+</head>
+<body>
+    <h1>Update Project</h1>
+    <form action="/projects/<%= project.id %>/update" method="post">
+        <label for="title">Project Title:</label>
+        <input type="text" id="title" name="title" value="<%= project.title %>" required>
+        
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" value="<%= project.description %>" required>
+        
+        <label for="date">Date:</label>
+        <input type="text" id="date" name="date" value="<%= project.date %>" required>
+        
+        <label for="steps">Steps:</label>
+        <% project.steps.forEach((step, index) => { %>
+            <input type="text" id="step<%= index + 1 %>" name="steps" value="<%= step %>">
+        <% }); %>
+        
+        
+        <button type="submit">Update Project</button>
+    </form>
+</body>
+</html>

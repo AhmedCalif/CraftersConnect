@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create a New Project</title>
+  </head>
+  <body>
+    <h1>Create a New Project</h1>
+    <form id="stepsContainer" action="/projects/create" method="post">
+        <input type="hidden" name="username">
+      
+        <label for="title"> Project Name</label>
+      
+        <input
+        type="text"
+        name="title"
+        placeholder="What do you want to do?"
+        required
+      />
+      <label for="description">About the Project</label>
+      <input
+        type="text"
+        name="description"
+        placeholder="What's it all about?"
+        required
+      />
+      <div id="stepsContainer">
+          <div>
+              <label for="step1">Step 1:</label>
+              <input type="text" id="step1" name="step1">
+              <button type="button" class="deleteStepBtn">Delete</button>
+          </div>
+      </div>
+      <button type="button" id="addStepBtn">Add Step</button>
+
+
+      <button type="submit">Create Project</button>
+    </form>
+
+
+    <script>
+      
+
+    </script>
+  </body>
+</html>
+
+
+<script>
+  document.getElementById('addStepBtn').addEventListener('click', function() {
+    // Get the steps container
+    var stepsContainer = document.getElementById('stepsContainer');
+
+    // Create new step div
+    var newStepDiv = document.createElement('div');
+
+    // Create label
+    var newLabel = document.createElement('label');
+    newLabel.textContent = 'Step ' + (stepsContainer.children.length + 1) + ':';
+
+    // Create input
+    var newInput = document.createElement('input');
+    newInput.type = 'text';
+    newInput.name = 'step' + (stepsContainer.children.length + 1);
+
+    // Create delete button
+    var newDeleteBtn = document.createElement('button');
+    newDeleteBtn.type = 'button';
+    newDeleteBtn.className = 'deleteStepBtn';
+    newDeleteBtn.textContent = 'Delete';
+
+    // Append elements to new step div
+    newStepDiv.appendChild(newLabel);
+    newStepDiv.appendChild(newInput);
+    newStepDiv.appendChild(newDeleteBtn);
+
+    // Append new step div to steps container
+    stepsContainer.appendChild(newStepDiv);
+  });
+</script>
