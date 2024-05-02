@@ -49,10 +49,10 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; 
+  justify-content: flex-start;
   padding: 20px;
   width: 100%;
-
+  margin-top: 60px;
 }
 
 .container, .header {
@@ -107,38 +107,57 @@ body, html {
   text-decoration: underline;
 }
 
-
 .card {
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   background-color: #F5E2C2;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 10px 0;
+  padding: 15px;
   box-sizing: border-box;
+  width: 80%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.card h2, .card p, .card strong {
+  margin-bottom: 5px;
 }
 
 
-.card h2 {
-  color: #333;
-}
-
-.card p {
-  color: #666;
-}
-
-.card button {
-  background-color: #007BFF;
-  color: white;
+.card .like-button {
+  height: 30t;
+  width: 120pt;
+  background-color: #0CB0EA;
+  color: #000000;
+  font-size: 15pt;
+  font-weight: bold;
+  padding: 12.75pt 33.75pt;
   border: none;
-  padding: 10px;
-  border-radius: 5px;
+  border-radius: 20px;
   cursor: pointer;
+  box-shadow: 0 4px #999;
+  transition: all 0.3s ease;
+  margin-top: 10px
 }
 
-.card button:hover {
-  background-color: #0056b3;
+.card .like-button:hover {
+  background-color: #0A97D9;
+  box-shadow: 0 6px #666;
+  transform: translateY(-2px);
 }
 
+.card .like-button:active {
+  background-color: #0884C6;
+  box-shadow: 0 2px #333;
+  transform: translateY(1px);
+}
+
+.card span {
+  margin-top: 5px;
+}
 .action-buttons button {
   height: 45pt;
   width: 141.75pt;
@@ -193,15 +212,20 @@ body, html {
 }
 
 @media (max-width: 768px) {
-  .header, .container {
-    margin-left: 0; 
+  .header {
+    margin-left: 0;
+  }
+  
+  .container {
+    padding: 10px;
   }
   .sidebar {
     width: 100%; 
     display: none; 
   }
   .card {
-    max-width: 95%; 
+    margin: 10px 0;
     padding: 10px;
-}
+    width: calc(100% - 20px);
+  }
 }

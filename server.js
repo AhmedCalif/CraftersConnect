@@ -1,19 +1,20 @@
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const middleware = require('./middleware/middleware');
 const userRouter = require('./routes/userRoute');
 const postsRouter = require('./routes/postsRoute');
-const middleware = require('./middleware/middleware');
 const profileRouter = require('./routes/profileRoute');
 
 const app = express();
 const port = 8000;
 
 app.use(session({
-    secret: 'your_secret_key', 
+    secret: process.env.SESSION_SECRET || 'your_default_secret_key', 
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false,
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production', 
         maxAge: 1000 * 60 * 60 * 24
      }
 }));

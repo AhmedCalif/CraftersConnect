@@ -11,17 +11,21 @@ router.get('/', (req, res) => {
     if (!user) {
         return res.status(404).send("User not found");
     }
-    const postsWithIndex = posts.map((post, index) => ({
-        ...post,
-        index
-    }));
+    const postsWithAvatars = posts.map((post) => {
+        const postCreator = users.find(user => user.username === post.createdBy);
+        return {
+            ...post,
+            avatar: postCreator ? postCreator.avatar : 'default-avatar.jpg'
+        };
+    });
 
     res.render('posts/posts', {
-        posts: postsWithIndex,
+        posts: postsWithAvatars,
         username: user.username,
-        avatar: user.avatar
+        avatar: user.avatar,  
     });
 });
+
 
 router.post('/', (req, res) => {
     const { username, password, email } = req.body;
@@ -63,7 +67,7 @@ router.post('/create', (req, res) => {
     if (!user) {
         return res.status(404).send("User not found");
     }
-
+    
     const { title, description, content } = req.body;
     const newPost = {
         id: posts.length + 1,  
@@ -72,66 +76,43 @@ router.post('/create', (req, res) => {
         content: content,
         description: description,
         date: new Date().toLocaleDateString("en-US"), 
-        likes: 0,
+        currentLikes: 0, // Set initial likes count to 0 for new posts
         likedBy: [],
-        avatar: user.avatar
+        avatar: user.avatar,
+        
     };
+    console.log(newPost.id);
 
     posts.push(newPost);
     res.redirect('/posts');  
 });
 
-
-
-router.get('/update/:id', (req, res) => {
-    const post = posts.find(post => post.id === parseInt(req.params.id));
-    res.render('posts/update', { post });
-});
-
-router.post('/update/:id', (req, res) => {
-    const post = posts.find(post => post.id === parseInt(req.params.id));
-    if (post) {
-        post.title = req.body.title;
-        post.content = req.body.content;
-        res.redirect('/posts');
-    } else {
-        res.status(404).send('Post not found');
+router.post('/like/:id', (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id) || id < 0) {
+        console.error('Invalid id:', id);
+        return res.status(404).send('Invalid ID');
     }
-});
-
-router.get('/delete/:id', (req, res) => {
-    res.render('posts/delete', { id: req.params.id });
-});
-
-router.post('/delete/:id', (req, res) => {
-    const postIndex = posts.findIndex(post => post.id === parseInt(req.params.id));
-    if (postIndex !== -1) {
-        posts.splice(postIndex, 1);
-        res.redirect('/posts');
-    } else {
-        res.status(404).send('Post not found');
-    }
-});
-
-router.post('/like/:index', (req, res) => {
-    const index = parseInt(req.params.index, 10);
-    if (index < 0 || index >= posts.length) {
+    const post = posts.find(p => p.id === id);
+    if (!post) {
+        console.error('No post found at this id:', id);
         return res.status(404).send('Post not found');
     }
-    console.log("Accessing post at index:", index);
-    console.log("Current post data:", posts[index]);
-    console.log("Liked by array:", posts[index].likedBy);
-    const username = req.session.username; 
-    if (!posts[index].likedBy) {
-        posts[index].likedBy = [];
+    if (!Array.isArray(post.likedBy)) {
+        post.likedBy = [];
     }
-    if (!posts[index].likedBy.includes(username)) {
-        posts[index].likes += 1;
-        posts[index].likedBy.push(username);  
-        res.json({ likes: posts[index].likes });
+
+    const username = req.session.username;
+    if (!username) {
+        return res.status(403).send('You must be logged in to like posts');
+    }
+    if (!post.likedBy.includes(username)) {
+        post.currentLikes += 1;
+        post.likedBy.push(username);
+        res.json({ likes: post.currentLikes });
     } else {
-        res.status(409).send('User has already liked this post'); 
+        res.status(409).send('User has already liked this post');
     }
 });
-    
+
 module.exports = router;

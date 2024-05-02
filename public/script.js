@@ -22,11 +22,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-
 // like Posts
-async function likePost(index) {
+
+async function likePost(id) {
     try {
-        const response = await fetch(`/posts/like/${index}`, { method: 'POST' });
+        console.log('Liking post:', id);
+        const response = await fetch(`/posts/like/${id}`, { method: 'POST' });
         if (!response.ok) {
             if (response.status === 409) {
                 alert("You have already liked this post.");
@@ -35,9 +36,13 @@ async function likePost(index) {
             }
         }
         const data = await response.json();
-        document.getElementById(`likes-count-${index}`).innerText = data.likes;
+        const likesCountElement = document.getElementById(`likes-count-${id}`);
+        if (likesCountElement && typeof data.likes === 'number') {
+            likesCountElement.innerText = data.likes;
+        } else {
+            console.error('Invalid likes count received:', data.likes);
+        }
     } catch (error) {
         console.error('Error liking the post:', error);
     }
 }
-
