@@ -7,3 +7,13 @@ document.getElementById('menu-toggle').addEventListener('click', function(event)
     container.classList.toggle('open');
     header.classList.toggle('open');
 });
+
+
+function likePost(index) {
+    fetch(`/like/${index}`, { method: 'POST' })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById(`likes-count-${index}`).innerText = data.match(/\d+$/)[0];
+        })
+        .catch(error => console.error('Error liking the post:', error));
+}

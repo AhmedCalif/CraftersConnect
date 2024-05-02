@@ -107,4 +107,15 @@ router.post('/delete/:id', (req, res) => {
     }
 });
 
+router.post('/like/:index', (req, res) => {
+    const postIndex = parseInt(req.params.index);
+    if (postIndex >= 0 && postIndex < posts.length) {
+        posts[postIndex].likes += 1;  // Increment likes
+        res.status(200).send(`Likes updated to ${posts[postIndex].likes}`);
+    } else {
+        res.status(404).send('Post not found');
+    }
+});
+
+
 module.exports = router;
