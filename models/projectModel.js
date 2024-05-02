@@ -5,7 +5,7 @@ let projects = [
         title: "Project 1",
         description: "Description of Project 1",
         date: "2024-05-15",
-        steps: ["Step 1", "Step 2", "Step 3"]
+        steps: [{ id: 1, description: "Step 1" }, {id: 2, description: "Step 2"}, {id: 3, description: "Step 3"}]
     },
     {
         id: 2,
@@ -13,7 +13,7 @@ let projects = [
         title: "Project 2",
         description: "Description of Project 2",
         date: "2024-06-30",
-        steps: ["Step A", "Step B", "Step C"]
+        steps: [{id: 1, description: "Step A"}, {id: 2, description: "Step B"}, {id: 3, description: "Step C"}]
     }
 ];
 
@@ -23,7 +23,26 @@ function generateId() {
 }
 
 // Function to add a new project to the database
+// function addProject(title, description, steps, username) {
+//     const newProject = {
+//         id: generateId(),
+//         username: username,
+//         title: title,
+//         description: description,
+//         date: new Date().toLocaleDateString("en-US"),
+//         steps: steps,
+//     };
+//     projects.push(newProject);
+//     return newProject;
+// }
+
+
+//////
 function addProject(title, description, steps, username) {
+    console.log('Steps before processing:', steps);
+
+    console.log('Steps after processing:', steps);
+
     const newProject = {
         id: generateId(),
         username: username,
@@ -33,6 +52,7 @@ function addProject(title, description, steps, username) {
         steps: steps,
     };
     projects.push(newProject);
+    console.log('Project added into db:', newProject);
     return newProject;
 }
 

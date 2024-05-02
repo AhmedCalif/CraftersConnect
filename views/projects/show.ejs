@@ -6,6 +6,8 @@
     <title>Show Project</title>
 </head>
 <body>
+    <a href="/projects">Back to My Projects</a>
+
     <h1>Project Details</h1>
     <div>
         <h2><%= project.title %></h2>
@@ -14,13 +16,12 @@
         <p><strong>Steps:</strong></p>
         <ul>
             <% project.steps.forEach(step => { %>
-                <li><%= step %></li>
+                <li><%= step.description %></li>
             <% }); %>
         </ul>
 
-        <form action="/projects/<%= project.id %>/delete" method="POST">
-            <button type="submit">Delete Project</button>
-        </form>
+        <a href="/projects/<%= project.id %>/update">Edit Project</a>
+        <a href="/projects/<%= project.id %>/delete">Delete Project</a>
     </div>
 </body>
 </html>

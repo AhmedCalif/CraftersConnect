@@ -3,7 +3,6 @@ const router = express.Router();
 const db = require("../models/projectModel");
 const { users } = require("../models/userModel");
 
-const sessionUser = null;
 
 //view all
 router.get("/", (req, res) => {
@@ -31,10 +30,12 @@ router.get("/create", (req, res) => {
 });
 
 
+
+
 router.post("/create", (req, res) => {
   try {
-    const { username, title, description, steps } = req.body;
-    const newProject = db.addProject(username, title, description, steps);
+    let { title, description, steps, username } = req.body;
+    const newProject = db.addProject(title, description, steps, username);
     console.log("New Form Created:", req.body);
     res.redirect("/projects");
   } catch (err) {
@@ -43,10 +44,23 @@ router.post("/create", (req, res) => {
   }
 });
 
+// router.post("/create", (req, res) => {
+//   try {
+//     const {  title, description, steps, username } = req.body;
+//     const newProject = db.addProject(title, description, steps, username);
+//     console.log("New Form Created:", req.body);
+//     res.redirect("/projects");
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Failed to create project. Please try again.");
+//   }
+// });
+
 router.get("/:id", (req, res) => {
   const id = parseInt(req.params.id);
   const project = db.getProjectById(id);
   if (project) {
+    console.log('Project Details:', project);
     res.render('projects/show', { project } );
   } else {
     res.status(404).json({ message: "Project not found" });
@@ -56,7 +70,7 @@ router.get("/:id", (req, res) => {
 //update project
 router.get('/:id/update', (req, res) => {
     const id = parseInt(req.params.id);
-    const project = projectModel.getProjectById(id);
+    const project = db.getProjectById(id);
     if (project) {
         res.render('projects/update', { project });
     } else {
@@ -77,7 +91,18 @@ router.post('/:id/update', (req, res) => {
 
 
 //delete project
-router.post("/delete/:id", (req, res) => {
+router.get("/:id/delete", (req, res) => {
+  const id = parseInt(req.params.id);
+  const project = db.getProjectById(id);
+  if (project) {
+    res.render("projects/delete", { project });
+  } else {
+    res.status(404).send("Project not found");
+  }
+  
+})
+
+router.post("/:id/delete", (req, res) => {
   const id = parseInt(req.params.id);
   const success = db.deleteProject(id);
   if (success) {

@@ -30,25 +30,22 @@
         </a>
         </div>
     </div>
-    <h1>List of Projects</h1>
-    <ul>
-        <% projects.forEach(project => { %>
-            <li>
-                <h2><%= project.title %></h2>
-                <p><strong>Description:</strong> <%= project.description %></p>
-                <p><strong>Date:</strong> <%= project.date %></p>
-                <p><strong>Steps:</strong></p>
-                
-            </a>
-            <ul>
-                <% project.steps.forEach(step => { %>
-                    <li><%= step %></li>
-                    <% }); %>
-                </ul>
-            </li>
-            <% }); %>
+    <div class="container">
+        <h1>List of Projects</h1>
+        <ul>
+            <% projects.forEach(project => { %>
+                <div class="card">
+                    <li>
+                        <h2><%= project.title %></h2>
+                        <p><strong>Description:</strong> <%= project.description %></p>
+                        <p><strong>Date:</strong> <%= project.date %></p>
+                    </li>
+                    <a href="/projects/<%= project.id %>"> View More</a>
+                </div>
+                <% }); %>
 
-    </ul>
+        </ul>
+    </div>
     
     <script defer src="/script.js"></script>
 </body>
