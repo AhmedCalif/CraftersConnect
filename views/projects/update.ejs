@@ -28,7 +28,11 @@
 
             <br>
             <% project.steps.forEach((step, index) => { %>
-                <input type="text" id="step<%= index + 1 %>" name="steps[<%= index%>]" value="<%= step.description %>">
+                <div>
+                    <input type="hidden" name="steps[<%= index %>][id]" value="<%= step.id %>">
+                    <label for="step<%= index + 1 %>">Step <%= index + 1 %>:</label>
+                    <input type="text" id="step<%= index + 1 %>" name="steps[<%= index %>][description]" value="<%= step.description %>">
+                </div>
             <% }); %>
             
             <div class="action-buttons">
