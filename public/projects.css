@@ -126,7 +126,7 @@ body, html {
   background-color: #0CB0EA;
   color: #000;
   font-weight: bold;
-  padding: 12.75pt 33.75pt;
+  padding: 0;
   font-family: 'Mada', sans-serif;
   font-size: 15pt;
   border: none;
@@ -134,6 +134,11 @@ body, html {
   cursor: pointer;
   box-shadow: 0 4px #999;
   transition: all 0.3s ease;
+  
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  text-align: center; 
 }
 
 .action-buttons button:hover {
@@ -147,6 +152,7 @@ body, html {
   box-shadow: 0 2px #333;
   transform: translateY(1px);
 }
+
 
 .menu-items {
   list-style: none;
