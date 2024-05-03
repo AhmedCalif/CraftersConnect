@@ -3,13 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>Delete Project</title>
+    <link rel="stylesheet" href="/projects.css">
+    
 </head>
 <body>
-    <h1>Delete Project</h1>
-    <p>Are you sure you want to delete "<%= project.title %>"?</p>
-    <form action="/projects/<%= project.id %>/delete" method="POST">
-        <button type="submit">Delete</button>
-        <a href="/projects/<%= project.id %>">Cancel</a>
-    </form>
+
+<div class="container">
+    <div class="card">
+        <h1>Delete Project</h1>
+        <p>Are you sure you want to delete "<%= project.title %>"?</p>
+        <form action="/projects/<%= project.id %>/delete" method="POST">
+            <div class="action-buttons">
+
+                <button type="submit">Delete</button>
+                <a href="/projects/<%= project.id %>">
+                    <button type="button">Cancel</button>
+                </a>
+            </div>
+            
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
 </body>
 </html>

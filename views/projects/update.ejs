@@ -4,27 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Project</title>
+    <link rel="stylesheet" href="/projects.css"
 
 </head>
-<body>
-    <h1>Update Project</h1>
-    <form action="/projects/<%= project.id %>/update" method="post">
-        <label for="title">Project Title:</label>
-        <input type="text" id="title" name="title" value="<%= project.title %>" required>
-        
-        <label for="description">Description:</label>
-        <input type="text" id="description" name="description" value="<%= project.description %>" required>
-        
-        <label for="date">Date:</label>
-        <input type="text" id="date" name="date" value="<%= project.date %>" required>
-        
-        <label for="steps">Steps:</label>
-        <% project.steps.forEach((step, index) => { %>
-            <input type="text" id="step<%= index + 1 %>" name="steps[<%= index%>]" value="<%= step.description %>">
-        <% }); %>
-        
-        
-        <button type="submit">Update Project</button>
-    </form>
+<div class="container">
+    <div class="card">
+        <h1>Update Project</h1>
+        <form action="/projects/<%= project.id %>/update" method="post">
+            <label for="title">Project Title:</label>
+            <input type="text" id="title" name="title" value="<%= project.title %>" required>
+            
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description" value="<%= project.description %>" required>
+            
+            <br>
+
+            <label for="date">Date:</label>
+            <br>
+
+            <input type="text" id="date" name="date" value="<%= project.date %>" required>
+            <br>
+            <label for="steps">Steps:</label>
+
+            <br>
+            <% project.steps.forEach((step, index) => { %>
+                <input type="text" id="step<%= index + 1 %>" name="steps[<%= index%>]" value="<%= step.description %>">
+            <% }); %>
+            
+            <div class="action-buttons">
+                <button type="submit">Update Project</button>
+                <a href="/projects">
+                    <button type="button">Go Back</button>
+                </a>
+
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>

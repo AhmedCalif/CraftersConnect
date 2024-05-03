@@ -119,10 +119,14 @@ body, html {
   flex-direction: column;
   align-items: center; 
 }
+.action-buttons {
+  margin-top: 20px;
+  display: flex; 
+}
 
 .action-buttons button {
-  height: 45pt;
-  width: 141.75pt;
+  height: 30pt;
+  width: 120pt;
   background-color: #0CB0EA;
   color: #000;
   font-weight: bold;
@@ -134,6 +138,12 @@ body, html {
   cursor: pointer;
   box-shadow: 0 4px #999;
   transition: all 0.3s ease;
+
+  display: flex;
+  justify-content: center;
+ align-items: center;
+ margin-left: auto;
+ padding: 5px;
   
   display: flex; 
   justify-content: center; 
@@ -192,3 +202,30 @@ body, html {
     margin: 10px;  
   }
 }
+
+.createContainer {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+input[type="text"], textarea {
+  width: 90%; 
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: 'Mada', sans-serif; 
+  font-size: 16px; 
+  color: #333; 
+  background-color: #f8f8f8; 
+}
+
+.deleteStepBtn {
+  margin-right: 20px;
+}
+
