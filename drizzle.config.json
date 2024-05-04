@@ -1,0 +1,11 @@
+{
+  "schema": "./database/schema/schema.js",
+  "out": "./drizzle",
+  "driver": "mysql2",
+  "dbCredentials": {
+    "host": "localhost",
+    "user": "root",
+    "password": "Ahmed18131806",
+    "database": "drizzle"
+  }
+}
