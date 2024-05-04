@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const schema = require('../database/schema/schema.js');
 const client = require('../database/client.js');
 const drizzle = require('drizzle-orm'); 
-const users = require('../models/userModel.js')
+const {users} = require('../models/userModel.js')
 
 router.get('/login', (req, res) => {
     if (req.session.username) {
