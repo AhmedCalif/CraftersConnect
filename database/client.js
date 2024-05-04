@@ -1,14 +1,15 @@
-require('dotenv').config();
-const mysql = require('mysql2');
+const { drizzle } = require("drizzle-orm/mysql2");
+const mysql = require("mysql2/promise"); 
 
-// Create a MySQL pool
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
-module.exports = pool;
+async function setupConnection() {
+  const connection = await mysql.createConnection({
+    host: "host",
+    user: 'root',
+    database: 'drizzle',
+    password: 'Ahmed18131806,'
+  });
+  const db = drizzle(connection);
+  return db;
+}
+
+module.exports = {setupConnection};

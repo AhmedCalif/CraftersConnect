@@ -7,6 +7,7 @@ const postsRouter = require('./routes/postsRoute');
 const profileRouter = require('./routes/profileRoute');
 const projectsRouter = require('./routes/projectsRouter');
 const mysql = require('mysql2/promise'); 
+const { initializeDatabase } = require('./database/client');
 
 const app = express();
 const port = 8000;
@@ -20,6 +21,13 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24
     }
 }));
+
+app.use(async (req, res, next) => {
+    if (!app.locals.db) {
+        app.locals.db = await initializeDatabase();
+    }
+    next();
+});
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -48,13 +56,13 @@ app.use(middleware.errorHandler);
 
 const main = async () => {
     const connection = await mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'Ahmed18131806',
-        database: 'drizzle',
-        port: 3306
-    });
-
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+        port: process.env.DB_PORT,
+    }
+    );
     app.post('/query', async (req, res) => {
         const { sql, params, method } = req.body;
         const sqlBody = sql.replace(/;/g, ''); 
@@ -95,4 +103,7 @@ const main = async () => {
 
 // }))
 
-main().catch(console.error);
+main().catch(error => {
+    console.error("Failed to start the server:", error);
+});
+

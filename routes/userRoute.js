@@ -1,9 +1,10 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const schema = require('../database/schema/schema.js');
-const client = require('../database/client.js');
-const drizzle = require('drizzle-orm'); 
-const users = require('../models/userModel.js')
+const {drizzle} = require('drizzle-orm'); 
+const {users, projects, posts, images, collaborator} = require('../database/schema/schema.js');
+const {setupConnection}= require('../database/client.js');
+const dbClient = drizzle(setupConnection, schema);
 
 router.get('/login', (req, res) => {
     if (req.session.username) {
@@ -12,25 +13,15 @@ router.get('/login', (req, res) => {
         res.render('auth/login');
     }
 });
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    const user = users.find(user => user.username === username);
-    if (user) {
-        console.log(`Attempting to match passwords: input=${password}, stored=${user.password}`);
-        bcrypt.compare(password, user.password, (err, isMatch) => {
-            if (err) {
-                console.error("Error during password comparison:", err);
-                return res.status(500).send('Server error');
-            }
-            if (isMatch) {
-                req.session.username = username;
-                res.redirect('/posts');
-            } else {
-                res.status(401).send('Authentication failed');
-            }
-        });
+    const user = dbClient.select({user: users.username}).from(users).where(eq(username, users.username))
+    if (user && bcrypt.compareSync(password, user.password)) {
+        req.session.username = user.username;
+        req.session.userId = user.id;
+        res.redirect('/posts');
     } else {
-        res.status(401).send('User not found');
+        res.redirect('/auth/login');
     }
 });
 
@@ -44,7 +35,7 @@ router.get('/register', (req, res) => {
     }
 });
 
-router.post('/register', (req, res) => {
+router.post('/register', async  (req, res) => {
     const { username, password, email } = req.body;
     const hashedPassword = bcrypt.hashSync(password, 10);
     const randomAvatar = users[Math.floor(Math.random() * users.length)].avatar; 
