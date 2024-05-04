@@ -1,17 +1,18 @@
-const { int, mysqlTable, text, timestamp, varchar} =  require('drizzle-orm/mysql-core');
+const { int, mysqlTable, text, timestamp, varchar} = require('drizzle-orm/mysql-core');
 
  const users = mysqlTable("users", {
     id: int('id').primaryKey({ autoIncrement: true }),
     username: varchar('username', { length: 255 }).notNull().unique(),
     email: varchar('email', { length: 255 }).notNull().unique(),
+    password: varchar('password', { length: 255 }).notNull(),
 });
 
  const posts = mysqlTable('posts',{
     id: int('id').primaryKey({ autoIncrement: true }),
     description: text('description').notNull(),
     title: text('title').notNull(),
-    userId: int('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
-   timestamp: timestamp('timestamp').notNull().defaultNow()
+   timestamp: timestamp('timestamp').notNull().defaultNow(),
+   userid: int('userid').notNull().references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' })
 });
 
  const images = mysqlTable('image', {
@@ -23,19 +24,19 @@ const { int, mysqlTable, text, timestamp, varchar} =  require('drizzle-orm/mysql
     id: int('id').primaryKey({ autoIncrement: true }),
     description: text('description').notNull(),
     title: text('title').notNull(),
-    imageId: int('imageId').notNull().references(() => images.id, { onDelete: 'cascade' })
+    imageId: int('imageId').notNull().references(() => images.id, { onDelete: 'cascade', onUpdate: 'cascade'})
 });
 
  const collaborator = mysqlTable('collaborator', {
     id: int('id').primaryKey({ autoIncrement: true }),
     username: text('username').notNull(),
-    projectId: int('projectId').notNull().references(() => projects.id, { onDelete: 'cascade' })
+    projectId: int('projectId').notNull().references(() => projects.id, { onDelete: 'cascade', onUpdate: 'cascade'})
 });
 
  const steps = mysqlTable('steps', {
     id: int('id').primaryKey({ autoIncrement: true }),
     description: text('description').notNull(),
-    projectId: int('projectId').notNull().references(() => projects.id, { onDelete: 'cascade' })
+    projectId: int('projectId').notNull().references(() => projects.id, { onDelete: 'cascade', onUpdate: 'cascade'})
 });
 
 module.exports = {
