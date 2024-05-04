@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const middleware = require('./middleware/middleware');
@@ -7,7 +8,10 @@ const postsRouter = require('./routes/postsRoute');
 const profileRouter = require('./routes/profileRoute');
 const projectsRouter = require('./routes/projectsRouter');
 const mysql = require('mysql2/promise'); 
-const { initializeDatabase } = require('./database/client');
+const  initializeDatabase  = require('./database/client');
+const { setupConnection } = require('./database/client');
+const { drizzle } = require('drizzle-orm/mysql2');
+
 
 const app = express();
 const port = 8000;
@@ -24,7 +28,8 @@ app.use(session({
 
 app.use(async (req, res, next) => {
     if (!app.locals.db) {
-        app.locals.db = await initializeDatabase();
+        const connection = await setupConnection(); 
+        app.locals.db = drizzle(connection); 
     }
     next();
 });
