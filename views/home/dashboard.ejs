@@ -7,20 +7,23 @@
     <link rel="stylesheet" href="/homepage.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
             <h1>Welcome Back <%= user.username %>!</h1>
             <a href="/auth/logout" class="action-buttons">Logout</a>
         </div>
-
+        
         <div class="search-bar action-buttons">
+            <p>Looking For Something? </p>
             <input type="text" placeholder="Search">
             <button class="button">Search</button>
         </div>
         <div class="category-filter">
-            <button class="action-buttons">Gardening</button>
-            <button class="action-buttons">Woodworking</button>
-            <button class="action-buttons">Decor</button>
+            <p>Filter By Category</p>
+            <button>Gardening</button>
+            <button>Woodworking</button>
+            <button>Decor</button>
+            <a href="/posts">
+            <button>More</button>
+            </a>
         </div>
         <div class="recent-projects">
             <h2>Recently Viewed Projects</h2>

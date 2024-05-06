@@ -29,7 +29,6 @@ app.set('views', __dirname + '/views');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(middleware.logger);
 app.use(middleware.attachUser);
 
 app.use('/auth', userRouter);

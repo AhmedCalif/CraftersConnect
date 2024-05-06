@@ -9,10 +9,6 @@ module.exports = {
         }
         next();
     },
-    logger: function(req, res, next) {
-        console.log(`${req.method} ${req.url} - ${new Date().toISOString()}`);
-        next();
-    },
     errorHandler: function(err, req, res, next) {
         console.error(err);
         if (res.headersSent) {
