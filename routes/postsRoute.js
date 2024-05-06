@@ -77,7 +77,7 @@ router.post('/create', (req, res) => {
         content: content,
         description: description,
         date: new Date().toLocaleDateString("en-US"), 
-        currentLikes: 0, // Set initial likes count to 0 for new posts
+        currentLikes: 0, 
         likedBy: [],
         avatar: user.avatar,
         
