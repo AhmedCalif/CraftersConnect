@@ -11,25 +11,6 @@ router.get('/login', (req, res) => {
     }
     res.render('auth/login');
 });
-router.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    const user = users.find(user => user.username === username);
-    if (user) {
-        console.log(`Attempting to match passwords: input=${password}, stored=${user.password}`);
-        bcrypt.compare(password, user.password, (err, isMatch) => {
-            if (err) {
-                console.error("Error during password comparison:", err);
-                return res.status(500).send('Server error');
-            }
-            if (isMatch) {
-                req.session.username = username;
-                res.redirect('/home/dashboard');
-            } else {
-                res.status(401).send('Authentication failed');
-            }
-        });
-    } else {
-        res.status(401).send('User not found');
 
 router.post('/login', async (req, res) => {
     try {
@@ -70,5 +51,6 @@ router.post('/register', async (req, res) => {
         res.status(500).send('Error registering user');
     }
 });
+
 
 module.exports = router;
