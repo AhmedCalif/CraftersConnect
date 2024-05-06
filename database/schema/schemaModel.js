@@ -9,7 +9,8 @@ const User = sequelize.define('User', {
     },
     username: Sequelize.STRING,
     password: Sequelize.STRING,
-    email: Sequelize.STRING
+    email: Sequelize.STRING,
+    
 });
 
 const Post = sequelize.define('Post', {
@@ -20,8 +21,16 @@ const Post = sequelize.define('Post', {
     },
     description: Sequelize.TEXT,
     title: Sequelize.STRING,
-    createdAt: Sequelize.DATE
+    createdAt: Sequelize.DATE,
+    createdBy: {
+        type: Sequelize.INTEGER,
+        references: {
+            model: 'User', 
+            key: 'id',      
+        }
+    },
 });
+
 
 const Project = sequelize.define('Project', {
     projectId: {
@@ -60,8 +69,23 @@ const Step = sequelize.define('Step', {
     },
     description: Sequelize.TEXT
 });
-User.hasMany(Post, { foreignKey: 'userId' });
-Post.belongsTo(User, { foreignKey: 'userId' });
+
+const Like = sequelize.define('like', {
+    likeId: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    likedBy: Sequelize.STRING
+});
+
+User.hasMany(Post, { foreignKey: 'createdBy' });
+User.hasMany(Like, { foreignKey: 'userId' });
+
+
+Post.belongsTo(User, { foreignKey: 'createdBy' });
+Like.belongsTo(Post, { foreignKey: 'postId'});
+Post.hasMany(Like, { foreignKey: 'postId' });
 
 User.hasMany(Project, { foreignKey: 'userId' });
 Project.belongsTo(User, { foreignKey: 'userId' });
@@ -75,7 +99,7 @@ Collaborator.belongsTo(Project, { foreignKey: 'projectId' });
 Project.hasMany(Step, { foreignKey: 'projectId' });
 Step.belongsTo(Project, { foreignKey: 'projectId' });
 
-module.exports = { User, Post, Project, Image, Collaborator, Step };
+module.exports = { User, Post, Project, Image, Collaborator, Step, Like };
 
 
 sequelize.sync({ force: false }).then(() => {

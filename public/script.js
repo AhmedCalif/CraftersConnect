@@ -24,25 +24,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // like Posts
 
-async function likePost(id) {
+async function likePost(postId) {
     try {
-        console.log('Liking post:', id);
-        const response = await fetch(`/posts/like/${id}`, { method: 'POST' });
+        console.log('postId:', postId);
+        console.log('Liking post:', postId);
+        const response = await fetch(`/posts/like/${postId}`, {
+            method: 'POST'
+        });
         if (!response.ok) {
-            if (response.status === 409) {
-                alert("You have already liked this post.");
-            } else {
-                throw new Error('Network response was not ok');
-            }
+            throw new Error('Network response was not ok.');
         }
         const data = await response.json();
-        const likesCountElement = document.getElementById(`likes-count-${id}`);
-        if (likesCountElement && typeof data.likes === 'number') {
+        const likesCountElement = document.getElementById(`likes-count-${postId}`);
+        if (likesCountElement) {
             likesCountElement.innerText = data.likes;
-        } else {
-            console.error('Invalid likes count received:', data.likes);
         }
     } catch (error) {
         console.error('Error liking the post:', error);
+        alert('Failed to like the post.');
     }
 }

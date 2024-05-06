@@ -11,7 +11,6 @@
 <body>
     <div class="sidebar">
         <div class="profile-section">
-            <img src="<%= avatar %>" alt="User profile" class="profile-pic">
             <h2><%= username %></h2>  
         </div>
         <ul class="menu-items">
@@ -38,12 +37,11 @@
     <div class="container">
         <% posts.forEach(post => { %>
           <div class="card">
-            <img src="<%= post.avatar || 'default-avatar.png' %>" alt="<%= post.createdBy %>" class="profile-pic">
-            <div><strong>By <%= post.createdBy %></strong></div>
+            <div><strong>By <%= username %></strong></div>
             <h2><%= post.title %></h2>
             <p><%= post.description %></p>
             <div class="action-buttons">
-            <button onclick="likePost('<%= post.id %>')">Like</button> 
+                <button onclick="likePost('<%= post.id %>')">Like</button>          
             <span>Likes: <span id="likes-count-<%= post.id %>"><%= typeof post.currentLikes === 'number' ? post.currentLikes : 0 %></span></span>
         </div>
           </div>
