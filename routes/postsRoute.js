@@ -1,6 +1,8 @@
-const router = require('express').Router();
-const posts = require('../models/postModel');
-const { users } = require('../models/userModel');
+const express = require('express');
+const { users } = require('../models/userModel.js');
+const bcrypt = require('bcryptjs');
+
+const router = express.Router();
 
 router.get('/', (req, res) => {
     if (!req.session.username) {
@@ -25,7 +27,6 @@ router.get('/', (req, res) => {
         avatar: user.avatar,  
     });
 });
-
 
 router.post('/', (req, res) => {
     const { username, password, email } = req.body;

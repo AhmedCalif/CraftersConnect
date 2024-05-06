@@ -1,29 +1,20 @@
 const express = require('express');
+const {User} = require('../database/schema/schemaModel');
+const bcrypt = require('bcryptjs');
 const router = express.Router();
-const { drizzle } = require('drizzle-orm/mysql2');
-const { setupConnection } = require('../database/client');
-const { users } = require('../database/schema/schema'); 
-const {eq, and, sql} = require('drizzle-orm');
-const bcrypt = require('bcryptjs')
 
-const initializeDatabase = async () => {
-    const connection = await setupConnection();
-    return drizzle(connection);
-};
 router.get('/login', (req, res) => {
     res.render('auth/login');
 });
+
 router.post('/login', async (req, res) => {
     try {
-        const db = await initializeDatabase();
         const { username, password } = req.body;
-        const user = await db.select('username', 'password').from(users)
-        .where(sql`${users.username} = ${username}`)
-        .execute();
-        if (user && user.password && bcrypt.compareSync(password, user.password)) {
+        const user = await User.findOne({ where: { username } });
+        if (user && bcrypt.compareSync(password, user.password)) {
             req.session.username = user.username;
-            req.session.userId = user.id;
-            res.redirect('/posts');
+            req.session.userId = user.userId; 
+            res.redirect('/home/dashboard');
         } else {
             res.redirect('/auth/login');
         }
@@ -33,18 +24,23 @@ router.post('/login', async (req, res) => {
     }
 });
 
- router.get('/register', (req, res) => {
+router.get('/register', (req, res) => {
     res.render('auth/register');
-}
-);
-
+});
 
 router.post('/register', async (req, res) => {
     try {
-        const db = await initializeDatabase();
-        const { username, password, email } = req.body;
-        await db.insert(users).values({ username, password: bcrypt.hashSync(password, 10), email }).execute();
+        const { username, password, email, id } = req.body;
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        const newUser = await User.create({
+            username, 
+            password: hashedPassword, 
+            email,
+            userId: id
+        });
+        await newUser.save();
         res.status(200).send('User registered successfully');
+        res.redirect('/home/dashboard');
     } catch (error) {
         console.error('Error registering user:', error);
         res.status(500).send('Error registering user');
