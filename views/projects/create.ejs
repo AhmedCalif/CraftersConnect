@@ -14,14 +14,15 @@
             <div class="createContainer">
               <input type="hidden" name="username" value="<%= username %>" />
 
-              <label for="title"> Project Name</label>
 
+              <label for="title"> Project Name</label>
               <input
                 type="text"
                 name="title"
                 placeholder="What do you want to do?"
                 required
               />
+              
               <label for="description">About the Project</label>
               <input
                 type="text"
@@ -41,6 +42,7 @@
 
           <div class="action-buttons">
             <button type="button" id="addStepBtn">Add Step</button>
+            
             <button type="submit">Create Project</button>
 
             <a href="/projects">
@@ -94,6 +96,7 @@
           // Append new step div to steps container
           stepsContainer.appendChild(newStepDiv);
         });
+
 
       function updateStepNumbers() {
         var stepsContainer = document.getElementById("stepsContainer");

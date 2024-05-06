@@ -70,9 +70,9 @@ router.get('/:id/update', (req, res) => {
 //fix the way it is being updated
 router.post('/:id/update', (req, res) => {
     const id = parseInt(req.params.id);
-    const { title, description, date, steps } = req.body;
+    const { title, description, date, steps, username } = req.body;
     console.log("update details:", req.body);
-    const updatedProject = db.updateProject(id, { title, description, date, steps });
+    const updatedProject = db.updateProject(id, { username, title, description, date, steps });
     if (updatedProject) {
         res.redirect(`/projects/${id}`);
     } else {
