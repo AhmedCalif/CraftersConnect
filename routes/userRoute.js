@@ -44,12 +44,16 @@ router.post('/register', async (req, res) => {
             userId: id
         });
         await newUser.save();
-        res.status(200).send('User registered successfully');
         res.redirect('/home/dashboard');
     } catch (error) {
         console.error('Error registering user:', error);
         res.status(500).send('Error registering user');
     }
+});
+
+router.post('/logout', (req, res) => {  
+    req.session.destroy();
+    res.redirect('/auth/login');
 });
 
 

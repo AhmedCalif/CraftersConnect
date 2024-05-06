@@ -77,5 +77,7 @@ Step.belongsTo(Project, { foreignKey: 'projectId' });
 
 module.exports = { User, Post, Project, Image, Collaborator, Step };
 
-console.log('Database & tables created!');
-   
+
+sequelize.sync({ force: false }).then(() => {
+    console.log("Tables have been created");
+}).catch(error => console.error('Unable to create tables', error));

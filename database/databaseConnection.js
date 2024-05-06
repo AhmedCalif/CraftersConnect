@@ -2,8 +2,8 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-const sequelize = new Sequelize('craftersconnect', process.env.DB_USER, process.env.DB_PASSWORD, {
-    host: 'localhost',
+const sequelize = new Sequelize('freedb_craftersconnect', 'freedb_ahmedcalif', 'zCY!xbum3j#HFj8', {
+    host: 'sql.freedb.tech',
     dialect: 'mysql'
 });
 

@@ -1,4 +1,3 @@
-
 module.exports = {
     attachUser: function(req, res, next) {
         res.locals.username = req.session.username || 'Guest';
@@ -16,6 +15,9 @@ module.exports = {
     },
     errorHandler: function(err, req, res, next) {
         console.error(err);
+        if (res.headersSent) {
+            return res.end();
+        }
         res.status(500).send('Internal Server Error');
     }
 };
