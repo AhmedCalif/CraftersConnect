@@ -7,7 +7,7 @@ const {users} = require('../models/userModel.js')
 
 router.get('/login', (req, res) => {
     if (req.session.username) {
-        res.redirect('/posts');  
+        res.redirect('/home/dashboard');  
     } else {
         res.render('auth/login');
     }
@@ -24,7 +24,7 @@ router.post('/login', (req, res) => {
             }
             if (isMatch) {
                 req.session.username = username;
-                res.redirect('/posts');
+                res.redirect('/home/dashboard');
             } else {
                 res.status(401).send('Authentication failed');
             }

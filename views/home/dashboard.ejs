@@ -3,10 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Home</title>
+    <link rel="stylesheet" href="/homepage.css">
 </head>
 <body>
-    <h1>dashboard</h1>
-    
+    <div class="container">
+        <div class="header">
+            <h1>Welcome Back <%= user.username %>!</h1>
+        </div>
+
+        <div class="search-bar action-buttons">
+            <input type="text" placeholder="Search">
+            <button class="button">Search</button>
+        </div>
+        <div class="category-filter">
+            <button class="action-buttons">Gardening</button>
+            <button class="action-buttons">Woodworking</button>
+            <button class="action-buttons">Decor</button>
+        </div>
+        <div class="recent-projects">
+            <h2>Recently Viewed Projects</h2>
+            <% projects.forEach(function(project) { %>
+                <div class="card">
+                    <img src="<%= project.imageUrl %>" alt="Project Image">
+                    <div class="card-details">
+                        <h3><%= project.title %></h3>
+                        <p>Description: <%= project.description %></p>
+                        <p>Date: <%= project.date %></p>
+                        <a href="/projects/<%= project.id %>">View More</a>
+                    </div>
+                </div>
+            <% }); %>
+            <div class="action-buttons">
+                <a href="/projects"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
+                    <button>Projects</button>
+                </a>
+                </div>
+        </div>
+
+        <div class="new-today">
+            <h2>What's New Today</h2>
+            <% posts.forEach(function(post) { %>
+                <div class="card">
+                    <img src="<%= post.avatar || 'default-avatar.png' %>" alt="<%= post.createdBy %>">
+                    <div class="card-details">
+                        <h3><%= post.title %></h3>
+                        <p>By <%= post.createdBy %></p>
+                        <p><%= post.description %></p>
+                    </div>
+                </div>
+                <% }); %>
+                <div class="action-buttons">
+                    <a href="/posts"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
+                        <button>Community</button>
+                    </a>
+                    </div>
+            </div>
+    </div>
+    <script defer src='/carousel.js'></script>
 </body>
 </html>
+

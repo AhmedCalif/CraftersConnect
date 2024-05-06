@@ -7,6 +7,7 @@ const postsRouter = require('./routes/postsRoute');
 const profileRouter = require('./routes/profileRoute');
 const projectsRouter = require('./routes/projectsRouter');
 const mysql = require('mysql2/promise'); 
+const homeRouter = require('./routes/homeRoute');
 
 const app = express();
 const port = 8000;
@@ -35,10 +36,8 @@ app.use('/auth', userRouter);
 app.use('/posts', postsRouter);
 app.use('/profile', profileRouter);
 app.use('/projects', projectsRouter);
+app.use('/home', homeRouter)
 
-app.use('/dashboard', middleware.ensureAuthenticated, (req, res) => {
-    res.render('dashboard');
-});
 
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
