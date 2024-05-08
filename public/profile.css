@@ -9,13 +9,13 @@ body, html {
     justify-content: center; 
     align-items: center;  
     font-family: 'Mada', sans-serif;
-    background: #f4f4f4;
+    background: #F5E2C2;
 }
 
 .sidebar {
     width: 250px;
     position: fixed;
-    left: -250px; /* Start hidden off-screen */
+    left: -250px; 
     top: 0;
     bottom: 0;
     background-color: #fff;

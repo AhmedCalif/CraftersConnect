@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    console.log("Session Username:", req.session.username); 
+    console.log("Session Username:", req.session.username);
     try {
         if (!req.session.username) {
             return res.status(403).send("You must be logged in to view posts");
@@ -13,9 +13,10 @@ router.get('/', async (req, res) => {
 
         const user = await User.findOne({
             where: { username: req.session.username },
-            include: [{ model: Avatar }]
+            include: [{
+                model: Avatar,
+            }]
         });
-
         if (!user) {
             return res.status(404).send("User not found");
         }
@@ -23,8 +24,8 @@ router.get('/', async (req, res) => {
         const posts = await Post.findAll({
             include: [{
                 model: User,
-                as: 'creator', 
-                attributes: ['username'],  
+                as: 'creator',
+                attributes: ['username'],
                 include: [{
                     model: Avatar,
                     attributes: ['imageUrl']
@@ -32,8 +33,6 @@ router.get('/', async (req, res) => {
             }]
         });
         
-        
-
         const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
 
         res.render('posts/posts', {
@@ -48,7 +47,6 @@ router.get('/', async (req, res) => {
 });
 
 
-
 router.post('/', async (req, res) => {
     
     const user = User.findOne(user => user.username === req.session.username);
@@ -59,7 +57,12 @@ router.post('/', async (req, res) => {
     const posts = await Post.findAll({
         include: [{
             model: User,
-            attributes: ['username'], 
+            as: 'creator',
+            attributes: ['username'],
+            include: [{
+                model: Avatar,
+                attributes: ['imageUrl']
+            }]
         }]
     });
     
@@ -83,6 +86,9 @@ router.post('/create', async (req, res) => {
     if (!req.session.username) {
         return res.status(403).send("You must be logged in to create posts");
     }
+    if (req.session.lastPostTime && new Date() - new Date(req.session.lastPostTime) < 30000) { cooldown
+        return res.status(429).send("Please wait a bit before creating another post.");
+    }
     try {
         const user = await User.findOne({ where: { username: req.session.username } });
         if (!user) {
@@ -98,6 +104,7 @@ router.post('/create', async (req, res) => {
             createdBy: user.userId,
         });
 
+        req.session.lastPostTime = new Date(); 
         console.log("New Post Created:", newPost);
         res.redirect('/posts');  
     } catch (error) {
@@ -105,6 +112,7 @@ router.post('/create', async (req, res) => {
         res.status(500).send('Error creating post');
     }
 });
+
 
 router.post('/like/:id', async (req, res) => {
     const id = parseInt(req.params.id, 10); 
