@@ -11,7 +11,8 @@
 <body>
     <div class="sidebar">
         <div class="profile-section">
-            <h2><%= username %></h2>  
+            <h2><%= username %></h2>
+            <img src="<%= avatarUrl %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">  
         </div>
         <ul class="menu-items">
             <li><a href="/home/dashboard"><i class="fas fa-home"></i> Home</a></li>
@@ -19,7 +20,6 @@
             <li><a href="/projects"><i class="fa fa-briefcase"></i> Projects</a></li>
             <li><a href="/posts"><i class="fa fa-newspaper"></i>Posts</a></li>
             <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
-
         </ul>
     </div>
     <div class="header">
@@ -36,16 +36,17 @@
     </div>
     <div class="container">
         <% posts.forEach(post => { %>
-          <div class="card">
-            <div><strong>By <%= username %></strong></div>
-            <h2><%= post.title %></h2>
-            <p><%= post.description %></p>
-            <div class="action-buttons">
-                <button onclick="likePost('<%= post.id %>')">Like</button>          
-            <span>Likes: <span id="likes-count-<%= post.id %>"><%= typeof post.currentLikes === 'number' ? post.currentLikes : 0 %></span></span>
-        </div>
-          </div>
-        <% }); %>
+            <div class="card">
+              <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'default-avatar.jpg' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
+              <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
+              <h2><%= post.title %></h2>
+              <p><%= post.description %></p>
+              <div class="action-buttons">
+                  <button onclick="likePost('<%= post.postId %>')">Like</button>
+                  <span>Likes: <span id="likes-count-<%= post.postId %>"><%= post.currentLikes %></span></span>
+              </div>
+            </div>
+          <% }); %>
       </div>
     <script defer src="/script.js"></script>  
 </body>

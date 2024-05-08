@@ -24,6 +24,7 @@ const Post = sequelize.define('Post', {
     createdAt: Sequelize.DATE,
     createdBy: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
             model: 'User', 
             key: 'id',      
@@ -78,17 +79,43 @@ const Like = sequelize.define('like', {
     },
     likedBy: Sequelize.STRING
 });
+const Avatar = sequelize.define('Avatar', {
+    avatarId: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Users', 
+            key: 'userId'
+        }
+    },
+    imageUrl: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    uploadDate: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
+    }
+});
 
 User.hasMany(Post, { foreignKey: 'createdBy' });
 User.hasMany(Like, { foreignKey: 'userId' });
 
 
-Post.belongsTo(User, { foreignKey: 'createdBy' });
+Post.belongsTo(User, { as: 'creator', foreignKey: 'createdBy' });
 Like.belongsTo(Post, { foreignKey: 'postId'});
 Post.hasMany(Like, { foreignKey: 'postId' });
 
 User.hasMany(Project, { foreignKey: 'userId' });
 Project.belongsTo(User, { foreignKey: 'userId' });
+
+User.hasOne(Avatar, { foreignKey: 'userId' });
+Avatar.belongsTo(User, { foreignKey: 'userId' });
 
 Project.hasOne(Image, { foreignKey: 'projectId' });
 Image.belongsTo(Project, { foreignKey: 'projectId' });
@@ -99,7 +126,16 @@ Collaborator.belongsTo(Project, { foreignKey: 'projectId' });
 Project.hasMany(Step, { foreignKey: 'projectId' });
 Step.belongsTo(Project, { foreignKey: 'projectId' });
 
-module.exports = { User, Post, Project, Image, Collaborator, Step, Like };
+module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar };
+
+sequelize.query("SELECT MAX(userId) AS maxId FROM Users;")
+    .then(result => {
+        const maxId = result[0][0].maxId;
+        const nextId = maxId + 1; 
+        return sequelize.query(`ALTER TABLE Users AUTO_INCREMENT = ${nextId};`);
+    })
+    .then(() => console.log("Auto-increment has been reset to follow the last userId."))
+    .catch(error => console.error("Error resetting auto-increment:", error));
 
 
 sequelize.sync({ force: false }).then(() => {

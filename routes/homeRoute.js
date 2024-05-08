@@ -1,36 +1,65 @@
 const router = require('express').Router();
-const posts = require('../models/postModel');
-const projects = require('../models/projectModel');
-const {users} = require('../models/userModel');
+const { User, Post, Project, Avatar } = require('../database/schema/schemaModel');
 
 router.get('/dashboard', async (req, res) => {
     if (!req.session.username) {
         return res.redirect('/auth/login');
     }
-    const user = users.find(user => user.username === req.session.username);
+    const user = await User.findOne({ where: { username: req.session.username } });
     if (!user) {
         return res.status(404).send("User not found");
     }
-    const postsWithAvatars = posts.map((post) => {
-        const postCreator = users.find(user => user.username === post.createdBy);
-        return {
-            ...post,
-            avatar: postCreator ? postCreator.avatar : 'default-avatar.jpg'
-        };
+
+    const posts = await Post.findAll({
+        include: [{
+            model: User,
+            as: 'creator',  
+            include: [{
+                model: Avatar,
+                attributes: ['imageUrl']
+            }]
+        }]
     });
-    const userProjects = projects.getAllProjects(user.username);
+
+    const postsWithAvatars = posts.map(post => ({
+        ...post.toJSON(),
+        avatar: post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'default-avatar.jpg'
+    }));
+    
+
+
+    const userProjects = await Project.findAll({
+        where: { userId: user.userId }
+    });
+
     res.render('home/dashboard', {
-        user: user, 
+        user: user,
         posts: postsWithAvatars,
         projects: userProjects
     });
 });
 
+
 router.post('/dashboard', async (req, res) => {
     const { title, description, steps } = req.body;
-    const newProject = projects.addProject(title, description, steps, req.user.username);
-    console.log(newProject);
-    res.redirect('/dashboard');
+    try {
+        const newProject = await Project.create({
+            title,
+            description,
+            userId: req.session.userId 
+        });
+        const projectSteps = steps.map(stepDescription => ({
+            description: stepDescription,
+            projectId: newProject.projectId
+        }));
+        await Step.bulkCreate(projectSteps);
+
+        console.log(newProject);
+        res.redirect('/dashboard');
+    } catch (error) {
+        console.error("Error creating project:", error);
+        res.status(500).send("Failed to create project");
+    }
 });
 
 module.exports = router;
