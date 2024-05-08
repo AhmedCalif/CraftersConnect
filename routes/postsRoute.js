@@ -106,8 +106,8 @@ router.post('/create', async (req, res) => {
     }
 });
 
-router.post('/like/:postid', async (req, res) => {
-    const id = parseInt(req.params.postid, 10); 
+router.post('/like/:id', async (req, res) => {
+    const id = parseInt(req.params.id, 10); 
     if (isNaN(id) || id < 0) {
         console.error('Invalid id:', id);
         return res.status(404).send('Invalid ID');
@@ -130,19 +130,20 @@ router.post('/like/:postid', async (req, res) => {
             return res.status(404).send('User not found');
         }
         
-        const like = await Like.findOne({ where: { postId: id, userId: user.id } });
+        const like = await Like.findOne({ where: { postId: id, userId: req.session.userId } });
         if (like) {
             return res.status(409).send('User has already liked this post');
         }
         
-        await Like.create({ postId: id, userId: user.id });
+        await Like.create({ postId: id, userId: req.session.userId });
         post.currentLikes += 1;
+        console.log('Post liked:', post);
         await post.save();
         
-        res.json({ likes: post.currentLikes });
+        console.log('Current likes:', post.currentLikes);   
     } catch (error) {
         console.error('Failed to like post:', error);
-        res.status(500).send('Error liking post');
+        res.status(500).send(`Error liking post, ${error.message}`);
     }
 });
 
