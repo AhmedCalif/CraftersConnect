@@ -7,12 +7,16 @@ body {
     margin: 0;
     padding: 20px;
 }
-
-
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-}
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        background: #fff;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
 input[type="text"], textarea {
     width: 90%;
@@ -65,31 +69,11 @@ input[type="text"], textarea {
 
 .category-filter {
     display: flex;
+    background-color: #F5E2C2;
     justify-content: space-between;
     padding-right: 100px;
     font-family: 'Orelega One', cursive;
     font-size: 24px;
-}
-
-.category-filter button {
-    background-color: #F5E2C2;
-    border: 1px solid #ccc;
-    padding: 10px 20px;
-    font-size: 18px;
-    border-radius: 20px;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s, box-shadow 0.3s;
-}
-
-.category-filter button:hover {
-    background-color: #EAD9C0;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-
-.category-filter button:active {
-    background-color: #DCCAB8;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .card {
