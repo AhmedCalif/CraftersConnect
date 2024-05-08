@@ -1,15 +1,17 @@
 const express = require('express');
 const session = require('express-session');
+
 const bodyParser = require('body-parser');
 const middleware = require('./middleware/middleware');
 const userRouter = require('./routes/userRoute');
 const postsRouter = require('./routes/postsRoute');
 const profileRouter = require('./routes/profileRoute');
 const projectsRouter = require('./routes/projectsRouter');
-const mysql = require('mysql2/promise'); 
 const homeRouter = require('./routes/homeRoute');
 const app = express();
+
 const port = 8000;
+
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your_default_secret_key',
@@ -20,6 +22,8 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24
     }
 }));
+
+
 
 
 app.set('view engine', 'ejs');
@@ -35,8 +39,7 @@ app.use('/auth', userRouter);
 app.use('/posts', postsRouter);
 app.use('/profile', profileRouter);
 app.use('/projects', projectsRouter);
-app.use('/home', homeRouter)
-
+app.use('/home', homeRouter);
 
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
@@ -44,11 +47,10 @@ app.get('/', (req, res) => {
 
 app.use(middleware.errorHandler);
 
+app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+});
 
-
-    app.listen(port, () => {
-        console.log(`Server running on http://localhost:${port}`);
-    });
 
 // app.post("upload", multer.upload("single", (req, res) => {
 //     const b64 = Buffer.from(req.file.buffer).toString("base64");

@@ -1,11 +1,21 @@
 const express = require('express');
-const {User, Post, Like} = require('../database/schema/schemaModel');
+const {User, Post, Like, Avatar} = require('../database/schema/schemaModel');
 const bcrypt = require('bcryptjs');
 
 const router = express.Router();
+
 router.get('/', async (req, res) => {
+    console.log("Session Username:", req.session.username); 
     try {
-        const user = await User.findOne({ where: { username: req.session.username } });
+        if (!req.session.username) {
+            return res.status(403).send("You must be logged in to view posts");
+        }
+
+        const user = await User.findOne({
+            where: { username: req.session.username },
+            include: [{ model: Avatar }]
+        });
+
         if (!user) {
             return res.status(404).send("User not found");
         }
@@ -13,13 +23,22 @@ router.get('/', async (req, res) => {
         const posts = await Post.findAll({
             include: [{
                 model: User,
-                as: 'User', 
-                attributes: ['username']
+                as: 'creator', 
+                attributes: ['username'],  
+                include: [{
+                    model: Avatar,
+                    attributes: ['imageUrl']
+                }]
             }]
         });
+        
+        
+
+        const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
 
         res.render('posts/posts', {
             posts: posts,
+            avatarUrl: avatarUrl,
             username: user.username,
         });
     } catch (error) {
@@ -27,6 +46,8 @@ router.get('/', async (req, res) => {
         res.status(500).send("Error fetching posts");
     }
 });
+
+
 
 router.post('/', async (req, res) => {
     
@@ -59,26 +80,32 @@ router.get('/create', (req, res) => {
 });
 
 router.post('/create', async (req, res) => {
-    const user = await User.findOne({ where: { username: req.session.username } });
-    if (!user) {
-        return res.status(404).send("User not found");
+    if (!req.session.username) {
+        return res.status(403).send("You must be logged in to create posts");
     }
-    
-    const { title, description, content, createdBy } = req.body;
-    const newPost = await Post.create({
-        id: Post.length + 1,  
-        createdBy: createdBy,
-        title: title,
-        content: content,
-        description: description,
-        date: new Date().toLocaleDateString("en-US"), 
-        currentLikes: 0, 
-        likedBy: [],
+    try {
+        const user = await User.findOne({ where: { username: req.session.username } });
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
         
-    });
-    console.log(newPost);
-    res.redirect('/posts');  
+        const { title, description, content } = req.body;
+
+        const newPost = await Post.create({
+            title: title,
+            description: description,
+            content: content,
+            createdBy: user.userId,
+        });
+
+        console.log("New Post Created:", newPost);
+        res.redirect('/posts');  
+    } catch (error) {
+        console.error('Failed to create post:', error);
+        res.status(500).send('Error creating post');
+    }
 });
+
 router.post('/like/:postid', async (req, res) => {
     const id = parseInt(req.params.postid, 10); 
     if (isNaN(id) || id < 0) {

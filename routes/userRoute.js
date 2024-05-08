@@ -3,31 +3,36 @@ const {User} = require('../database/schema/schemaModel');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
 
+
 router.get('/login', (req, res) => {
     if (req.session.username) {
         res.redirect('/home/dashboard');  
     } else {
         res.render('auth/login');
     }
-    res.render('auth/login');
 });
 
 router.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await User.findOne({ where: { username } });
-        if (user && bcrypt.compareSync(password, user.password)) {
-            req.session.username = user.username;
-            req.session.userId = user.userId; 
-            res.redirect('/home/dashboard');
-        } else {
-            res.redirect('/auth/login');
+        if (!user) {
+            console.log('No user found with that username');
+            return res.redirect('/auth/login');
         }
+        if (!bcrypt.compareSync(password, user.password)) {
+            console.log('Password does not match');
+            return res.redirect('/auth/login');
+        }
+        req.session.username = user.username;
+        req.session.userId = user.userId;
+        res.redirect('/home/dashboard');
     } catch (error) {
         console.error('Error logging in:', error);
         res.status(500).send('Error logging in');
     }
 });
+
 
 router.get('/register', (req, res) => {
     res.render('auth/register');
