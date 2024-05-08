@@ -44,3 +44,32 @@ async function likePost(postId) {
         alert('Failed to like the post.');
     }
 }
+
+// delete post 
+async function deletePost(postId) {
+    try {
+        console.log('postId:', postId);
+        console.log('Deleting post:', postId);
+        const response = await fetch(`/posts/delete/${postId}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok.');
+        }
+        const data = await response.json();
+        console.log('Post deleted:', data);
+        
+        const postElement = document.getElementById(`post-${postId}`);
+        if (postElement) {
+            postElement.remove(); 
+        }
+        alert(data.message || 'Post successfully deleted');
+    } catch (error) {
+        console.error('Error deleting the post:', error);
+        alert('Failed to delete the post.'); 
+    }
+}
+
+
+//  prevent creating multiple posts
+

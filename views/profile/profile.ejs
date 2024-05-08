@@ -11,8 +11,8 @@
 <body>
     <div class="sidebar">
         <div class="profile-section">
-            <img src="<%= avatar %>" alt="User profile" class="profile-pic">
-            <h2><%= username %></h2>
+            <img src="<%= avatar %>" alt="User profile" id="profileAvatar" class="profile-pic">
+            <h2><%= user.username %></h2>
         </div>
         <div class="menu-icon">
             <a href="#" id="menu-toggle">
@@ -27,15 +27,24 @@
             <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
         </ul>
     </div>
+    <div class="main-content">
+        <p>Welcome to your profile!</p>
+    </div>
+    
     <div class="profile-container">
         <div class="profile-info">
-            <img src="<%= avatar %>" alt="Avatar" class="avatar-large">
+            <img src="<%= avatar %>" alt="User profile" id="profileAvatar" class="profile-pic">
             <div class="user-details">
                 <h1><%= user.username %></h1>
                 <p>Email: <%= user.email %></p>
             </div>
         </div>
     </div>
+    <form action="/profile/upload-avatar" method="post" enctype="multipart/form-data">
+        <input type="file" name="avatar" required>
+        <button type="submit">Upload Avatar</button>
+    </form>
+    
     <script defer src="/app.js"></script>
 </body>
 </html>

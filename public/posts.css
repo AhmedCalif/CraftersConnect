@@ -227,6 +227,12 @@ label {
   margin-right: 10px;
 }
 
+.delete {
+  color: #ff0000;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
 .menu-items li a:hover {
   background-color: #f0f0f0;
 }

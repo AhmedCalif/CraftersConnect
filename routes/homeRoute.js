@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { User, Post, Project, Avatar } = require('../database/schema/schemaModel');
+const { User, Post, Project, Avatar, Step } = require('../database/schema/schemaModel');
 
 router.get('/dashboard', async (req, res) => {
     if (!req.session.username) {
