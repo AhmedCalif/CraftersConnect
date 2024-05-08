@@ -4,6 +4,7 @@ const {Sequelize} = require('sequelize');
 const User = sequelize.define('User', {
     userId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         autoIncrement: true,
         primaryKey: true
     },
@@ -26,10 +27,11 @@ const Post = sequelize.define('Post', {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-            model: 'User', 
-            key: 'id',      
+            model: 'Users', 
+            key: 'userId'   
         }
     },
+    
 });
 
 
@@ -103,7 +105,7 @@ const Avatar = sequelize.define('Avatar', {
     }
 });
 
-User.hasMany(Post, { foreignKey: 'createdBy' });
+User.hasMany(Post, { as: 'Posts', foreignKey: 'createdBy' });
 User.hasMany(Like, { foreignKey: 'userId' });
 
 
@@ -127,15 +129,6 @@ Project.hasMany(Step, { foreignKey: 'projectId' });
 Step.belongsTo(Project, { foreignKey: 'projectId' });
 
 module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar };
-
-sequelize.query("SELECT MAX(userId) AS maxId FROM Users;")
-    .then(result => {
-        const maxId = result[0][0].maxId;
-        const nextId = maxId + 1; 
-        return sequelize.query(`ALTER TABLE Users AUTO_INCREMENT = ${nextId};`);
-    })
-    .then(() => console.log("Auto-increment has been reset to follow the last userId."))
-    .catch(error => console.error("Error resetting auto-increment:", error));
 
 
 sequelize.sync({ force: false }).then(() => {

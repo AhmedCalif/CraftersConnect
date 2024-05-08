@@ -146,5 +146,24 @@ router.post('/like/:postid', async (req, res) => {
     }
 });
 
+router.delete('/delete/:postId', async (req, res) => {
+    try {
+        const postId = req.params.postId;
+        const userId = req.session.userId; 
+        const post = await Post.findByPk(postId);
+        if (!post) {
+            return res.status(404).send({ message: 'Post not found' });
+        }
+        if (post.createdBy !== userId) {
+            return res.status(403).send({ message: 'You cannot delete someone else’s post' });
+        }
+        await post.destroy();
+        res.status(200).json({ message: 'Post successfully deleted' });
+    } catch (error) {
+        console.error('Failed to delete the post:', error);
+        res.status(500).send({ message: 'Failed to delete the post' });
+    }
+});
+
 
 module.exports = router;

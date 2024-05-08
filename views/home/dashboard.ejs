@@ -42,16 +42,16 @@
 
         <div class="new-today">
             <h2>What's New Today</h2>
-            <% posts.forEach(function(post) { %>
+            <% posts.forEach(post => { %>
                 <div class="card">
-                    <img src="<%= post.avatar || 'default-avatar.png' %>" alt="<%= post.createdBy %>">
-                    <div class="card-details">
-                        <h3><%= post.title %></h3>
-                        <p>By <%= post.createdBy %></p>
-                        <p><%= post.description %></p>
-                    </div>
+                  <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'default-avatar.jpg' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
+                  <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
+                  <h2><%= post.title %></h2>
+                  <p><%= post.description %></p>
+                  <div class="action-buttons">
+                  </div>
                 </div>
-                <% }); %>
+              <% }); %>
                 <div class="action-buttons">
                     <a href="/posts"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
                         <button>Community</button>
@@ -59,7 +59,6 @@
                     </div>
             </div>
     </div>
-    <script defer src='/carousel.js'></script>
 </body>
 </html>
 
