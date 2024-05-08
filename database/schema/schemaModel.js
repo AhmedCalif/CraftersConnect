@@ -1,3 +1,4 @@
+
 const sequelize = require('../databaseConnection.js');
 const {Sequelize} = require('sequelize');
 
@@ -108,6 +109,14 @@ const Avatar = sequelize.define('Avatar', {
         defaultValue: Sequelize.NOW
     }
 });
+Avatar.associate = function(models) {
+    Avatar.belongsTo(models.User, {
+        foreignKey: 'userId',
+        as: 'user'
+    });
+    return Avatar;
+};
+
 
 User.hasMany(Post, { as: 'Posts', foreignKey: 'createdBy' });
 User.hasMany(Like, { foreignKey: 'userId' });
@@ -120,8 +129,9 @@ Post.hasMany(Like, { foreignKey: 'postId' });
 User.hasMany(Project, { foreignKey: 'userId' });
 Project.belongsTo(User, { foreignKey: 'userId' });
 
-User.hasOne(Avatar, { foreignKey: 'userId' });
-Avatar.belongsTo(User, { foreignKey: 'userId' });
+User.hasOne(Avatar, {  foreignKey: 'userId' });
+Avatar.belongsTo(User, { as: 'User', foreignKey: 'userId' });
+
 
 Project.hasOne(Image, { foreignKey: 'projectId' });
 Image.belongsTo(Project, { foreignKey: 'projectId' });

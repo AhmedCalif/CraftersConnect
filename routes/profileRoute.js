@@ -1,73 +1,69 @@
 const router = require('express').Router();
-const { User, Post, Avatar } = require('../database/schema/schemaModel');
+const { User, Avatar } = require('../database/schema/schemaModel');
 const { ensureAuthenticated } = require('../middleware/middleware');
 const multer = require('multer');
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("../cloudinaryConfig.js");
 const path = require('path');
-const fs = require('fs/promises');
 
-const uploadDirectory = path.join(__dirname, '../public/uploads'); 
+function uploadMiddleware(folderName) {
+    const storage = new CloudinaryStorage({
+      cloudinary: cloudinary,
+      params: (req, file) => {
+        const folderPath = `${folderName.trim()}`; 
+        const fileExtension = path.extname(file.originalname).substring(1);
+        const publicId = `${file.fieldname}-${Date.now()}`;
+        
+        return {
+          folder: folderPath,
+          public_id: publicId,
+          format: fileExtension,
+        };
+      },
+    });
+  
+    return multer({
+      storage: storage,
+      limits: {
+        fileSize: 5 * 1024 * 1024, 
+      },
+    });
+  }
 
-
-fs.mkdir(uploadDirectory, { recursive: true })
-    .then(() => console.log('Upload directory created'))
-    .catch(err => console.error('Failed to create upload directory:', err));
-
-
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, uploadDirectory);
-    },
-    filename: function(req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({ storage: storage });
+const uploadFile = uploadMiddleware("/uploads");
 
 router.get('/', ensureAuthenticated, async (req, res) => {
     try {
         const user = await User.findOne({
-            where: { username: req.session.username }, 
+            where: { username: req.session.username },
             include: [{ model: Avatar }]
         });
-
-        const posts = await Post.findAll({
-            include: [{
-                model: User,
-                as: 'creator',
-                attributes: ['username']
-            }]
-        });
-
         const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
-        res.render('profile/profile', { user: user, avatar: avatarUrl, post: posts });
+        res.render('profile/profile', { user: user, avatar: avatarUrl });
     } catch (error) {
         console.error('Error fetching user data:', error);
         res.status(500).send('Internal Server Error');
     }
 });
 
-
-router.post('/upload-avatar', ensureAuthenticated, upload.single('avatar'), async (req, res) => {
+router.post('/upload-avatar', ensureAuthenticated, uploadFile.single('avatar'), async (req, res) => {
     if (!req.file) {
+        console.log("No file uploaded.");
         return res.status(400).json({ error: 'No file uploaded.' });
     }
-
-    const userId = req.session.userId;
-    const user = await User.findByPk(userId);
-    if (!user) {
-        return res.status(404).json({ error: 'User not found.' });
-    }
-
-    const avatarUrl = '/' + path.relative(path.join(__dirname, '../public'), req.file.path);
     try {
+        const userId = req.session.userId;
+        const user = await User.findByPk(userId);
+        if (!user) {
+            console.log("User not found.");
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        const avatarUrl = req.file.path; // Make sure this path is correctly assigned
         await Avatar.upsert({
             userId: userId,
             imageUrl: avatarUrl,
             uploadDate: new Date()
         });
-
         res.json({ imageUrl: avatarUrl });
     } catch (error) {
         console.error('Failed to upload avatar:', error);

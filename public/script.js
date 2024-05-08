@@ -73,5 +73,3 @@ async function deletePost(postId) {
 }
 
 
-//  prevent creating multiple posts
-
