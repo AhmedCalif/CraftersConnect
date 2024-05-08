@@ -42,7 +42,7 @@
               <h2><%= post.title %></h2>
               <p><%= post.description %></p>
               <div class="action-buttons">
-                  <button onclick="likePost('<%= post.postId %>')">Like</button>
+                <button onclick="likePost('<%= post.postId %>')">Like</button>
                   <span>Likes: <span id="likes-count-<%= post.postId %>"><%= post.currentLikes %></span></span>
                   <div class='delete'>
                     <i class="fas fa-trash"></i>

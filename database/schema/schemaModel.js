@@ -22,6 +22,10 @@ const Post = sequelize.define('Post', {
     },
     description: Sequelize.TEXT,
     title: Sequelize.STRING,
+    currentLikes: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0  
+    },
     createdAt: Sequelize.DATE,
     createdBy: {
         type: Sequelize.INTEGER,
