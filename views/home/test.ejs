@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="/homepage.css">
+</head>
+<body>
+    <h2>Welcome <% user.username %></h2>
+    <a href="/auth/logout">
+        <button>Logout</button>
+    </a>
+    <div>
+        <p>Looking For Something? </p>
+        <input type="text" placeholder="Search">
+        <button class="button">Search</button>
+    </div>
+    <h2>Recently Viewed Projects</h2>
+    <% projects.forEach(function(project) { %>
+        <div>
+            <img src="<%= project.imageUrl %>" alt="Project Image">
+            <h3><%= project.title %></h3>
+            <p>Description: <%= project.description %></p>
+            <p>Date: <%= project.date %></p>
+            <a href="/projects/<%= project.id %>">View More</a>
+        </div>
+    <% }); %>
+    <a href="/projects"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
+        <button>Projects</button>
+    </a>
+    <h2>What's New Today</h2>
+    <div class="new-today">
+        <% posts.forEach(post => { %>
+            <div>
+              <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'default-avatar.jpg' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
+              <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
+              <h2><%= post.title %></h2>
+              <p><%= post.description %></p>
+            </div>
+          <% }); %>
+        <a href="/posts"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
+            <button>Community</button>
+        </a>
+    </div>
+</body>
+</html>
