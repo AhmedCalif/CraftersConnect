@@ -58,7 +58,7 @@ router.post('/upload-avatar', ensureAuthenticated, uploadFile.single('avatar'), 
             console.log("User not found.");
             return res.status(404).json({ error: 'User not found.' });
         }
-        const avatarUrl = req.file.path; // Make sure this path is correctly assigned
+        const avatarUrl = req.file.path; 
         await Avatar.upsert({
             userId: userId,
             imageUrl: avatarUrl,

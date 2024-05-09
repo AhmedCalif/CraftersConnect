@@ -118,6 +118,35 @@ body, html {
     text-align: center; 
 }
 
+ button {
+    height: 45pt;
+    width: 141.75pt;
+    background-color: #0CB0EA;
+    color: #000;
+    font-weight: bold;
+    padding: 12.75pt 33.75pt;
+    font-family: 'Mada', sans-serif;
+    font-size: 13pt;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px #999;
+    transition: all 0.3s ease;
+    align-items: center;
+  }
+  
+    button:hover {
+    background-color: #0A97D9;
+    box-shadow: 0 6px #666;
+    transform: translateY(-2px);
+  }
+  
+    button:active {
+    background-color: #0884C6;
+    box-shadow: 0 2px #333;
+    transform: translateY(1px);
+  }
+
 @media (max-width: 768px) {
     .sidebar {
         width: 100%;

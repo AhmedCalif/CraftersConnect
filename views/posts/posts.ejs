@@ -35,9 +35,10 @@
         </div>
     </div>
     <div class="container">
-        <% posts.forEach(post => { %>
-            <div class="card">
-              <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'default-avatar.jpg' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
+      <% posts.forEach(post => { %>
+        <div class="card">
+          <i onclick="deletePost('<%= post.postId %>')"class="fa fa-trash trash-icon"></i>
+          <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'default-avatar.jpg' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
               <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
               <h2><%= post.title %></h2>
               <p><%= post.description %></p>
@@ -45,8 +46,6 @@
                 <button onclick="likePost('<%= post.postId %>')">Like</button>
                   <span>Likes: <span id="likes-count-<%= post.postId %>"><%= post.currentLikes %></span></span>
                   <div class='delete'>
-                    <i class="fas fa-trash"></i>
-                    <button onclick="deletePost('<%= post.postId %>')">Delete</button>
                   </div>
               </div>
             </div>
