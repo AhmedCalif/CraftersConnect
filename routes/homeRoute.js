@@ -13,19 +13,24 @@ router.get('/dashboard', async (req, res) => {
     const posts = await Post.findAll({
         include: [{
             model: User,
-            as: 'creator',  
+            as: 'creator',
+            attributes: ['username'],
             include: [{
                 model: Avatar,
                 attributes: ['imageUrl']
             }]
         }]
     });
-
-    const postsWithAvatars = posts.map(post => ({
-        ...post.toJSON(),
-        avatar: post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'default-avatar.jpg'
-    }));
     
+    const uniquePosts = [];
+    const postIds = new Set();
+    posts.forEach(post => {
+if (!postIds.has(post.postId)) {
+    uniquePosts.push(post);
+    postIds.add(post.postId);
+}
+});
+const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
 
 
     const userProjects = await Project.findAll({
@@ -34,8 +39,9 @@ router.get('/dashboard', async (req, res) => {
 
     res.render('home/dashboard', {
         user: user,
-        posts: postsWithAvatars,
-        projects: userProjects
+        posts: uniquePosts,
+        projects: userProjects,
+        avatarUrl: avatarUrl,
     });
 });
 
