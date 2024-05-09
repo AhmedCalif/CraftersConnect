@@ -68,7 +68,7 @@ async function deletePost(postId) {
         alert(data.message || 'Post successfully deleted');
     } catch (error) {
         console.error('Error deleting the post:', error);
-        alert('Failed to delete the post.'); 
+        alert('cannot delete another users post'); 
     }
 }
 
