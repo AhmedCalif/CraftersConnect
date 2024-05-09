@@ -81,3 +81,4 @@ module.exports = { User, Post, Project, Image, Collaborator, Step };
 sequelize.sync({ force: false }).then(() => {
     console.log("Tables have been created");
 }).catch(error => console.error('Unable to create tables', error));
+  

@@ -43,19 +43,25 @@
         </form>
     </div>
 </div>
-
 <script>
-    var deleteButtons = document.getElementsByClassName("deleteStepBtn");
-for (var i = 1; i < deleteButtons.length; i++) {
-    deleteButtons[i].addEventListener("click", function() {
-        var stepsContainer = document.getElementById("stepsContainer");
-        stepsContainer.removeChild(this.parentNode);
-    });
-}
+    // Function to find the maximum existing step ID
+    function getMaxExistingStepId() {
+        var maxId = 0;
+        var existingIds = document.querySelectorAll("input[type='hidden'][name^='steps'][name$='[id]']");
+        existingIds.forEach(function(idInput) {
+            var idValue = parseInt(idInput.value, 10);
+            if (idValue > maxId) {
+                maxId = idValue;
+            }
+        });
+        return maxId;
+    }
 
     document.getElementById("addStepBtn").addEventListener("click", function () {
         var stepsContainer = document.getElementById("stepsContainer");
         var stepCount = stepsContainer.children.length;
+        var maxStepId = getMaxExistingStepId(); // Get the maximum existing step ID
+        var newStepId = maxStepId + 1; // Increment for the new step
 
         var newStepDiv = document.createElement("div");
 
@@ -65,7 +71,7 @@ for (var i = 1; i < deleteButtons.length; i++) {
         var newIdInput = document.createElement("input");
         newIdInput.type = "hidden";
         newIdInput.name = "steps[" + stepCount + "][id]";
-        newIdInput.value = ""; // Set this as an empty value, backend can assign a new ID
+        newIdInput.value = newStepId; // Set the new ID
 
         var newDescInput = document.createElement("input");
         newDescInput.type = "text";
@@ -86,6 +92,8 @@ for (var i = 1; i < deleteButtons.length; i++) {
         newStepDiv.appendChild(newDescInput);
         newStepDiv.appendChild(newDeleteBtn);
         stepsContainer.appendChild(newStepDiv);
+
+        updateStepNumbers();
     });
 
     function updateStepNumbers() {
@@ -98,9 +106,20 @@ for (var i = 1; i < deleteButtons.length; i++) {
         }
     }
 
+    var deleteButtons = document.getElementsByClassName("deleteStepBtn");
+    for (var i = 1; i < deleteButtons.length; i++) {
+        deleteButtons[i].addEventListener("click", function() {
+            var stepsContainer = document.getElementById("stepsContainer");
+            stepsContainer.removeChild(this.parentNode);
+            updateStepNumbers();
+        });
+    }
+
     document.querySelector("form").addEventListener("submit", function (event) {
         // Allow the form to submit normally.
     });
 </script>
+
+
 </body>
 </html>
