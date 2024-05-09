@@ -1,6 +1,6 @@
 const express = require('express');
 const session = require('express-session');
-
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const middleware = require('./middleware/middleware');
 const userRouter = require('./routes/userRoute');

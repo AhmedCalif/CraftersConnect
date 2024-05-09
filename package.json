@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "db:generate": "drizzle-kit generate:mysql",
-    "push": "drizzle-kit push:mysql"
+    "start": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
