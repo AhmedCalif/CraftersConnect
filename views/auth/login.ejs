@@ -10,12 +10,9 @@
 <body>
     <div class="container">
         <div class="login-container">
-            <div></div> 
-            
             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/39f8664a4cb8e1d79c375d70d49357c512a0be146f87e9f33d98852407c52c3b?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="logo" class="logo"/>
-            
             <h2 class="title">Login page</h2>
-            <form action="/auth/login" method="POST" class="login-form">
+            <form action="/auth/login" method="POST" class="login-form" onsubmit="return validateUser()">
                 <div class="form-group">
                     <label for="username" class="form-label">Username:</label>
                     <input type="text" name="username" id="username" class="text-input" required>
@@ -29,5 +26,52 @@
             <a href="/auth/register" class="register-link">Don't Have an Account? Create An Account Here!</a>
         </div>
     </div>
+    <script>
+   async function validateUser(event) {
+    event.preventDefault(); 
+    let username = document.getElementById("username").value;
+    let password = document.getElementById("password").value;
+
+    if (username === "" || password === "") {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please fill in all fields!',
+        });
+        return false;
+    }
+
+    try {
+        const response = await fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json(); 
+
+        if (response.ok) {
+            console.log(data.message); 
+            window.location.href = '/home/dashboard'; 
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                text: data.message, 
+            });
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Network Error',
+            text: 'Please check your network connection and try again.',
+        });
+    }
+    return false; 
+   }
+    </script>
 </body>
 </html>
