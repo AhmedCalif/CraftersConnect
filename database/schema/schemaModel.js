@@ -109,13 +109,7 @@ const Avatar = sequelize.define('Avatar', {
         defaultValue: Sequelize.NOW
     }
 });
-Avatar.associate = function(models) {
-    Avatar.belongsTo(models.User, {
-        foreignKey: 'userId',
-        as: 'user'
-    });
-    return Avatar;
-};
+
 
 
 User.hasMany(Post, { as: 'Posts', foreignKey: 'createdBy' });

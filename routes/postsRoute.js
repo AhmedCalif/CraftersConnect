@@ -33,13 +33,23 @@ router.get('/', async (req, res) => {
             }]
         });
         
+        
         const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
+        const uniquePosts = [];
+        const postIds = new Set();
+        posts.forEach(post => {
+    if (!postIds.has(post.postId)) {
+        uniquePosts.push(post);
+        postIds.add(post.postId);
+    }
+});
+res.render('posts/posts', {
+    posts: uniquePosts,
+    avatarUrl: avatarUrl,
+    username: user.username,
+});
 
-        res.render('posts/posts', {
-            posts: posts,
-            avatarUrl: avatarUrl,
-            username: user.username,
-        });
+        
     } catch (error) {
         console.error('Failed to fetch posts:', error);
         res.status(500).send("Error fetching posts");
@@ -97,12 +107,11 @@ router.post('/create', async (req, res) => {
         }
         
         const { title, description, content } = req.body;
-
         const newPost = await Post.create({
             title: title,
             description: description,
             content: content,
-            createdBy: user.userId,
+            createdBy: user.userId
         });
 
         req.session.lastPostTime = new Date(); 
@@ -113,7 +122,6 @@ router.post('/create', async (req, res) => {
         res.status(500).send('Error creating post');
     }
 });
-
 
 
 
