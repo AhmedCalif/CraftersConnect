@@ -18,6 +18,14 @@ body {
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
+    .img {
+        aspect-ratio: 10;
+        object-fit: auto;
+        object-position: center;
+        width: 100%;
+        max-width: 800px;
+      }
+
 input[type="text"], textarea {
     width: 90%;
     padding: 12px 20px;
