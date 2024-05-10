@@ -56,15 +56,17 @@
         <ul>
           <% projects.forEach(project => { %>
           <div class="card">
-            <li>
+
+              <img src="<%= project.creator && project.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
               <h2><%= project.title %></h2>
+              <p><strong>By:</strong> <%= project.User.username %></p>
               <p><%= project.description %></p>
               <p>
                 <strong>Date:</strong> <%= new Date(project.date).toDateString()
                 %>
               </p>
               <a href="/projects/<%= project.projectId %>">View More</a>
-            </li>
+
           </div>
           <% }); %>
         </ul>

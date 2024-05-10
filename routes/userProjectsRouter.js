@@ -15,13 +15,27 @@ router.get("/", async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    const projects = await Project.findAll({ 
+    const createdProjects = await Project.findAll({ 
       where: { userId: user.userId }, 
       include: [
         { model: Step, as: 'Steps' },
         { model: User, include: Avatar }  // Include the User model
       ] 
     });
+
+    const collaboratedProjects = await Project.findAll({
+      include: [
+        {
+          model: User,
+          as: 'Collaborators',
+          where: {userId: user.userId }
+        },
+        {model: Step, as: 'Steps' },
+        {model: User, include: Avatar }
+      ]
+    });
+
+    const projects = [...createdProjects, ...collaboratedProjects];
 
     res.render('userProjects/list', { projects, user, avatar: user.Avatar });
   } catch (err) {
