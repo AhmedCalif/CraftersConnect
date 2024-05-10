@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Configure Cloudinary
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
@@ -30,7 +30,7 @@ router.get("/", async (req, res) => {
     
     console.log("Session Username:", req.session.username);  
     const user = await User.findOne({ where: { username: req.session.username }, include: Avatar });
-    const avatar = user.avatar;
+    const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
     console.log("Found User:", user); 
     if (!user) {
         return res.status(404).send("User not found");  
@@ -53,7 +53,7 @@ router.get("/", async (req, res) => {
       ]
     });
 
-    res.render('projects/list', { projects, username: req.session.username, avatar: avatar });  
+    res.render('projects/list', { projects, username: req.session.username, avatar: avatarUrl });  
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error while fetching projects list.");

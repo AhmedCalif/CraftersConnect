@@ -21,10 +21,9 @@
             <button class="button">Search</button>
         </div>
         <div class="recent-projects">
-            <h2>Recently Viewed Projects</h2>
+            <h2>My Projects</h2>
             <% projects.forEach(function(project) { %>
                 <div class="card">
-                    <img src="<%= project.imageUrl %>" alt="Project Image">
                     <div class="card-details">
                         <h3><%= project.title %></h3>
                         <p>Description: <%= project.description %></p>
@@ -34,8 +33,8 @@
                 </div>
             <% }); %>
             <div class="action-buttons">
-                <a href="/projects"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
-                    <button>Projects</button>
+                <a href="/my-projects"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
+                    <button>My Projects</button>
                 </a>
                 </div>
         </div>

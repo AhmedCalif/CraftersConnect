@@ -118,33 +118,37 @@ input[type="text"], textarea {
 }
 
 .action-buttons button {
-    height: 45pt;
-    width: 141.75pt;
+    height: 30pt;
+    width: 120pt;
     background-color: #0CB0EA;
     color: #000;
     font-weight: bold;
-    padding: 12.75pt 33.75pt;
+    padding: 4pt 0; 
     font-family: 'Mada', sans-serif;
-    font-size: 15pt;
+    font-size: 13pt; 
     border: none;
     border-radius: 20px;
     cursor: pointer;
     box-shadow: 0 4px #999;
     transition: all 0.3s ease;
-}
-
-.action-buttons button:hover {
+    
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+  }
+  
+  .action-buttons button:hover {
     background-color: #0A97D9;
     box-shadow: 0 6px #666;
     transform: translateY(-2px);
-}
-
-.action-buttons button:active {
+  }
+  
+  .action-buttons button:active {
     background-color: #0884C6;
     box-shadow: 0 2px #333;
     transform: translateY(1px);
-}
-
+  }
+  
 @media (max-width: 768px) {
     .search-bar, .category-filter, .recent-projects .card, .new-today .card {
         flex-direction: column;

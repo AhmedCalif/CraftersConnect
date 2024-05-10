@@ -66,7 +66,7 @@ router.post('/upload-avatar', ensureAuthenticated, uploadFile.single('avatar'), 
         });
         res.json({ imageUrl: avatarUrl });
     } catch (error) {
-        console.error('Failed to upload avatar:', error);
+      console.error('Failed to upload avatar:', error.stack);
         res.status(500).json({ error: 'Failed to upload avatar.' });
     }
 });
