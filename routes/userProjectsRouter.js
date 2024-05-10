@@ -14,8 +14,8 @@ router.get("/", async (req, res) => {
     if (!user) {
       return res.status(404).send("User not found");
     }
-    const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
-    const projects = await Project.findAll({ 
+
+    const createdProjects = await Project.findAll({ 
       where: { userId: user.userId }, 
       include: [
         { model: Step, as: 'Steps' },
@@ -23,7 +23,21 @@ router.get("/", async (req, res) => {
       ] 
     });
 
-    res.render('userProjects/list', { projects, user, avatar: avatarUrl });
+    const collaboratedProjects = await Project.findAll({
+      include: [
+        {
+          model: User,
+          as: 'Collaborators',
+          where: {userId: user.userId }
+        },
+        {model: Step, as: 'Steps' },
+        {model: User, include: Avatar }
+      ]
+    });
+
+    const projects = [...createdProjects, ...collaboratedProjects];
+
+    res.render('userProjects/list', { projects, user, avatar: user.Avatar });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error while fetching user's projects");
