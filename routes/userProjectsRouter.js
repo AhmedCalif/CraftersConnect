@@ -22,7 +22,6 @@ router.get("/", async (req, res) => {
         { model: User, include: Avatar }  // Include the User model
       ] 
     });
-
     const collaboratedProjects = await Project.findAll({
       include: [
         {
