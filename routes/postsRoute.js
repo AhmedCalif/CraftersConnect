@@ -90,38 +90,42 @@ router.get('/create', (req, res) => {
     res.render('posts/create', {
         username: req.session.username,
     });
-});
-
-router.post('/create', async (req, res) => {
-    if (!req.session.username) {
-        return res.status(403).send("You must be logged in to create posts");
-    }
-    if (req.session.lastPostTime && new Date() - new Date(req.session.lastPostTime) < 30000) { 
-        return res.status(429).send("Please wait a bit before creating another post.");
-    }
-
-    try {
-        const user = await User.findOne({ where: { username: req.session.username } });
-        if (!user) {
-            return res.status(404).send("User not found");
+    
+    router.post('/create', async (req, res) => {
+        if (!req.session.username) {
+            return res.status(403).send("You must be logged in to create posts");
+        }
+        if (req.session.lastPostTime && new Date() - new Date(req.session.lastPostTime) < 30000) { 
+            return res.status(429).send("Please wait a bit before creating another post.");
         }
         
         const { title, description, content } = req.body;
-        const newPost = await Post.create({
-            title: title,
-            description: description,
-            content: content,
-            createdBy: user.userId
-        });
-
-        req.session.lastPostTime = new Date(); 
-        console.log("New Post Created:", newPost);
-        res.redirect('/posts');  
-    } catch (error) {
-        console.error('Failed to create post:', error);
-        res.status(500).send('Error creating post');
-    }
-});
+        if (title.length > 100 || description.length > 100) {
+            return res.status(400).send("Title and description must be less than 100 characters");
+        }
+        
+        try {
+            const user = await User.findOne({ where: { username: req.session.username } });
+            if (!user) {
+                return res.status(404).send("User not found");
+            }
+            
+            const newPost = await Post.create({
+                title: title,
+                description: description,
+                content: content,
+                createdBy: user.userId
+            });
+            
+            req.session.lastPostTime = new Date(); 
+            console.log("New Post Created:", newPost);
+            res.redirect('/posts');  
+        } catch (error) {
+            console.error('Failed to create post:', error);
+            res.status(500).send('Error creating post');
+        }
+    });
+});    
 
 
 
