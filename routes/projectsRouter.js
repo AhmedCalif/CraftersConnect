@@ -137,7 +137,12 @@ router.get("/:id", async (req, res) => {
       include: [
         { model: Step, as: 'Steps' },
         { model: Image },
-        { model: User, include: Avatar }
+        { model: User, include: Avatar },
+        {
+          model: User,
+          as: 'Collaborators',
+          through: { attributes: [] } // This avoids including the join table attributes
+      }
       ]
     });
     if (project) {
