@@ -229,3 +229,19 @@ input[type="text"], textarea {
   margin-right: 20px;
 }
 
+#stepsContainer > div {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+#stepsContainer label {
+  margin-right: 10px;
+}
+
+#stepsContainer input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}

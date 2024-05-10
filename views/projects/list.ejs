@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List of Projects</title>
-    <link rel="stylesheet" href="/projects.css"
+    <title>Projects</title>
+    <link rel="stylesheet" href="/projects.css">
 </head>
 <body>
     <div class="sidebar">
@@ -15,12 +15,12 @@
         <ul class="menu-items">
             <li><a href="/home/dashboard"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
-            <li><a href="/projects"><i class="fa fa-briefcase"></i> Projects</a></li>
+            <li><a href="/my-projects"><i class="fa fa-briefcase"></i> Projects</a></li>
             <li><a href="/posts"><i class="fa fa-newspaper"></i>Posts</a></li>
             <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
         </ul>
     </div>
-    <div class="header">
+    <div class="header"> 
         <div class="menu-icon">
             <a href="#" id="menu-toggle">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Hamburger_icon.svg/1200px-Hamburger_icon.svg.png" alt="Menu icon">
@@ -28,29 +28,64 @@
         </div>
         
         <div class="action-buttons">
-        <a href="/projects/create"  class="add-projects-button" onclick="document.getElementById('addProjectForm').style.display='block'">
-            <button>Add Project</button>
-        </a>
+            <a href="/projects/create" class="add-projects-button" onclick="document.getElementById('addProjectForm').style.display='block'">
+                <button>Add Project</button>
+            </a>
         </div>
     </div>
     <div class="container">
-        <h1>List of Projects</h1>
-        <ul>
-            <% projects.forEach(project => { %>
-                <div class="card">
-                    <li>
-                        <h2><%= project.title %></h2>
-                        <p><strong>Description:</strong> <%= project.description %></p>
-                        <p><strong>Date:</strong> <%= project.date %></p>
-                    </li>
-                    <a href="/projects/<%= project.id %>"> View More</a>
-                </div>
-                <% }); %>
+        <h1>Projects From All Users</h1>
+        <% projects.forEach(project => { %>
+            <div class="card">
+                <img src="<%= project.User.Avatar ? project.User.Avatar.imageUrl : 'default-avatar.png' %>" alt="<%= project.User.username %>" class="profile-pic">
+                <h2><%= project.title %></h2>
+                <% if (project.User) { %>
+                    <p><strong>Created by:</strong> <%= project.User.username %></p> 
+                <% } else { %>
+                    <p><strong>Created by:</strong> Unknown</p> 
+                <% } %>
+                <p><strong>Description:</strong> <%= project.description %></p>
+                <p><strong>Date:</strong> <%= project.date.toDateString() %></p>
+                
+                <!-- Check if the project has collaborators -->
+                <% if (project.Collaborators && project.Collaborators.length > 0) { %>
+                    <p><strong>Collaborators:</strong> 
+                        <% project.Collaborators.forEach(collaborator => { %>
+                            <%= collaborator.username %>,
+                        <% }); %>
+                    </p>
+                <% } else { %>
+                    <p>No collaborators found.</p>
+                <% } %>
 
-        </ul>
+                <!-- Logic for displaying the appropriate button -->
+                <% 
+                const isCreator = project.User && project.User.username === username;
+                const isCollaborator = project.Collaborators && project.Collaborators.some(collaborator => collaborator.username === username);
+                %>
+
+                <% if (!isCreator) { %>
+                    <% if (isCollaborator) { %>
+
+                        <form action="/projects/<%= project.projectId %>/leave" method="POST">
+                          <div class="action-buttons">
+                            <button type="submit">Leave</button>
+                          </div>  
+                        </form>
+                    <% } else { %>
+                        <form action="/projects/<%= project.projectId %>/join" method="POST">
+                          <div class="action-buttons">
+                            <button type="submit">Join</button>
+                          </div>  
+                        </form>
+                    <% } %>
+                <% } %>
+<br>
+                <a href="/projects/<%= project.projectId %>">View More</a>
+            </div>
+        <% }); %>
     </div>
     
-    <script defer src="/script.js"></script>
+    <script defer src="/script.js"></script>  
 </body>
 </html>
-

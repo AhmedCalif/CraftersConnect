@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Projects</title>
+    <link rel="stylesheet" href="/projects.css" />
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="profile-section">
+        <img src="<%= avatar %>" alt="User profile" class="profile-pic" />
+        <h2><%= username %></h2>
+      </div>
+      <ul class="menu-items">
+        <li>
+          <a href="/home/dashboard"><i class="fas fa-home"></i> Home</a>
+        </li>
+        <li>
+          <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+        </li>
+        <li>
+          <a href="/my-projects"><i class="fa fa-briefcase"></i> Projects</a>
+        </li>
+        <li>
+          <a href="/posts"><i class="fa fa-newspaper"></i>Posts</a>
+        </li>
+        <li>
+          <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a>
+        </li>
+      </ul>
+    </div>
+    <div class="header">
+      <div class="menu-icon">
+        <a href="#" id="menu-toggle">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Hamburger_icon.svg/1200px-Hamburger_icon.svg.png"
+            alt="Menu icon"
+          />
+        </a>
+      </div>
+
+      <div class="action-buttons">
+        <a
+          href="/projects/create"
+          class="add-projects-button"
+          onclick="document.getElementById('addProjectForm').style.display='block'"
+        >
+          <button>Add Project</button>
+        </a>
+      </div>
+    </div>
+    <div class="container">
+      <h1><%= user.username %>'s Projects</h1>
+
+        <ul>
+          <% projects.forEach(project => { %>
+          <div class="card">
+            <li>
+              <h2><%= project.title %></h2>
+              <p><%= project.description %></p>
+              <p>
+                <strong>Date:</strong> <%= new Date(project.date).toDateString()
+                %>
+              </p>
+              <a href="/projects/<%= project.projectId %>">View More</a>
+            </li>
+          </div>
+          <% }); %>
+        </ul>
+
+    </div>
+    <script defer src="/script.js"></script>  
+  </body>
+</html>

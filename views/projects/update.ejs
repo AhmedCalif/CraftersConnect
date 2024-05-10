@@ -1,45 +1,133 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Project</title>
-    <link rel="stylesheet" href="/projects.css"
-
+    <link rel="stylesheet" href="/projects.css">
 </head>
+<body>
 <div class="container">
     <div class="card">
         <h1>Update Project</h1>
-        <form action="/projects/<%= project.id %>/update" method="post">
+        <form action="/projects/<%= project.projectId %>/update" method="post">
             <label for="title">Project Title:</label>
             <input type="text" id="title" name="title" value="<%= project.title %>" required>
+            <input type="hidden" name="username" value="<%= username %>" />
             
             <label for="description">Description:</label>
             <input type="text" id="description" name="description" value="<%= project.description %>" required>
             
-            <br>
-
             <label for="date">Date:</label>
-            <br>
-
             <input type="text" id="date" name="date" value="<%= project.date %>" required>
-            <br>
+            
             <label for="steps">Steps:</label>
-
-            <br>
-            <% project.steps.forEach((step, index) => { %>
-                <input type="text" id="step<%= index + 1 %>" name="steps[<%= index%>]" value="<%= step.description %>">
-            <% }); %>
+            <div id="stepsContainer">
+                <% if (project.Steps && project.Steps.length > 0) { %>
+                    <% project.Steps.forEach((step, index) => { %>
+                        <div>
+                            <input type="hidden" name="steps[<%= index %>][id]" value="<%= step.stepId %>">
+                            <label for="step<%= index %>">Step <%= index + 1 %>:</label>
+                            <input type="text" name="steps[<%= index %>][description]" value="<%= step.description %>">
+                            <button type="button" class="deleteStepBtn">Delete</button>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div>
+                        <label for="step0">Step 1:</label>
+                        <input type="text" name="steps[0][description]" required>
+                        <button type="button" class="deleteStepBtn">Delete</button>
+                    </div>
+                <% } %>
+            </div>
             
             <div class="action-buttons">
+                <button type="button" id="addStepBtn">Add Step</button>
                 <button type="submit">Update Project</button>
                 <a href="/projects">
                     <button type="button">Go Back</button>
                 </a>
-
             </div>
         </form>
     </div>
 </div>
+<script>
+    // Function to find the maximum existing step ID
+    function getMaxExistingStepId() {
+        var maxId = 0;
+        var existingIds = document.querySelectorAll("input[type='hidden'][name^='steps'][name$='[id]']");
+        existingIds.forEach(function(idInput) {
+            var idValue = parseInt(idInput.value, 10);
+            if (idValue > maxId) {
+                maxId = idValue;
+            }
+        });
+        return maxId;
+    }
+
+    document.getElementById("addStepBtn").addEventListener("click", function () {
+        var stepsContainer = document.getElementById("stepsContainer");
+        var stepCount = stepsContainer.children.length;
+        var maxStepId = getMaxExistingStepId(); // Get the maximum existing step ID
+        var newStepId = maxStepId + 1; // Increment for the new step
+
+        var newStepDiv = document.createElement("div");
+
+        var newLabel = document.createElement("label");
+        newLabel.textContent = "Step " + (stepCount + 1) + ":";
+
+        var newIdInput = document.createElement("input");
+        newIdInput.type = "hidden";
+        newIdInput.name = "steps[" + stepCount + "][id]";
+        newIdInput.value = newStepId; // Set the new ID
+
+        var newDescInput = document.createElement("input");
+        newDescInput.type = "text";
+        newDescInput.name = "steps[" + stepCount + "][description]";
+        newDescInput.required = true;
+
+        var newDeleteBtn = document.createElement("button");
+        newDeleteBtn.type = "button";
+        newDeleteBtn.className = "deleteStepBtn";
+        newDeleteBtn.textContent = "Delete";
+        newDeleteBtn.addEventListener("click", function () {
+            stepsContainer.removeChild(newStepDiv);
+            updateStepNumbers();
+        });
+
+        newStepDiv.appendChild(newLabel);
+        newStepDiv.appendChild(newIdInput);
+        newStepDiv.appendChild(newDescInput);
+        newStepDiv.appendChild(newDeleteBtn);
+        stepsContainer.appendChild(newStepDiv);
+
+        updateStepNumbers();
+    });
+
+    function updateStepNumbers() {
+        var stepsContainer = document.getElementById("stepsContainer");
+        for (var i = 0; i < stepsContainer.children.length; i++) {
+            var stepDiv = stepsContainer.children[i];
+            stepDiv.querySelector("label").textContent = "Step " + (i + 1) + ":";
+            stepDiv.querySelector("input[type='hidden']").name = "steps[" + i + "][id]";
+            stepDiv.querySelector("input[type='text']").name = "steps[" + i + "][description]";
+        }
+    }
+
+    var deleteButtons = document.getElementsByClassName("deleteStepBtn");
+    for (var i = 1; i < deleteButtons.length; i++) {
+        deleteButtons[i].addEventListener("click", function() {
+            var stepsContainer = document.getElementById("stepsContainer");
+            stepsContainer.removeChild(this.parentNode);
+            updateStepNumbers();
+        });
+    }
+
+    document.querySelector("form").addEventListener("submit", function (event) {
+        // Allow the form to submit normally.
+    });
+</script>
+
 </body>
 </html>
