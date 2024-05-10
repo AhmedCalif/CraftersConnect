@@ -24,22 +24,14 @@
             
             <label for="steps">Steps:</label>
             <div id="stepsContainer">
-                <% if (project.Steps && project.Steps.length > 0) { %>
-                    <% project.Steps.forEach((step, index) => { %>
-                        <div>
-                            <input type="hidden" name="steps[<%= index %>][id]" value="<%= step.stepId %>">
-                            <label for="step<%= index %>">Step <%= index + 1 %>:</label>
-                            <input type="text" name="steps[<%= index %>][description]" value="<%= step.description %>">
-                            <button type="button" class="deleteStepBtn">Delete</button>
-                        </div>
-                    <% }); %>
-                <% } else { %>
+                <% project.steps.forEach((step, index) => { %>
                     <div>
-                        <label for="step0">Step 1:</label>
-                        <input type="text" name="steps[0][description]" required>
+                        <input type="hidden" name="steps[<%= index %>][id]" value="<%= step.id %>">
+                        <label for="step<%= index %>">Step <%= index + 1 %>:</label>
+                        <input type="text" name="steps[<%= index %>][description]" value="<%= step.description %>">
                         <button type="button" class="deleteStepBtn">Delete</button>
                     </div>
-                <% } %>
+                <% }); %>
             </div>
             
             <div class="action-buttons">
@@ -52,25 +44,10 @@
         </form>
     </div>
 </div>
-<script>
-    // Function to find the maximum existing step ID
-    function getMaxExistingStepId() {
-        var maxId = 0;
-        var existingIds = document.querySelectorAll("input[type='hidden'][name^='steps'][name$='[id]']");
-        existingIds.forEach(function(idInput) {
-            var idValue = parseInt(idInput.value, 10);
-            if (idValue > maxId) {
-                maxId = idValue;
-            }
-        });
-        return maxId;
-    }
 
-    document.getElementById("addStepBtn").addEventListener("click", function () {
-        var stepsContainer = document.getElementById("stepsContainer");
-        var stepCount = stepsContainer.children.length;
-        var maxStepId = getMaxExistingStepId(); // Get the maximum existing step ID
-        var newStepId = maxStepId + 1; // Increment for the new step
+<script>
+    var deleteButtons = document.getElementsByClassName("deleteStepBtn");
+for (var i = 1; i < deleteButtons.length; i++) {
 
         var newStepDiv = document.createElement("div");
 
@@ -81,6 +58,7 @@
         newIdInput.type = "hidden";
         newIdInput.name = "steps[" + stepCount + "][id]";
         newIdInput.value = newStepId; // Set the new ID
+        newIdInput.value = ""; // Set this as an empty value, backend can assign a new ID
 
         var newDescInput = document.createElement("input");
         newDescInput.type = "text";
@@ -102,8 +80,9 @@
         newStepDiv.appendChild(newDeleteBtn);
         stepsContainer.appendChild(newStepDiv);
 
+
         updateStepNumbers();
-    });
+    };
 
     function updateStepNumbers() {
         var stepsContainer = document.getElementById("stepsContainer");
@@ -114,7 +93,6 @@
             stepDiv.querySelector("input[type='text']").name = "steps[" + i + "][description]";
         }
     }
-
     var deleteButtons = document.getElementsByClassName("deleteStepBtn");
     for (var i = 1; i < deleteButtons.length; i++) {
         deleteButtons[i].addEventListener("click", function() {
@@ -128,6 +106,5 @@
         // Allow the form to submit normally.
     });
 </script>
-
 </body>
 </html>
