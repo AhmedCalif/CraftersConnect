@@ -154,7 +154,7 @@ router.post('/like/:id', async (req, res) => {
             return res.status(409).send('User has already liked this post');
         }
         
-        await Like.create({ postId: id, userId: req.session.userId });
+        await Like.create({ postId: id, userId: req.session.userId, likedBy: username });
         post.currentLikes += 1;
         console.log('Post liked:', post);
         await post.save();

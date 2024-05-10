@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +11,7 @@
 <div class="container">
     <div class="card">
         <h1>Update Project</h1>
-        <form action="/projects/<%= project.id %>/update" method="post">
+        <form action="/projects/<%= project.projectId %>/update" method="post">
             <label for="title">Project Title:</label>
             <input type="text" id="title" name="title" value="<%= project.title %>" required>
             <input type="hidden" name="username" value="<%= username %>" />
@@ -23,14 +24,22 @@
             
             <label for="steps">Steps:</label>
             <div id="stepsContainer">
-                <% project.steps.forEach((step, index) => { %>
+                <% if (project.Steps && project.Steps.length > 0) { %>
+                    <% project.Steps.forEach((step, index) => { %>
+                        <div>
+                            <input type="hidden" name="steps[<%= index %>][id]" value="<%= step.stepId %>">
+                            <label for="step<%= index %>">Step <%= index + 1 %>:</label>
+                            <input type="text" name="steps[<%= index %>][description]" value="<%= step.description %>">
+                            <button type="button" class="deleteStepBtn">Delete</button>
+                        </div>
+                    <% }); %>
+                <% } else { %>
                     <div>
-                        <input type="hidden" name="steps[<%= index %>][id]" value="<%= step.id %>">
-                        <label for="step<%= index %>">Step <%= index + 1 %>:</label>
-                        <input type="text" name="steps[<%= index %>][description]" value="<%= step.description %>">
+                        <label for="step0">Step 1:</label>
+                        <input type="text" name="steps[0][description]" required>
                         <button type="button" class="deleteStepBtn">Delete</button>
                     </div>
-                <% }); %>
+                <% } %>
             </div>
             
             <div class="action-buttons">
@@ -119,7 +128,6 @@
         // Allow the form to submit normally.
     });
 </script>
-
 
 </body>
 </html>
