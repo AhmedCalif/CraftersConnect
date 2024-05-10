@@ -33,10 +33,12 @@ router.get("/", async (req, res) => {
         {model: User, include: Avatar }
       ]
     });
+    
+    const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
 
     const projects = [...createdProjects, ...collaboratedProjects];
 
-    res.render('userProjects/list', { projects, user, avatar: user.Avatar });
+    res.render('userProjects/list', { project: projects, user: user, avatar: avatarUrl });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error while fetching user's projects");

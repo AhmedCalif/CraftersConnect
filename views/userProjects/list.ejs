@@ -54,7 +54,7 @@
       <h1><%= user.username %>'s Projects</h1>
 
         <ul>
-          <% projects.forEach(project => { %>
+          <% project.forEach(project => { %>
           <div class="card">
 
               <img src="<%= project.creator && project.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">

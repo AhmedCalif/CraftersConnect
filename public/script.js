@@ -71,7 +71,3 @@ async function deletePost(postId) {
         alert('cannot delete another users post'); 
     }
 }
-
-
-
-

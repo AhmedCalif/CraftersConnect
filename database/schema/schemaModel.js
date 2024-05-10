@@ -181,13 +181,37 @@ const Avatar = sequelize.define('Avatar', {
   timestamps: true
 });
 
+const deletePostAndLikes = async (postId) => {
+  try {
+    await sequelize.transaction(async (t) => {
+      // Delete likes associated with the post
+      await Like.destroy({
+        where: { postId: postId },
+        transaction: t
+      });
+
+      // Now delete the post
+      await Post.destroy({
+        where: { postId: postId },
+        transaction: t
+      });
+    });
+    console.log("Post and associated likes have been deleted successfully.");
+  } catch (error) {
+    console.error("Failed to delete post and likes:", error);
+  }
+};
+
+deletePostAndLikes(); // Replace 10 with the postId you want to delete
+
+
 // Associations
 User.hasMany(Post, { as: 'Posts', foreignKey: 'createdBy' });
 User.hasMany(Like, { foreignKey: 'userId' });
 
 Post.belongsTo(User, { as: 'creator', foreignKey: 'createdBy' });
 Like.belongsTo(Post, { foreignKey: 'postId' });
-Post.hasMany(Like, { foreignKey: 'postId' });
+Post.hasMany(Like, { foreignKey: 'postId', onDelete: 'CASCADE' });
 
 User.hasMany(Project, { foreignKey: 'userId' });
 Project.belongsTo(User, { foreignKey: 'userId' });

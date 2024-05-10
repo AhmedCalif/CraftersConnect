@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Configure Cloudinary
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
@@ -145,9 +145,10 @@ router.get("/:id", async (req, res) => {
       }
       ]
     });
+    const avatarUrl = User.Avatar ? User.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
     if (project) {
       console.log('Project Details:', project);
-      res.render('projects/show', { project, loggedInUsername });
+      res.render('projects/show', { project, loggedInUsername, avatar: avatarUrl });
     } else {
       res.status(404).json({ message: "Project not found" });
     }
@@ -155,33 +156,76 @@ router.get("/:id", async (req, res) => {
     console.error("Error fetching project:", err);
     res.status(500).send("Server Error while fetching project details.");
   }
-});
+}); 
 
-//update project
-router.get('/:id/update', (req, res) => {
-    const id = parseInt(req.params.id);
-    const project = db.getProjectById(id);
+
+
+// Update project
+
+router.get('/:id/update', async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) {
+    return res.status(400).json({ message: "Invalid project ID" });
+  }
+
+  try {
+    const project = await Project.findOne({
+      where: { projectId: id },
+      include: [{ model: Step, as: 'Steps' }]
+    });
+
     if (project) {
-        res.render('projects/update', { project });
+      res.render('projects/update', { project, username: req.session.username });
     } else {
-        res.status(404).send("Project not found");
+      res.status(404).send("Project not found");
     }
+  } catch (err) {
+    console.error("Error fetching project:", err);
+    res.status(500).send("Server Error while fetching project details.");
+  }
 });
-//fix the way it is being updated
-router.post('/:id/update', (req, res) => {
-    const id = parseInt(req.params.id);
-    const { title, description, date, steps, username } = req.body;
-    console.log("update details:", req.body);
-    const updatedProject = db.updateProject(id, { username, title, description, date, steps });
-    if (updatedProject) {
-        res.redirect(`/projects/${id}`);
-    } else {
-        res.status(404).send("Project not found");
+
+router.post('/:id/update', async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) {
+    return res.status(400).json({ message: "Invalid project ID" });
+  }
+
+  const { title, description, date, steps } = req.body;
+  console.log("Update details:", req.body);
+
+  try {
+    const project = await Project.findOne({
+      where: { projectId: id },
+      include: [{ model: Step, as: 'Steps' }]
+    });
+
+    if (!project) {
+      return res.status(404).send("Project not found");
     }
-})
 
+    await project.update({ title, description, date });
 
-//delete project
+    // Delete existing steps
+    await Step.destroy({ where: { projectId: id } });
+
+    // Add new steps
+    if (steps && steps.length) {
+      const stepRecords = steps.map(step => ({
+        description: step.description,
+        projectId: id
+      }));
+      await Step.bulkCreate(stepRecords);
+    }
+
+    res.redirect(`/projects/${id}`);
+  } catch (err) {
+    console.error("Error updating project:", err);
+    res.status(500).send("Failed to update project. Please try again.");
+  }
+});
+
+// Delete project
 router.get("/:id/delete", async (req, res) => {
   const id = parseInt(req.params.id);
   const project = await Project.findOne({ where: { projectId: id } });
@@ -245,4 +289,3 @@ router.post('/:projectId/leave', async (req, res) => {
 });
 
 module.exports = router;
-
