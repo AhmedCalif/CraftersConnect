@@ -13,24 +13,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const avatarImage = document.getElementById('profileAvatar');
     const fileInput = document.getElementById('avatarInput');
 
-
     avatarImage.addEventListener('click', function() {
         fileInput.click();
     });
 
-    
     fileInput.addEventListener('change', function() {
         if (this.files && this.files[0]) {
             let reader = new FileReader();
             reader.onload = function(e) {
                 avatarImage.src = e.target.result; 
             };
-
-            // Submit the form
-            const form = document.getElementById('avatarForm');
-            if (form) {
-                form.submit();
-            }
+            reader.readAsDataURL(this.files[0]); 
         }
     });
 
@@ -38,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('avatarForm');
     if (form) {
         form.addEventListener('submit', function(event) {
-            event.preventDefault();
+            event.preventDefault(); // Prevent the form from submitting traditionally
             const submitButton = form.querySelector('button[type="submit"]');
             if (submitButton) {
                 submitButton.disabled = true;
