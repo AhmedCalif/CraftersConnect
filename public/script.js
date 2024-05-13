@@ -1,5 +1,4 @@
 
-// sidebar
 document.addEventListener('DOMContentLoaded', function() {
     const menuToggle = document.getElementById('menu-toggle');
     if (menuToggle) {
@@ -8,6 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.querySelector('.sidebar');
             const container = document.querySelector('.container');
             const header = document.querySelector('.header');
+
+            if (!sidebar) console.error('Sidebar element is missing!');
+            if (!container) console.error('Container element is missing!');
+            if (!header) console.error('Header element is missing!');
 
             if (sidebar && container && header) {
                 sidebar.classList.toggle('open');
@@ -21,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Menu toggle button not found!');
     }
 });
+
 
 // like Posts
 

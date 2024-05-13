@@ -10,7 +10,28 @@ const profileRouter = require('./routes/profileRoute');
 const projectsRouter = require('./routes/projectsRouter');
 const homeRouter = require('./routes/homeRoute');
 const userProjectsRouter = require('./routes/userProjectsRouter');
+const chatRouter = require('./routes/chatRoute');
 const app = express();
+
+const socket = require('socket.io');
+const http = require('http');
+const server = http.createServer(app);
+const io = socket(server);
+
+
+io.on('connection', (socket) => {
+    console.log('New client connected');
+
+    socket.on('chat message', (msg) => {
+        io.emit('chat message', msg);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected');
+    });
+});
+
+
 
 
 const port = 8000;
@@ -47,6 +68,7 @@ app.use('/profile', profileRouter);
 app.use('/projects', projectsRouter);
 app.use('/home', homeRouter);
 app.use('/my-projects', userProjectsRouter);
+app.use('/chat', chatRouter);
 
 app.get('/', (req, res) => {
     res.redirect('/auth/login');

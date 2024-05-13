@@ -21,7 +21,7 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true
-  }
+  },
 }, {
   timestamps: true
 });
@@ -181,28 +181,28 @@ const Avatar = sequelize.define('Avatar', {
   timestamps: true
 });
 
-const deletePostAndLikes = async (postId) => {
-  try {
-    await sequelize.transaction(async (t) => {
-      // Delete likes associated with the post
-      await Like.destroy({
-        where: { postId: postId },
-        transaction: t
-      });
+const Message = sequelize.define('Message', {
+  messageId: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+  },
+  message: {
+      type: DataTypes.STRING,
+      allowNull: false
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+        model: 'User', 
+        key: 'userId'
+    }
+},
 
-      // Now delete the post
-      await Post.destroy({
-        where: { postId: postId },
-        transaction: t
-      });
-    });
-    console.log("Post and associated likes have been deleted successfully.");
-  } catch (error) {
-    console.error("Failed to delete post and likes:", error);
-  }
-};
-
-deletePostAndLikes(); // Replace 10 with the postId you want to delete
+}, {
+  timestamps: true
+});
 
 
 // Associations
@@ -228,7 +228,11 @@ Step.belongsTo(Project, { foreignKey: 'projectId' });
 User.belongsToMany(Project, { through: Collaborator, as: 'Collaborations', foreignKey: 'userId' });
 Project.belongsToMany(User, { through: Collaborator, as: 'Collaborators', foreignKey: 'projectId' });
 
-module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar };
+User.hasMany(Message, { foreignKey: 'userId' });
+Message.belongsTo(User, { foreignKey: 'userId' });
+
+
+module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message };
 
 // Sync database
 sequelize.sync({ force: false }).then(() => {
