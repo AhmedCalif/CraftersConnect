@@ -169,7 +169,7 @@ router.post('/like/:id', async (req, res) => {
 
 router.delete('/:postId', async (req, res) => {
     const postId = req.params.postId;
-    const userId = req.session.userId;  // Ensure session is correctly configured to use this.
+    const userId = req.session.userId;  
 
     try {
         const post = await Post.findByPk(postId);
@@ -177,7 +177,7 @@ router.delete('/:postId', async (req, res) => {
             return res.status(404).json({ message: "Post not found." });
         }
 
-        if (post.createdBy !== userId) {  // Ensure `createdBy` is the correct field for checking ownership.
+        if (post.createdBy !== userId) { 
             return res.status(403).json({ message: "You can only delete your own posts." });
         }
 

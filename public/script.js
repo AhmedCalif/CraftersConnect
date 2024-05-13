@@ -58,28 +58,67 @@ function updatePostCount() {
 
 // Delete post
 async function deletePost(postId) {
-    try {
-        console.log('Deleting post with ID:', postId);
-        const response = await fetch(`/posts/${postId}`, {
-            method: 'DELETE', 
-            headers: { 'Content-Type': 'application/json' }
-        });
-        if (!response.ok) {
-            const data = await response.json(); 
-            alert(data.message || 'Failed to delete the post, please try again later.');
-            throw new Error(data.message || 'Server responded with an error.');
-        }
-        const data = await response.json();
-        console.log('Post deleted:', data);
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    });
+    if (result.isConfirmed) {
+        try {
+            console.log('Deleting post with ID:', postId);
+            const response = await fetch(`/posts/${postId}`, {
+                method: 'DELETE', 
+                headers: { 'Content-Type': 'application/json' }
+            });
 
-        const postElement = document.getElementById(`post-${postId}`);
-        if (postElement) {
-            postElement.remove();
-        } else {
-            console.error('Failed to find the post element:', `post-${postId}`);
+            if (!response.ok) {
+                const data = await response.json(); 
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: data.message || 'Failed to delete the post, please try again later.'
+                });
+                throw new Error(data.message || 'Server responded with an error.');
+            }
+
+            const data = await response.json();
+            console.log('Post deleted:', data);
+
+            const postElement = document.getElementById(`post-${postId}`);
+            if (postElement) {
+                postElement.remove();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted!',
+                    text: data.message || 'Post has been successfully deleted.'
+                });
+            } else {
+                console.error('Failed to find the post element:', `post-${postId}`);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Failed to find the post element on the page.'
+                });
+            }
+        } catch (error) {
+            console.error('Error deleting the post:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'There was an issue deleting your post.'
+            });
         }
-        alert(data.message);
-    } catch (error) {
-        console.error('Error deleting the post:', error);
+    } else {
+        console.log('Deletion cancelled by the user.');
+        Swal.fire({
+            icon: 'info',
+            title: 'Cancelled',
+            text: 'Your post is safe :)',
+            timer: 3000
+        });
     }
 }

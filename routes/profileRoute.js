@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { User, Avatar } = require('../database/schema/schemaModel');
+const { User, Avatar, Post, Like } = require('../database/schema/schemaModel');
 const { ensureAuthenticated } = require('../middleware/middleware');
 const multer = require('multer');
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -79,5 +79,45 @@ router.post('/upload-avatar', ensureAuthenticated, uploadFile.single('avatar'), 
     }
 });
 
+router.get('/liked-posts', ensureAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findOne({
+            where: { username: req.session.username },
+            include: [{ model: Avatar }]
+        });
+
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
+
+        const likedPosts = await Post.findAll({
+            include: [{
+                model: Like,
+                as: 'Likes',
+                required: true,
+                where: { userId: user.userId }  
+            }, {
+                model: User,
+                as: 'creator',
+                attributes: ['username'],
+                include: [{
+                    model: Avatar,
+                    attributes: ['imageUrl']
+                }]
+            }]
+        });
+
+        if (likedPosts.length === 0) {
+            return res.status(404).send("No liked posts found");
+        }
+
+        res.render('profile/likedPosts', { user: user, likedPosts: likedPosts, avatar: avatarUrl });
+    } catch (error) {
+        console.error("Failed to retrieve liked posts:", error);
+        res.status(500).send("Error retrieving liked posts");
+    }
+});
 
 module.exports = router;
