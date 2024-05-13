@@ -36,7 +36,7 @@
     </div>
     <div class="container">
       <%posts.forEach(post => { %>
-        <div class="card">
+        <div class="card" id="post-<%= post.postId %>">
           <i onclick="deletePost('<%= post.postId %>')"class="fa fa-trash trash-icon"></i>
           <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
               <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>

@@ -65,18 +65,21 @@ async function deletePost(postId) {
             headers: { 'Content-Type': 'application/json' }
         });
         if (!response.ok) {
-            throw new Error('Failed to delete the post due to server error.');
+            const data = await response.json(); 
+            alert(data.message || 'Failed to delete the post, please try again later.');
+            throw new Error(data.message || 'Server responded with an error.');
         }
         const data = await response.json();
         console.log('Post deleted:', data);
 
         const postElement = document.getElementById(`post-${postId}`);
         if (postElement) {
-            postElement.remove(); 
+            postElement.remove();
+        } else {
+            console.error('Failed to find the post element:', `post-${postId}`);
         }
         alert(data.message);
     } catch (error) {
         console.error('Error deleting the post:', error);
-        alert('Failed to delete the post, please try again later.'); 
     }
 }
