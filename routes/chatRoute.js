@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const Sequelize = require('sequelize');
 const {Message, User, Avatar} = require('../database/schema/schemaModel');
 
 router.get('/', async (req, res) => {
@@ -10,27 +11,30 @@ router.get('/', async (req, res) => {
       const userId = req.session.userId;
       const messages = await Message.findAll({
         where: {
-          [Sequelize.Op.or]: [{ userId }, { receiverId: userId }]
+          userId: userId
         },
         include: [{
           model: User,
-          as: 'User',
           attributes: ['username'],
-          include: [{ model: Avatar }] 
+          include: [{
+            model: Avatar,
+            attributes: ['imageUrl']
+          }]
         }],
         order: [['createdAt', 'DESC']]
       });
-  
+
       const chats = messages.map(message => ({
         username: message.User.username,
         lastMessage: message.message,
         userId: message.userId,
         avatarUrl: message.User.Avatar ? message.User.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3'
-      }));
+    }));
       
-      res.render("chat/chat", {chats: chats, userId: userId})
+      res.render("chat/chat", {chat: chats, userId: userId});
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error(error.stack);
+      res.status(500).json('Error fetching messages');
     }
 });
 
@@ -82,54 +86,63 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/chat/:userId', async (req, res) => {
-    if (!req.session.userId) {
+  if (!req.session.userId) {
       return res.status(403).json({ message: "Not logged in" });
-    }
-  
-    try {
+  }
+
+  try {
       const otherUserId = req.params.userId;
       const userId = req.session.userId;
-  
+
       const messages = await Message.findAll({
-        where: {
-          [Sequelize.Op.or]: [
-            { userId, receiverId: otherUserId },
-            { userId: otherUserId, receiverId: userId }
-          ]
-        },
-        order: [['createdAt', 'ASC']]
+          where: {
+              [Sequelize.Op.or]: [
+                  { userId, receiverId: otherUserId },
+                  { userId: otherUserId, receiverId: userId }
+              ]
+          },
+          include: [{
+              model: User,
+              attributes: ['username'],
+              where: { userId: otherUserId }
+          }],
+          order: [['createdAt', 'ASC']]
       });
-  
-      res.json(messages);
-    } catch (error) {
+
+      res.render("chat/conversation", { messages: messages, otherUser: otherUserId });
+  } catch (error) {
+      console.error("Failed to load chat:", error);
       res.status(500).json({ error: error.message });
-    }
-  });
+  }
+});
 
 
-  router.post('/chat/:receiverId/send', async (req, res) => {
+
+router.post('/chat/:userId/send', async (req, res) => {
     if (!req.session.userId) {
-      return res.status(403).json({ message: "Not logged in" });
+        return res.status(403).json({ message: "Not logged in" });
     }
+  
+    const receiverId = req.params.userId;
+    const userId = req.session.userId;
+    const { message } = req.body;
   
     try {
-      const { message } = req.body;
-      const userId = req.session.userId;
-      const receiverId = req.params.receiverId;
+        const newMessage = await Message.create({
+            message,
+            userId,
+            receiverId
+        });
+
+        console.log("newMessage:", newMessage);
   
-      const newMessage = await Message.create({
-        message,
-        userId,
-        receiverId
-      });
-  
-      res.status(201).json(newMessage);
+        res.redirect(`/chat/${receiverId}`);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+        console.error("Failed to send message:", error);
+        res.status(500).json({ error: error.message });
     }
-  });
-  
-  
+});
+
 
 
 module.exports = router;

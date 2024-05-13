@@ -183,26 +183,34 @@ const Avatar = sequelize.define('Avatar', {
 
 const Message = sequelize.define('Message', {
   messageId: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
   },
   message: {
-      type: DataTypes.STRING,
-      allowNull: false
+    type: DataTypes.STRING,
+    allowNull: false
   },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-        model: 'User', 
-        key: 'userId'
+      model: User,
+      key: 'userId'
     }
-},
-
+  },
+  receiverId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'userId'
+    }
+  }
 }, {
   timestamps: true
 });
+
 
 
 // Associations
@@ -228,8 +236,11 @@ Step.belongsTo(Project, { foreignKey: 'projectId' });
 User.belongsToMany(Project, { through: Collaborator, as: 'Collaborations', foreignKey: 'userId' });
 Project.belongsToMany(User, { through: Collaborator, as: 'Collaborators', foreignKey: 'projectId' });
 
-User.hasMany(Message, { foreignKey: 'userId' });
-Message.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(Message, { as: 'SentMessages', foreignKey: 'userId' });
+User.hasMany(Message, { as: 'ReceivedMessages', foreignKey: 'receiverId' });
+Message.belongsTo(User, { as: 'Sender', foreignKey: 'userId' });
+Message.belongsTo(User, { as: 'Receiver', foreignKey: 'receiverId' });
+
 
 
 module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message };
