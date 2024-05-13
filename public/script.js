@@ -1,5 +1,4 @@
-
-// sidebar
+// Sidebar toggle
 document.addEventListener('DOMContentLoaded', function() {
     const menuToggle = document.getElementById('menu-toggle');
     if (menuToggle) {
@@ -22,8 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// like Posts
-
+// Like posts
 async function likePost(id) {
     try {
         console.log('Liking post:', id);
@@ -47,31 +45,38 @@ async function likePost(id) {
     }
 }
 
-// delete post 
+// Update post count decrement
+function updatePostCount() {
+    const countElement = document.getElementById('post-count');
+    if (countElement) {
+        let currentCount = parseInt(countElement.textContent, 10);
+        if (currentCount > 0) {
+            countElement.textContent = currentCount - 1; 
+        }
+    }
+}
+
+// Delete post
 async function deletePost(postId) {
     try {
-        console.log('postId:', postId);
-        console.log('Deleting post:', postId);
-        const response = await fetch(`/posts/delete/${postId}`, {
-            method: 'DELETE'
+        console.log('Deleting post with ID:', postId);
+        const response = await fetch(`/posts/${postId}`, {
+            method: 'DELETE', 
+            headers: { 'Content-Type': 'application/json' }
         });
         if (!response.ok) {
-            throw new Error('Network response was not ok.');
+            throw new Error('Failed to delete the post due to server error.');
         }
         const data = await response.json();
         console.log('Post deleted:', data);
-        
+
         const postElement = document.getElementById(`post-${postId}`);
         if (postElement) {
             postElement.remove(); 
         }
-        alert(data.message || 'Post successfully deleted');
+        alert(data.message);
     } catch (error) {
         console.error('Error deleting the post:', error);
-        alert('cannot delete another users post'); 
+        alert('Failed to delete the post, please try again later.'); 
     }
 }
-
-
-
-

@@ -128,66 +128,65 @@ router.get('/create', (req, res) => {
 });    
 
 
-
 router.post('/like/:id', async (req, res) => {
     const id = parseInt(req.params.id, 10); 
-    if (isNaN(id) || id < 0) {
+    if (isNaN(id) || id <= 0) {
         console.error('Invalid id:', id);
-        return res.status(404).send('Invalid ID');
+        return res.status(404).json({ message: 'Invalid ID' });
     }
     
     try {
         const post = await Post.findByPk(id);
         if (!post) {
             console.error('No post found at this id:', id);
-            return res.status(404).send('Post not found');
+            return res.status(404).json({ message: 'Post not found' });
         }
         
         const username = req.session.username;
-        if (!username) {
-            return res.status(403).send('You must be logged in to like posts');
+        const userId = req.session.userId;
+        if (!username || !userId) {
+            return res.status(403).json({ message: 'You must be logged in to like posts' });
         }
         
-        const user = await User.findOne({ where: { username } });
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-        
-        const like = await Like.findOne({ where: { postId: id, userId: req.session.userId } });
+        const like = await Like.findOne({ where: { postId: id, userId: userId } });
         if (like) {
-            return res.status(409).send('User has already liked this post');
+            return res.status(409).json({ message: 'User has already liked this post' });
         }
         
-        await Like.create({ postId: id, userId: req.session.userId, likedBy: username });
+        await Like.create({ postId: id, userId: userId, likedBy: username });
         post.currentLikes += 1;
-        console.log('Post liked:', post);
         await post.save();
-        
-        console.log('Current likes:', post.currentLikes);   
+
+        console.log('Post liked:', post.title, 'Current likes:', post.currentLikes);   
+        res.json({ message: 'Post successfully liked', likes: post.currentLikes });
     } catch (error) {
         console.error('Failed to like post:', error);
-        res.status(500).send(`Error liking post, ${error.message}`);
-    } 
-});
-
-router.delete('/delete/:postId', async (req, res) => {
-    try {
-        const postId = req.params.postId;
-        const userId = req.session.userId; 
-        const post = await Post.findByPk(postId);
-        if (!post) {
-            return res.status(404).send({ message: 'Post not found' });
-        }
-        if (post.createdBy !== userId) {
-            return res.status(403).send({ message: 'You cannot delete someone else’s post' });
-        }
-        await post.destroy();
-        res.status(200).json({ message: 'Post successfully deleted' });
-    } catch (error) {
-        console.error('Failed to delete the post:', error);
-        res.status(500).send({ message: 'Failed to delete the post' });
+        res.status(500).json({ message: `Error liking post: ${error.message}` });
     }
 });
 
+
+// Express.js setup for a DELETE request
+router.delete('/:postId', async (req, res) => {
+    const postId = req.params.postId;
+    const userId = req.session.userId; // Assuming you have user authentication
+
+    try {
+        const post = await Post.findByPk(postId);
+        if (!post) {
+            return res.status(404).json({ message: "Post not found." });
+        }
+
+        if (post.createdBy !== userId) {
+            return res.status(403).json({ message: "You can only delete your own posts." });
+        }
+
+        await post.destroy();
+        res.json({ message: "Post successfully deleted." });
+    } catch (error) {
+        console.error("Error deleting post:", error);
+        res.status(500).json({ message: "Failed to delete post." });
+    }
+});
 
 module.exports = router;
