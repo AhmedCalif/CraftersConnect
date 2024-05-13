@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data => {
+            console.log('Avatar uploaded:', data);
             document.querySelector('#profileAvatar').src = data.imageUrl + '?' + new Date().getTime();
             alert('Avatar uploaded successfully!');
         })

@@ -7,28 +7,26 @@ const cloudinary = require("../cloudinaryConfig.js");
 const path = require('path');
 
 function uploadMiddleware(folderName) {
-    const storage = new CloudinaryStorage({
-      cloudinary: cloudinary,
-      params: (req, file) => {
-        const folderPath = `${folderName.trim()}`; 
+  const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: (req, file) => {
+        const folderPath = `${folderName.trim()}`;
         const fileExtension = path.extname(file.originalname).substring(1);
-        const publicId = `${file.fieldname}-${Date.now()}`;
+        const publicId = `${req.session.userId}-${file.fieldname}`;
         
         return {
-          folder: folderPath,
-          public_id: publicId,
-          format: fileExtension,
+            folder: folderPath,
+            public_id: publicId,
+            format: fileExtension,
+            overwrite: true,
         };
-      },
-    });
-  
-    return multer({
-      storage: storage,
-      limits: {
-        fileSize: 5 * 1024 * 1024, 
-      },
-    });
-  }
+        
+    },
+});
+return multer({ storage: storage });
+}
+
+
 
 const uploadFile = uploadMiddleware("/uploads");
 
@@ -59,11 +57,21 @@ router.post('/upload-avatar', ensureAuthenticated, uploadFile.single('avatar'), 
             return res.status(404).json({ error: 'User not found.' });
         }
         const avatarUrl = req.file.path; 
-        await Avatar.upsert({
-            userId: userId,
-            imageUrl: avatarUrl,
-            uploadDate: new Date()
-        });
+        const existingAvatar = await Avatar.findOne({ where: { userId: userId } });
+        if (existingAvatar) {
+            await Avatar.update({
+                imageUrl: avatarUrl,
+                uploadDate: new Date()
+            }, {
+                where: { userId: userId }
+            });
+        } else {
+            await Avatar.create({
+                userId: userId,
+                imageUrl: avatarUrl,
+                uploadDate: new Date()
+            });
+        }
         res.json({ imageUrl: avatarUrl });
     } catch (error) {
       console.error('Failed to upload avatar:', error.stack);
