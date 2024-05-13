@@ -36,8 +36,25 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             where: { username: req.session.username },
             include: [{ model: Avatar }]
         });
+        const likedPosts = await Post.findAll({
+            include: [{
+                model: Like,
+                as: 'Likes',
+                required: true,
+                where: { userId: user.userId }  
+            }, {
+                model: User,
+                as: 'creator',
+                attributes: ['username'],
+                include: [{
+                    model: Avatar,
+                    attributes: ['imageUrl']
+                }]
+            }]
+        });
+
         const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
-        res.render('profile/profile', { user: user, avatar: avatarUrl });
+        res.render('profile/profile', { user: user, avatar: avatarUrl, likedPosts: likedPosts });
     } catch (error) {
         console.error('Error fetching user data:', error);
         res.status(500).send('Internal Server Error');
@@ -72,13 +89,11 @@ router.post('/upload-avatar', ensureAuthenticated, uploadFile.single('avatar'), 
                 uploadDate: new Date()
             });
         }
-        res.json({ imageUrl: avatarUrl });
     } catch (error) {
-      console.error('Failed to upload avatar:', error.stack);
+        console.error('Failed to upload avatar:', error.stack);
         res.status(500).json({ error: 'Failed to upload avatar.' });
     }
 });
-
 router.get('/liked-posts', ensureAuthenticated, async (req, res) => {
     try {
         const user = await User.findOne({
@@ -119,5 +134,6 @@ router.get('/liked-posts', ensureAuthenticated, async (req, res) => {
         res.status(500).send("Error retrieving liked posts");
     }
 });
+
 
 module.exports = router;
