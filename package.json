@@ -12,7 +12,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "bootstrap": "^5.3.3",
-    "cloudinary": "^2.2.0",
+    "cloudinary": "^1.21.0",
     "connect-flash": "^0.1.1",
     "connect-redis": "^7.1.1",
     "cookie-session": "^2.1.0",
@@ -28,7 +28,7 @@
     "nodemon": "^3.1.0",
     "redis": "^4.6.13",
     "sequelize": "^6.37.3",
-    "sweetalert2": "^11.10.8",
+    "sweetalert2": "^11.11.0",
     "typescript": "^5.4.5",
     "zod": "^3.23.6"
   },

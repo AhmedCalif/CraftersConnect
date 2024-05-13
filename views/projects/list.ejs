@@ -33,6 +33,14 @@
             </a>
         </div>
     </div>
+    <form action="/search/results" method="GET" >
+        <div class="search-bar action-buttons">
+            <p>Looking For A New Project? </p>
+            <input type="text" name="query" placeholder="Search">
+            <button class="button">Search</button>
+        </div>
+    </form>
+
     <div class="container">
         <h1>Projects From All Users</h1>
         <% projects.forEach(project => { %>

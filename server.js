@@ -10,6 +10,7 @@ const profileRouter = require('./routes/profileRoute');
 const projectsRouter = require('./routes/projectsRouter');
 const homeRouter = require('./routes/homeRoute');
 const userProjectsRouter = require('./routes/userProjectsRouter');
+const searchRouter = require('./routes/searchRoute')
 const app = express();
 
 
@@ -47,6 +48,7 @@ app.use('/profile', profileRouter);
 app.use('/projects', projectsRouter);
 app.use('/home', homeRouter);
 app.use('/my-projects', userProjectsRouter);
+app.use('/search', searchRouter);
 
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
