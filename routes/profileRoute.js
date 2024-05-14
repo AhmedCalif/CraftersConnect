@@ -89,11 +89,13 @@ router.post('/upload-avatar', ensureAuthenticated, uploadFile.single('avatar'), 
                 uploadDate: new Date()
             });
         }
+        return res.status(200).json({ imageUrl: avatarUrl });
     } catch (error) {
         console.error('Failed to upload avatar:', error.stack);
-        res.status(500).json({ error: 'Failed to upload avatar.' });
+        return res.status(500).json({ error: 'Failed to upload avatar.' });
     }
 });
+
 router.get('/liked-posts', ensureAuthenticated, async (req, res) => {
     try {
         const user = await User.findOne({
