@@ -95,9 +95,6 @@ router.get('/create', (req, res) => {
         if (!req.session.username) {
             return res.status(403).send("You must be logged in to create posts");
         }
-        if (req.session.lastPostTime && new Date() - new Date(req.session.lastPostTime) < 30000) { 
-            return res.status(429).send("Please wait a bit before creating another post.");
-        }
         
         const { title, description, content } = req.body;
         if (title.length > 100 || description.length > 100) {
