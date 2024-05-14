@@ -89,7 +89,7 @@ router.post('/upload-avatar', ensureAuthenticated, uploadFile.single('avatar'), 
                 uploadDate: new Date()
             });
         }
-        return res.status(200).json({ imageUrl: avatarUrl });
+       res.redirect('back')
     } catch (error) {
         console.error('Failed to upload avatar:', error.stack);
         return res.status(500).json({ error: 'Failed to upload avatar.' });
