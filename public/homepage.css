@@ -5,48 +5,44 @@ body {
     font-family: 'Arial', sans-serif;
     background-color: #f5f5f5;
     margin: 0;
-    padding: 20px;
-}
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px;
-        background: #fff;
-        margin-bottom: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .img {
-        aspect-ratio: 10;
-        object-fit: auto;
-        object-position: center;
-        width: 100%;
-        max-width: 800px;
-      }
-
-input[type="text"], textarea {
-    width: 90%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    font-family: 'Mada', sans-serif;
-    font-size: 16px;
-    color: #333;
-    background-color: #f8f8f8;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-.header, .search-bar, .category-filter, .recent-projects, .new-today {
+header {
     background: #fff;
-    padding: 20px;
+    padding: 10px 20px;
     margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+}
+
+.logo-container {
+    margin-right: 20px;
+}
+
+.logo {
+    height: 50px;
+    width: auto;
+}
+
+header h1 {
+    font-family: 'Orelega One', cursive;
+    margin: 0;
+}
+
+.action-buttons {
+    text-align: right;
 }
 
 .search-bar {
@@ -56,17 +52,38 @@ input[type="text"], textarea {
     justify-content: space-between;
     font-family: 'Orelega One', cursive;
     font-size: 24px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
 .search-bar input[type="text"] {
-    width: 100%;
+    width: 70%;
     padding: 10px;
     margin-right: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
 
-.button {
+.category-filter {
+    background-color: #F5E2C2;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.category-filter p {
+    font-family: 'Orelega One', cursive;
+    font-size: 24px;
+    margin: 0 0 10px;
+}
+
+.categories {
+    display: flex;
+    gap: 10px;
+}
+
+.categories button {
     padding: 10px 20px;
     background-color: #007BFF;
     color: white;
@@ -75,46 +92,85 @@ input[type="text"], textarea {
     cursor: pointer;
 }
 
-.category-filter {
+.categories button:hover {
+    background-color: #0056b3;
+}
+
+.carousel-section {
+    margin-bottom: 20px;
+}
+
+.carousel {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.carousel-content {
     display: flex;
-    background-color: #F5E2C2;
-    justify-content: space-between;
-    padding-right: 100px;
-    font-family: 'Orelega One', cursive;
-    font-size: 24px;
+    transition: transform 0.5s ease-in-out;
+}
+
+.carousel-item {
+    min-width: 100%;
+    box-sizing: border-box;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.prev-btn {
+    left: 10px;
+}
+
+.next-btn {
+    right: 10px;
+}
+
+.projects-container, .posts-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
 }
 
 .card {
     background-color: #F5E2C2;
     border: 1px solid #ccc;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin: 10px 0;
+    margin: 10px;
     padding: 15px;
     box-sizing: border-box;
-    width: 50%;
-    max-width: 400px;
+    width: 300px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
 }
 
-.recent-projects .card, .new-today .card {
-    width: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.recent-projects .card img, .new-today .card img {
+.card img.avatar {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    margin-right: 20px;
+    margin-bottom: 10px;
 }
 
-.recent-projects .card-details, .new-today .card-details {
-    flex: 1;
+.action-buttons {
+    text-align: center;
+    margin-top: 20px;
 }
 
 .action-buttons button {
@@ -123,34 +179,58 @@ input[type="text"], textarea {
     background-color: #0CB0EA;
     color: #000;
     font-weight: bold;
-    padding: 4pt 0; 
+    padding: 4pt 0;
     font-family: 'Mada', sans-serif;
-    font-size: 13pt; 
+    font-size: 13pt;
     border: none;
     border-radius: 20px;
     cursor: pointer;
     box-shadow: 0 4px #999;
     transition: all 0.3s ease;
-    
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-  }
-  
-  .action-buttons button:hover {
+}
+
+.action-buttons button:hover {
     background-color: #0A97D9;
     box-shadow: 0 6px #666;
     transform: translateY(-2px);
-  }
-  
-  .action-buttons button:active {
+}
+
+.action-buttons button:active {
     background-color: #0884C6;
     box-shadow: 0 2px #333;
     transform: translateY(1px);
-  }
-  
+}
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #333;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+}
+
+.bottom-nav .nav-link {
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    font-family: 'Mada', sans-serif;
+}
+
+.bottom-nav .nav-link i {
+    font-size: 24px;
+}
+
+.bottom-nav .nav-link span {
+    display: block;
+    font-size: 12px;
+}
+
 @media (max-width: 768px) {
-    .search-bar, .category-filter, .recent-projects .card, .new-today .card {
+    .search-bar, .category-filter, .projects-container, .posts-container {
         flex-direction: column;
         align-items: center;
     }
@@ -164,7 +244,12 @@ input[type="text"], textarea {
         margin-bottom: 10px;
     }
 
+    .card {
+        width: 90%;
+    }
+
     .recent-projects .card img, .new-today .card img {
         margin-bottom: 20px;
     }
 }
+
