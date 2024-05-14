@@ -71,17 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// liked Posts in profile
-document.addEventListener('DOMContentLoaded', function() {
-    const likedPostToggle = document.querySelector('.liked-post-toggle');
-    const likedPostsContainer = document.querySelector('.liked-posts-container');
 
-    likedPostToggle.addEventListener('click', function() {
-        const isHidden = likedPostsContainer.style.display === 'none';
-        likedPostsContainer.style.display = isHidden ? 'block' : 'none';
-        likedPostToggle.textContent = isHidden ? 'Hide Liked Posts' : 'View Liked Posts';
-    });
-});
 
 // profile toggle
 document.addEventListener('DOMContentLoaded', function() {

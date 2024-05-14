@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liked Posts</title>
-   <link rel="stylesheet" href="/likedPosts.css">
+    <link rel="stylesheet" href="/likedPosts.css">
 </head>
 <body>
     <div class="sidebar">
         <div class="profile-section">
-            <img src="<%= avatar %>" alt="User profile" class="profile-pic" style="width: 100px; height: 100px; border-radius: 50%;">
+            <img src="<%= avatar %>" alt="User profile" class="profile-pic">
             <h2><%= user.username %></h2>
         </div>
         <div class="menu-icon">
@@ -25,22 +25,18 @@
             <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
         </ul>
     </div>
-
-    <button class="liked-post-toggle" aria-controls="liked-posts-container" aria-expanded="false">View Liked Posts</button> 
-    <div class="liked-posts-container" id="liked-posts-container" style="display: none;">
-        <div class="card">
-            <% likedPosts.forEach(post => { %>
-                <% if (post) { %>
-                    <div class="card" id="post-<%= post.postId %>">
-                        <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="Post Creator Avatar">
-                        <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
-                        <h2><%= post.title %></h2>
-                        <p><%= post.description %></p>
-                    </div>
-                <% } %>
-            <% }) %>        
-        </div> 
-    </div>
+    <div class="container">
+        <% likedPosts.forEach(post => { %>
+            <% if (post) { %>
+                <div class="card" id="post-<%= post.postId %>">
+                    <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="Post Creator Avatar" class="avatar-large">
+                    <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
+                    <h2><%= post.title %></h2>
+                    <p><%= post.description %></p>
+                </div>
+            <% } %>
+        <% }) %>        
+    </div> 
     <script defer src='/app.js'></script>
     <script defer src='/script.js'></script>
 </body>

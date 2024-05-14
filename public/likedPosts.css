@@ -9,7 +9,7 @@ body, html {
     justify-content: center; 
     align-items: center;  
     font-family: 'Mada', sans-serif;
-    background: #F5E2C2;
+    background: #E5DCD5;
 }
 
 .sidebar {
@@ -32,6 +32,7 @@ body, html {
     transition: margin-left 0.3s ease-in-out;
     margin-left: 0;
 }
+
 .profile-pic, .avatar-large {
     width: 100px;
     height: 100px;
@@ -49,8 +50,6 @@ body, html {
     cursor: pointer;
 }
 
-
-
 .menu-icon a {
     color: inherit; 
     display: inline-block;
@@ -60,7 +59,6 @@ body, html {
 .menu-icon i {
     font-size: 24px; 
 }
-
 
 .menu-items {
     list-style: none;
@@ -78,6 +76,7 @@ body, html {
 .menu-items li a:hover {
     color: #007bff;
 }
+
 .profile-container {
     display: flex;
     flex-direction: column;
@@ -88,15 +87,15 @@ body, html {
     background-color: #fff;
     border-radius: 15px;  
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); 
-    width: 500%;  
-    max-width: 700x;  
+    width: 100%;  
+    max-width: 700px;  
     margin-left: auto;
     margin-right: auto;
 }
 
 .avatar-large {
-    width: 200px;  
-    height: 200px;
+    width: 90px;  
+    height: 90px;
     border-radius: 50%;
     margin: 20px auto;  
     display: block;
@@ -113,12 +112,11 @@ body, html {
     color: #666;
 }
 
-
 .user-details h1, .user-details p {
     text-align: center; 
 }
 
- button {
+button {
     height: 45pt;
     width: 141.75pt;
     background-color: #0CB0EA;
@@ -133,19 +131,21 @@ body, html {
     box-shadow: 0 4px #999;
     transition: all 0.3s ease;
     align-items: center;
-  }
-  
-    button:hover {
+    margin-top: 10px; /* Added spacing */
+}
+
+button:hover {
     background-color: #0A97D9;
     box-shadow: 0 6px #666;
     transform: translateY(-2px);
-  }
-  
-    button:active {
+}
+
+button:active {
     background-color: #0884C6;
     box-shadow: 0 2px #333;
     transform: translateY(1px);
-  }
+}
+
 .dropdown {
     left: 40%;
     text-align: center;
@@ -181,6 +181,56 @@ body, html {
     background-color: #f1f1f1;
 }
 
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    width: 100%;
+    margin-top: 60px;
+}
+
+.container, .header {
+    transition: margin-left 0.3s ease; 
+}
+
+.container.open, .header.open {
+    margin-left: 250px; 
+}
+
+.card {
+    background-color: #F5E2C2;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+    padding: 15px;
+    box-sizing: border-box;
+    width: 300px;
+    height: 300px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center; 
+}
+
+.card h2 {
+    font-size: 24px;
+}
+
+.card p {
+    font-size: 18px; 
+}
+
+.card strong {
+    font-size: 18px;
+}
+
+.card span {
+    margin-top: 5px;
+}
+
 @media (max-width: 768px) {
     .sidebar {
         width: 100%;
@@ -191,5 +241,15 @@ body, html {
     }
     .main-content {
         padding-left: 0; 
+    }
+    .profile-container {
+        width: 90%; 
+        padding: 20px; 
+        margin-top: 20px;
+    }
+    .card {
+        width: 90%;
+        padding: 20px; 
+        height: auto; 
     }
 }

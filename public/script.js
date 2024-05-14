@@ -117,7 +117,7 @@ async function deletePost(postId) {
         Swal.fire({
             icon: 'info',
             title: 'Cancelled',
-            text: 'Your post is safe :)',
+            text: 'Go Back to the Post Page!',
             timer: 3000
         });
     }
