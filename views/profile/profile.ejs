@@ -7,41 +7,121 @@
   <link rel="stylesheet" href="/profile.css"> 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="profile-section">
-            <img src="<%= avatar %>" alt="User profile" id="profileAvatar" class="profile-pic">
-            <h2><%= user.username %></h2>
-        </div>
-        <div class="menu-icon">
-            <a href="#" id="menu-toggle">
-                <i class="fas fa-bars"></i> 
-            </a>
-        </div>
-        <ul class="menu-items">
-            <li><a href="/home/dashboard"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
-            <li><a href="/my-projects"><i class="fa fa-briefcase"></i> Projects</a></li>
-            <li><a href="/posts"><i class="fa fa-newspaper"></i> Posts</a></li>
-            <li><a href="/chat"><i class="fa fa-comments"></i> Chat</a></li>
-            <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
-        </ul>
+  <div class="sidebar">
+    <div class="profile-section">
+      <img src="<%= avatar %>" alt="User profile" class="profile-pic">
+      <i class="fas fa-camera camera-icon"></i>
+      <h2><%= user.username %></h2>
     </div>
-    <div class="profile-container">
-        <div class="profile-info">
-            <img src="<%= avatar %>" alt="User profile" id="profileAvatar" class="profile-pic">
-            <div class="user-details">
-                <h1><%= user.username %></h1>
-                <p>Email: <%= user.email %></p>
-                <form action="/profile/upload-avatar" method="post" enctype="multipart/form-data">
-                    <input type="file" name="avatar" required>
-                    <button type="submit" class="button">Upload Avatar</button>
-                </form>
-            </div>
-              </div>
+    <div class="menu-icon">
+      <a href="#" id="menu-toggle">
+        <i class="fas fa-bars"></i> 
+      </a>
     </div>
-    
-    <script defer src="/app.js"></script>
+    <ul class="menu-items">
+      <li><a href="/home/dashboard"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+      <li><a href="/my-projects"><i class="fa fa-briefcase"></i> Projects</a></li>
+      <li><a href="/posts"><i class="fa fa-newspaper"></i> Posts</a></li>
+      <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+    </ul>
+  </div>
+  <div class="profile-container">
+    <img src="<%= avatar %>" alt="User profile" id="profileAvatar" class="profile-pic clickable-avatar">
+    <form id="avatarForm" action="/profile/upload-avatar" method="post" enctype="multipart/form-data" style="display: none;">
+      <input type="file" id="avatarInput" name="avatar">
+      <button type="submit">Upload</button>
+    </form>
+    <h2><%= user.username %></h2>
+    <div class="accordion">
+      <div class="accordion-item">
+        <button class="accordion-toggle">Personal information</button>
+        <div class="panel" style="display: none;">
+          <p>Username: <%= user.username %></p>
+          <p>Email: <%= user.email %></p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <a href="/profile/liked-posts"> 
+          <button class="accordion-toggle">Liked posts</button>
+        </a> 
+        <div class="panel" style="display: none;"></div>
+      </div>
+      </div>
+      <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/39f8664a4cb8e1d79c375d70d49357c512a0be146f87e9f33d98852407c52c3b?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="logo" class="logo"/>
+    </div>
+  </div>
+  <script defer src="/app.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const avatarImage = document.getElementById('profileAvatar');
+      const fileInput = document.getElementById('avatarInput');
+      const form = document.getElementById('avatarForm');
+      const submitButton = form.querySelector('button[type="submit"]');
+  
+      avatarImage.addEventListener('click', function() {
+          fileInput.click();
+      });
+  
+      // Handle file input change event to submit the form
+      fileInput.addEventListener('change', function() {
+          if (this.files && this.files[0]) {
+              let reader = new FileReader();
+              reader.onload = function(e) {
+                  avatarImage.src = e.target.result; 
+              };
+              reader.readAsDataURL(this.files[0]);
+              form.submit();
+          }
+      });
+  
+      // Handling the form submission
+      form.addEventListener('submit', function(event) {
+          event.preventDefault();
+          submitButton.disabled = true;
+  
+          const formData = new FormData(form);
+          fetch('/profile/upload-avatar', {
+              method: 'POST',
+              body: formData,
+          })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error(`Network response was not ok: ${response.statusText}`);
+              }
+              return response.json();
+          })
+          .then(data => {
+              if (data.imageUrl) {
+                  console.log('Avatar uploaded:', data);
+                  document.querySelector('#profileAvatar').src = data.imageUrl + '?' + new Date().getTime();
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Avatar uploaded successfully!',
+                      showConfirmButton: false,
+                      timer: 1500
+                  });
+              } else {
+                  throw new Error('Image URL not provided in response.');
+              }
+          })
+          .catch(error => {
+              console.error('Error uploading avatar:', error);
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error uploading avatar',
+                  text: error.message
+              });
+          })
+          .finally(() => {
+              submitButton.disabled = false;
+          });
+      });
+  });
+  </script>
+  
 </body>
 </html>

@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="/auth.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>
 <body>
     <div class="container">
         <div class="login-container">
             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/39f8664a4cb8e1d79c375d70d49357c512a0be146f87e9f33d98852407c52c3b?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="logo" class="logo"/>
             <h2 class="title">Login page</h2>
-            <form action="/auth/login" method="POST" class="login-form" onsubmit="return validateUser()">
+            <form action="/auth/login" method="POST" class="login-form" id="loginForm">
                 <div class="form-group">
                     <label for="username" class="form-label">Username:</label>
                     <input type="text" name="username" id="username" class="text-input" required>
@@ -23,55 +23,50 @@
                 </div>
                 <button type="submit" class="button-action">Login</button>
             </form>
+            
             <a href="/auth/register" class="register-link">Don't Have an Account? Create An Account Here!</a>
         </div>
     </div>
     <script>
-   async function validateUser(event) {
-    event.preventDefault(); 
-    let username = document.getElementById("username").value;
-    let password = document.getElementById("password").value;
-
-    if (username === "" || password === "") {
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Please fill in all fields!',
-        });
-        return false;
-    }
-
-    try {
-        const response = await fetch('/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        });
-
-        const data = await response.json(); 
-
-        if (response.ok) {
-            console.log(data.message); 
-            window.location.href = '/home/dashboard'; 
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Login Failed',
-                text: data.message, 
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('loginForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+        
+                fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to login');
+                    }
+                    return response.text();
+                })
+                .then(result => {
+                    if (result.startsWith('Error')) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: result
+                        });
+                    } else {
+                        window.location.href = '/home/dashboard';
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Error',
+                        text: 'Please check your credentials and try again!'
+                    });
+                });
             });
-        }
-    } catch (error) {
-        console.error('Fetch error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Network Error',
-            text: 'Please check your network connection and try again.',
         });
-    }
-    return false; 
-   }
-    </script>
+        </script>
 </body>
 </html>

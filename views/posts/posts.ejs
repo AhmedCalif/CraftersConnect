@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/posts.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="sidebar">
@@ -37,7 +38,7 @@
     </div>
     <div class="container">
       <%posts.forEach(post => { %>
-        <div class="card">
+        <div class="card" id="post-<%= post.postId %>">
           <i onclick="deletePost('<%= post.postId %>')"class="fa fa-trash trash-icon"></i>
           <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
               <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>

@@ -1,46 +1,40 @@
-// error messages for login 
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault(); 
 
+    const formData = {
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value
+    };
 
-async function userValidation (user, password) {
-    try {
-        const validateUser = await fetch('/auth/login', {
-            query: user,
-            query: password,
-            method: 'POST'
+    fetch('/auth/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to login');
+        }
+        return response.text();
+    })
+    .then(result => {
+        if (result.startsWith('Error')) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: result
+            });
+        } else {
+            window.location.href = '/home/dashboard'; 
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Login Error',
+            text: 'Please check your credentials and try again!'
         });
-        if (!validateUser.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await validateUser.json();
-        console.log(data)
-        if (data.error) {
-            alert(data.error);
-        }
-        return data;
-    } catch (error) {
-        console.error('Error validating user:', error);
-    }
-}
-const form = document.querySelector('form');
-const username = document.getElementById('username');
-const password = document.getElementById('password');
-
-form.addEventListener('submit', (event) => {
-    if (username.value.length < 2) {
-        event.preventDefault();
-        alert('Username must be at least 2 characters long');
-    } 
-    if(password.value.length < 2) {
-        event.preventDefault();
-        alert('Password must be at least 2 characters long');
-    }
-    if(!username) {
-        event.preventDefault();
-        alert('Username is required');
-    }
-    if(!password) {
-        event.preventDefault();
-        alert('Password is required');
-    }
-}
-);
+    });
+});

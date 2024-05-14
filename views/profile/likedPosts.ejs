@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liked Posts</title>
+    <link rel="stylesheet" href="/likedPosts.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="profile-section">
+            <img src="<%= avatar %>" alt="User profile" class="profile-pic">
+            <h2><%= user.username %></h2>
+        </div>
+        <div class="menu-icon">
+            <a href="#" id="menu-toggle">
+                <i class="fas fa-bars"></i> 
+            </a>
+        </div>
+        <ul class="menu-items">
+            <li><a href="/home/dashboard"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="/my-projects"><i class="fa fa-briefcase"></i> Projects</a></li>
+            <li><a href="/posts"><i class="fa fa-newspaper"></i> Posts</a></li>
+            <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+        </ul>
+    </div>
+    <div class="container">
+        <% likedPosts.forEach(post => { %>
+            <% if (post) { %>
+                <div class="card" id="post-<%= post.postId %>">
+                    <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="Post Creator Avatar" class="avatar-large">
+                    <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
+                    <h2><%= post.title %></h2>
+                    <p><%= post.description %></p>
+                </div>
+            <% } %>
+        <% }) %>        
+    </div> 
+    <script defer src='/app.js'></script>
+    <script defer src='/script.js'></script>
+</body>
+</html>
