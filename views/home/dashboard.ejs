@@ -5,62 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link rel="stylesheet" href="/homepage.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
-    <div class="header">
-        <h1>Welcome Back <%= user.username %>!</h1>
-        <div class="action-buttons">
-            <a href="/auth/logout">
-                <button>Logout</button>
-            </a>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-container">
+                <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/39f8664a4cb8e1d79c375d70d49357c512a0be146f87e9f33d98852407c52c3b?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="logo" class="logo"/>
+            </div>
+            <h1>Welcome Back <%= user.username %>!</h1>
         </div>
     </div>
-    <form action="/search/results" method="GET">
         <div class="search-bar action-buttons">
             <p>Looking For Something? </p>
-            <input type="text" name="query" placeholder="Search">
+            <input type="text" placeholder="Search">
             <button class="button">Search</button>
         </div>
-
-    </form>
         <div class="recent-projects">
             <h2>My Projects</h2>
-            <% projects.forEach(function(project) { %>
-                <div class="card">
-                    <div class="card-details">
-                        <h3><%= project.title %></h3>
-                        <p>Description: <%= project.description %></p>
-                        <p>Date: <%= project.date %></p>
-                        <a href="/projects/<%= project.projectId %>">View More</a>
+            <button class="carousel-btn prev-btn" id="prevProjectsBtn">&lt;</button>
+            <div class="carousel-content">
+                <% projects.forEach(function(project) { %>
+                    <div class="carousel-item">
+                        <article class="card">
+                            <div class="card-details">
+                                <h3><%= project.title %></h3>
+                                <p>Description: <%= project.description %></p>
+                                <p>Date: <%= project.date %></p>
+                                <a href="/projects/<%= project.projectId %>">View More</a>
+                            </div>
+                        </article>
                     </div>
-                </div>
-            <% }); %>
-            <div class="action-buttons">
-                <a href="/my-projects"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
-                    <button>My Projects</button>
-                </a>
-                </div>
-        </div>
-
-        <div class="new-today">
-            <h2>What's New Today</h2>
-            <% posts.forEach(post => { %>
-                <div class="card">
-                    <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
-                  <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
-                  <h2><%= post.title %></h2>
-                  <p><%= post.description %></p>
-                  <div class="action-buttons">
-                  </div>
-                </div>
-              <% }); %>
-                <div class="action-buttons">
-                    <a href="/posts"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
-                        <button>Community</button>
-                    </a>
-                    </div>
+                <% }); %>
             </div>
-    </div>
+            <button class="carousel-btn next-btn" id="nextProjectsBtn">&gt;</button>
+        </div>
+        <div class="carousel" id="postsCarousel">
+            <h2>What's New Today</h2>
+            <button class="carousel-btn prev-btn" id="prevPostsBtn">&lt;</button>
+            <div class="carousel-content">
+                <% posts.forEach(post => { %>
+                    <div class="carousel-item">
+                        <article class="card">
+                            <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" class="avatar">
+                            <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
+                            <h2><%= post.title %></h2>
+                            <p><%= post.description %></p>
+                        </article>
+                    </div>
+                <% }); %>
+            </div>
+            <button class="carousel-btn next-btn" id="nextPostsBtn">&gt;</button>
+        </div>
+    </section>
+    <nav class="bottom-nav">
+        <a href="/home" class="nav-link">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="/my-projects" class="nav-link">
+            <i class="fas fa-briefcase"></i>
+            <span>Projects</span>
+        </a>
+        <a href="/posts" class="nav-link">
+            <i class="fas fa-newspaper"></i>
+            <span>Posts</span>
+        </a>
+        <a href="/profile" class="nav-link">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+        <a href="/auth/logout" class="nav-link">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </nav>
+    <script defer src="/home.js"></script>
 </body>
 <script> 
 

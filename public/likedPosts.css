@@ -1,0 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=Mada:wght@400&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
+
+body, html {
+    height: 100vh; 
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center; 
+    align-items: center;  
+    font-family: 'Mada', sans-serif;
+    background: #E5DCD5;
+}
+
+.sidebar {
+    width: 250px;
+    position: fixed;
+    left: -250px; 
+    top: 0;
+    bottom: 0;
+    background-color: #fff;
+    transition: left 0.3s ease-in-out;
+    padding: 15px;
+    box-shadow: 4px 0 5px rgba(0,0,0,0.2);
+}
+
+.sidebar.open {
+    left: 0; 
+}
+
+.main-content {
+    transition: margin-left 0.3s ease-in-out;
+    margin-left: 0;
+}
+
+.profile-pic, .avatar-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: block;
+    margin: auto;
+}
+
+.menu-icon {
+    display: flex;
+    position: fixed;
+    top: 20px;
+    left: 40px;  
+    z-index: 1001; 
+    cursor: pointer;
+}
+
+.menu-icon a {
+    color: inherit; 
+    display: inline-block;
+    text-decoration: none;
+}
+
+.menu-icon i {
+    font-size: 24px; 
+}
+
+.menu-items {
+    list-style: none;
+    padding: 0;
+}
+
+.menu-items li a {
+    text-decoration: none;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu-items li a:hover {
+    color: #007bff;
+}
+
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px; 
+    margin-top: 50px;  
+    background-color: #fff;
+    border-radius: 15px;  
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); 
+    width: 100%;  
+    max-width: 700px;  
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.avatar-large {
+    width: 90px;  
+    height: 90px;
+    border-radius: 50%;
+    margin: 20px auto;  
+    display: block;
+}
+
+.user-info h1 {
+    font-size: 28px;  
+    color: #333;
+    margin-bottom: 10px;  
+}
+
+.user-info p {
+    font-size: 20px;  
+    color: #666;
+}
+
+.user-details h1, .user-details p {
+    text-align: center; 
+}
+
+button {
+    height: 45pt;
+    width: 141.75pt;
+    background-color: #0CB0EA;
+    color: #000;
+    font-weight: bold;
+    padding: 12.75pt 33.75pt;
+    font-family: 'Mada', sans-serif;
+    font-size: 13pt;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px #999;
+    transition: all 0.3s ease;
+    align-items: center;
+    margin-top: 10px; /* Added spacing */
+}
+
+button:hover {
+    background-color: #0A97D9;
+    box-shadow: 0 6px #666;
+    transform: translateY(-2px);
+}
+
+button:active {
+    background-color: #0884C6;
+    box-shadow: 0 2px #333;
+    transform: translateY(1px);
+}
+
+.dropdown {
+    left: 40%;
+    text-align: center;
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    width: 100%;
+    margin-top: 60px;
+}
+
+.container, .header {
+    transition: margin-left 0.3s ease; 
+}
+
+.container.open, .header.open {
+    margin-left: 250px; 
+}
+
+.card {
+    background-color: #F5E2C2;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+    padding: 15px;
+    box-sizing: border-box;
+    width: 300px;
+    height: 300px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center; 
+}
+
+.card h2 {
+    font-size: 24px;
+}
+
+.card p {
+    font-size: 18px; 
+}
+
+.card strong {
+    font-size: 18px;
+}
+
+.card span {
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        left: -100%; 
+    }
+    .sidebar.open {
+        left: 0; 
+    }
+    .main-content {
+        padding-left: 0; 
+    }
+    .profile-container {
+        width: 90%; 
+        padding: 20px; 
+        margin-top: 20px;
+    }
+    .card {
+        width: 90%;
+        padding: 20px; 
+        height: auto; 
+    }
+}

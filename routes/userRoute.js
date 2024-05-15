@@ -2,7 +2,6 @@ const express = require('express');
 const {User} = require('../database/schema/schemaModel');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
-const { default: Swal } = require('sweetalert2');
 
 router.get('/login', (req, res) => {
     if (req.session.username) {
@@ -42,6 +41,9 @@ router.get('/register', (req, res) => {
 router.post('/register', async (req, res) => {
     try {
         const { username, password, email, id } = req.body;
+        if (username && password && email < 6) {
+         return res.status(400).json({ message: 'Username, password and email must be at least 6 characters long!' });
+        }
         const hashedPassword = bcrypt.hashSync(password, 10);
         const newUser = await User.create({
             username, 
@@ -51,12 +53,6 @@ router.post('/register', async (req, res) => {
         });
         if(!newUser) {
             console.log('Error creating user');
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Error creating user!',
-              })
-            return res.redirect('/auth/register');
         }
         await newUser.save();
         res.redirect('/home/dashboard');

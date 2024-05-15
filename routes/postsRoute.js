@@ -95,9 +95,6 @@ router.get('/create', (req, res) => {
         if (!req.session.username) {
             return res.status(403).send("You must be logged in to create posts");
         }
-        if (req.session.lastPostTime && new Date() - new Date(req.session.lastPostTime) < 30000) { 
-            return res.status(429).send("Please wait a bit before creating another post.");
-        }
         
         const { title, description, content } = req.body;
         if (title.length > 100 || description.length > 100) {
@@ -169,7 +166,7 @@ router.post('/like/:id', async (req, res) => {
 
 router.delete('/:postId', async (req, res) => {
     const postId = req.params.postId;
-    const userId = req.session.userId;  // Ensure session is correctly configured to use this.
+    const userId = req.session.userId;  
 
     try {
         const post = await Post.findByPk(postId);
@@ -177,7 +174,7 @@ router.delete('/:postId', async (req, res) => {
             return res.status(404).json({ message: "Post not found." });
         }
 
-        if (post.createdBy !== userId) {  // Ensure `createdBy` is the correct field for checking ownership.
+        if (post.createdBy !== userId) { 
             return res.status(403).json({ message: "You can only delete your own posts." });
         }
 
