@@ -8,7 +8,37 @@
 </head>
 <body>
     <div class="container">
-        <div class="card">
+      <div class="card">
+        <div class="action-buttons">
+          <a href="/my-projects">
+            <button type="button">Back to My Projects</button>
+          </a>
+        </div>
+        <h1>Project Details</h1>
+        <div>
+          <h2><%= project.title %></h2>
+          <p><strong>Description:</strong> <%= project.description %></p>
+          <p><strong>Date:</strong> <%= project.date %></p>
+          <!-- Format date -->
+          <p><strong>Steps:</strong></p>
+          <ul>
+            <% if (project.Steps && project.Steps.length > 0) { %> <%
+            project.Steps.forEach((step, index) => { %>
+              <p><strong>Step <%= index + 1 %>:</strong></p>
+              <p> <%= step.description %> </p>
+            <% }); %> <% } else { %>
+            <li>No steps available</li>
+            <% } %>
+          </ul>
+          <% if (project.Images && project.Images.length > 0) { %>
+          <p><strong>Cover Image:</strong></p>
+          <img
+            src="<%= project.Images[0].link %>"
+            alt="Cover Image"
+            style="max-width: 100%; height: auto"
+          />
+          <% } %>
+          <% if (project.User && project.User.username === loggedInUsername) { %>
             <div class="action-buttons">
                 <a href="/my-projects">
                     <button type="button">Back to My Projects</button>

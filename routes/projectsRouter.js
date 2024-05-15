@@ -3,6 +3,7 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 const { User, Project, Step, Image, Avatar, Collaborator } = require('../database/schema/schemaModel');
+const { ensureAuthenticated } = require('../middleware/middleware');
 const router = express.Router();
 
 // Configure Cloudinary
@@ -25,7 +26,7 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage: storage });
 
 // View all projects
-router.get("/", async (req, res) => {
+router.get("/", ensureAuthenticated, async (req, res) => {
   try {
     
     console.log("Session Username:", req.session.username);  
@@ -61,11 +62,11 @@ router.get("/", async (req, res) => {
 });
 
 // Route to add a new project
-router.get("/create", (req, res) => {
+router.get("/create", ensureAuthenticated, (req, res) => {
   res.render("projects/create", { username: req.session.username });
 });
 
-router.post("/create", upload.single('coverImage'), async (req, res) => {
+router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (req, res) => {
   try {
     const { title, description, steps, date } = req.body;
     const username = await User.findOne({ where: { username: req.session.username }});
@@ -113,7 +114,7 @@ router.post("/create", upload.single('coverImage'), async (req, res) => {
     console.log("New Project Created:", newProject);
 
     // Redirect to projects page after successful creation
-    res.redirect("/projects");
+    res.redirect(`/projects/${newProject.projectId}`);
   } catch (err) {
     console.error("Error creating project:", err);
     res.status(500).send("Failed to create project. Please try again.");
@@ -124,7 +125,7 @@ router.post("/create", upload.single('coverImage'), async (req, res) => {
 
 //View
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", ensureAuthenticated, async (req, res) => {
   const loggedInUsername = req.session.username;
   const id = parseInt(req.params.id);
   if (isNaN(id)) {
@@ -162,7 +163,7 @@ router.get("/:id", async (req, res) => {
 
 // Update project
 
-router.get('/:id/update', async (req, res) => {
+router.get('/:id/update', ensureAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) {
     return res.status(400).json({ message: "Invalid project ID" });
@@ -185,7 +186,7 @@ router.get('/:id/update', async (req, res) => {
   }
 });
 
-router.post('/:id/update', async (req, res) => {
+router.post('/:id/update', ensureAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) {
     return res.status(400).json({ message: "Invalid project ID" });
@@ -226,7 +227,7 @@ router.post('/:id/update', async (req, res) => {
 });
 
 // Delete project
-router.get("/:id/delete", async (req, res) => {
+router.get("/:id/delete", ensureAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id);
   const project = await Project.findOne({ where: { projectId: id } });
   if (project) {
@@ -236,7 +237,7 @@ router.get("/:id/delete", async (req, res) => {
   }
 });
 
-router.post("/:id/delete", async (req, res) => {
+router.post("/:id/delete", ensureAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id);
   const success = await Project.destroy({ where: { projectId: id } });
   if (success) {
@@ -252,7 +253,7 @@ router.post("/:id/delete", async (req, res) => {
 ///collaborators
 
 // Join project
-router.post('/:projectId/join', async (req, res) => {
+router.post('/:projectId/join', ensureAuthenticated, async (req, res) => {
   try {
     const projectId = req.params.projectId;
     const user = await User.findOne({ where: { username: req.session.username } });
@@ -270,7 +271,7 @@ router.post('/:projectId/join', async (req, res) => {
 });
 
 // Leave project
-router.post('/:projectId/leave', async (req, res) => {
+router.post('/:projectId/leave', ensureAuthenticated, async (req, res) => {
   try {
     const projectId = req.params.projectId;
     const user = await User.findOne({ where: { username: req.session.username } });

@@ -1,7 +1,6 @@
 const express = require('express');
 const session = require('express-session');
 require('dotenv').config();
-require('dotenv').config();
 const bodyParser = require('body-parser');
 const middleware = require('./middleware/middleware');
 const userRouter = require('./routes/userRoute');
@@ -11,8 +10,8 @@ const projectsRouter = require('./routes/projectsRouter');
 const homeRouter = require('./routes/homeRoute');
 const userProjectsRouter = require('./routes/userProjectsRouter');
 const chatRouter = require('./routes/chatRoute');
+const searchRouter = require('./routes/searchRoute')
 const app = express();
-
 const socket = require('socket.io');
 const http = require('http');
 const server = http.createServer(app);
@@ -69,6 +68,7 @@ app.use('/projects', projectsRouter);
 app.use('/home', homeRouter);
 app.use('/my-projects', userProjectsRouter);
 app.use('/chat', chatRouter);
+app.use('/search', searchRouter);
 
 app.get('/', (req, res) => {
     res.redirect('/auth/login');

@@ -107,6 +107,24 @@ body, html {
   text-decoration: underline;
 }
 
+.search-bar {
+  background-color: #F5E2C2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Orelega One', cursive;
+  font-size: 24px;
+}
+
+.search-bar input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+
 .card {
   background-color: #F5E2C2;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
