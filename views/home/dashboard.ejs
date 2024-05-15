@@ -8,57 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
-    <div class="header">
-        <h1>Welcome Back <%= user.username %>!</h1>
-        <div class="action-buttons">
-            <a href="/auth/logout">
-                <button>Logout</button>
-            </a>
-        </div>
-    </div>
-        <div class="search-bar action-buttons">
-            <p>Looking For Something? </p>
-            <input type="text" placeholder="Search">
-            <a href="/chat">
-                <button class="button">Search</button>
-            </a>
-        </div>
-        <div class="recent-projects">
-            <h2>My Projects</h2>
-            <% projects.forEach(function(project) { %>
-                <div class="card">
-                    <div class="card-details">
-                        <h3><%= project.title %></h3>
-                        <p>Description: <%= project.description %></p>
-                        <p>Date: <%= project.date %></p>
-                        <a href="/projects/<%= project.projectId %>">View More</a>
-                    </div>
-                </div>
-            <% }); %>
-            <div class="action-buttons">
-                <a href="/my-projects"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
-                    <button>My Projects</button>
-                </a>
-                </div>
-        </div>
-
-        <div class="new-today">
-            <h2>What's New Today</h2>
-            <% posts.forEach(post => { %>
-                <div class="card">
-                    <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
-                  <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
-                  <h2><%= post.title %></h2>
-                  <p><%= post.description %></p>
-                  <div class="action-buttons">
-                  </div>
-                </div>
-              <% }); %>
-                <div class="action-buttons">
-                    <a href="/posts"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
-                        <button>Community</button>
-                    </a>
-                    </div>
     <header class="header">
         <div class="header-content">
             <div class="logo-container">
@@ -71,13 +20,6 @@
         <p>Looking For Something?</p>
         <input type="text" placeholder="Search">
         <button class="button">Search</button>
-    </section>
-    <section class="category-filter">
-        <p>Filter by Category</p>
-        <div class="categories">
-            <button data-filter="projects">Projects</button>
-            <button data-filter="posts">Posts</button>
-        </div>
     </section>
     <section class="carousel-section">
         <div class="carousel" id="projectsCarousel">
@@ -118,7 +60,7 @@
         </div>
     </section>
     <nav class="bottom-nav">
-        <a href="/home" class="nav-link">
+        <a href="/home/dashboard" class="nav-link">
             <i class="fas fa-home"></i>
             <span>Home</span>
         </a>

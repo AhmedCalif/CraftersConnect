@@ -58,12 +58,48 @@ header h1 {
 }
 
 .search-bar input[type="text"] {
-    width: 70%;
-    padding: 10px;
-    margin-right: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+ width: 90%; 
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: 'Mada', sans-serif; 
+  font-size: 16px; 
+  color: #333; 
+  background-color: #f8f8f8; 
 }
+
+.search-bar button {
+    height: 45pt;
+    width: 141.75pt;
+    background-color: #0CB0EA;
+    color: #000;
+    font-weight: bold;
+    padding: 12.75pt 33.75pt;
+    font-family: 'Mada', sans-serif;
+    font-size: 15pt;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px #999;
+    transition: all 0.3s ease;
+  
+  }
+  
+  .search-bar button:hover {
+    background-color: #0A97D9;
+    box-shadow: 0 6px #666;
+    transform: translateY(-2px);
+  }
+  
+  .search-bar button:active {
+    background-color: #0884C6;
+    box-shadow: 0 2px #333;
+    transform: translateY(1px);
+  }
 
 .category-filter {
     background-color: #F5E2C2;
