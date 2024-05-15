@@ -18,15 +18,15 @@
     </header>
     <section class="search-bar">
         <p>Looking For Something?</p>
-        <input type="text" placeholder="Search">
-        <button class="button">Search</button>
+        <form action="/search/results" method="GET">
+            <div class="search-bar action-buttons">
+                <input type="text" name="query" placeholder="Search">
+            <button class="button">Search</button>
     </section>
-    <section class="category-filter">
-        <p>Filter by Category</p>
-        <div class="categories">
-            <button data-filter="projects">Projects</button>
-            <button data-filter="posts">Posts</button>
         </div>
+
+    </form>
+        <div class="recent-projects">
     </section>
     <section class="carousel-section">
         <div class="carousel" id="projectsCarousel">
@@ -90,4 +90,7 @@
     </nav>
     <script defer src="/home.js"></script>
 </body>
+<script> 
+
+</script>
 </html>
