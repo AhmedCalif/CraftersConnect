@@ -9,7 +9,10 @@ const {
 const { Sequelize } = require("sequelize");
 
 router.get("/results", async (req, res) => {
-  const searchTerm = req.query.query;
+    const sortBy = req.query.sortBy || 'createdAt';
+    const sortOrder = req.query.sortOrder || 'DESC';
+
+  const searchTerm = req.query.search || '';
   const user = await User.findOne({
     where: { username: req.session.username },
     include: Avatar,
@@ -18,15 +21,25 @@ router.get("/results", async (req, res) => {
   const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
 
   const projects = await Project.findAll({
-    include: {
+    where: {
       title: {
-        [Sequelize.Op.like]: `${searchTerm}`,
+        [Sequelize.Op.like]: `%${searchTerm}%`,
       },
     },
     include: [{
         model: User,
-        include: [Avatar]
-    }]
+        required: false,
+        include: [{
+            model: Avatar,
+            required: false
+        }]
+    },
+    {
+        model: User,
+        as: 'Collaborators',
+        through: { attributes: [] } 
+    }],
+    order: [[sortBy, sortOrder ]]
   });
 
 

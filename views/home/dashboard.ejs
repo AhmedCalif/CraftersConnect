@@ -15,11 +15,14 @@
             </a>
         </div>
     </div>
+    <form action="/search/results" method="GET">
         <div class="search-bar action-buttons">
             <p>Looking For Something? </p>
-            <input type="text" placeholder="Search">
+            <input type="text" name="query" placeholder="Search">
             <button class="button">Search</button>
         </div>
+
+    </form>
         <div class="recent-projects">
             <h2>My Projects</h2>
             <% projects.forEach(function(project) { %>

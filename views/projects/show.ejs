@@ -23,8 +23,9 @@
           <p><strong>Steps:</strong></p>
           <ul>
             <% if (project.Steps && project.Steps.length > 0) { %> <%
-            project.Steps.forEach(step => { %>
-            <li><%= step.description %></li>
+            project.Steps.forEach((step, index) => { %>
+              <p><strong>Step <%= index + 1 %>:</strong></p>
+              <p> <%= step.description %> </p>
             <% }); %> <% } else { %>
             <li>No steps available</li>
             <% } %>
