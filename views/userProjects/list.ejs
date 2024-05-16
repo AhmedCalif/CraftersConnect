@@ -20,7 +20,7 @@
           <a href="/profile"><i class="fas fa-user"></i> Profile</a>
         </li>
         <li>
-          <a href="/my-projects"><i class="fa fa-briefcase"></i> Projects</a>
+          <a href="/my-projects/all"><i class="fa fa-briefcase"></i> Projects</a>
         </li>
         <li>
           <a href="/posts"><i class="fa fa-newspaper"></i>Posts</a>
@@ -120,55 +120,7 @@
     </div>
 
     <script defer src="/script.js">
-      document.addEventListener('DOMContentLoaded', function () {
-    const searchForm = document.getElementById('searchForm');
-    const searchInput = document.getElementById('searchInput');
-    const sortSelect = document.getElementById('sortSelect');
-    const projectsDiv = document.getElementById('projects');
-
-    // Handle form submission for search and sorting
-    searchForm.addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent the default form submission
-        fetchProjects(searchInput.value, sortSelect.value);
-    });
-
-    // Function to fetch and display projects based on search and sorting
-    function fetchProjects(query = '', sort = '') {
-        let url = `/search/results?search=${encodeURIComponent(query)}`;
-        if (sort) {
-            const [sortBy, sortOrder] = sort.split('_');
-            url += `&sortBy=${sortBy}&sortOrder=${sortOrder}`;
-        }
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                projectsDiv.innerHTML = ''; // Clear previous results
-                data.forEach(project => {
-                    const projectDiv = document.createElement('div');
-                    projectDiv.className = 'project-card';
-                    projectDiv.innerHTML = `
-                        <img src="${project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3'}" alt="${project.User.username}" class="profile-pic" />
-                        <h2>${project.title}</h2>
-                        <p><strong>Created by:</strong> ${project.Creator.username}</p>
-                        <p><strong>Description:</strong> ${project.description}</p>
-                        <p><strong>Date:</strong> ${new Date(project.date).toDateString()}</p>
-                        <a href="/projects/${project.projectId}">View More</a>
-                    `;
-                    projectsDiv.appendChild(projectDiv);
-                });
-                searchInput.value = query; // Set the search input to the current query after fetching
-            })
-            .catch(error => console.error('Error fetching projects:', error));
-    }
-
-    // Initially fetch all projects when page loads without altering the search query
-    if (searchInput.value) { // Check if there's an existing search term (useful for page reloads)
-        fetchProjects(searchInput.value, sortSelect.value);
-    } else {
-        fetchProjects();
-    }
-});
+      
     </script>
   </body>
 </html>

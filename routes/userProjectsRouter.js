@@ -51,6 +51,7 @@ router.get("/collaborated", ensureAuthenticated, async (req, res) => {
 // Route for all projects related to the user
 router.get("/all", ensureAuthenticated, async (req, res) => {
   try {
+    const loggedInUsername = req.session.username;
     const user = await User.findOne({
       where: { username: req.session.username },
       include: Avatar
@@ -62,7 +63,9 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
 
     const createdProjects = await Project.findAll({ 
       where: { userId: user.userId }, 
-      include: { model: User, as: 'Creator', include: Avatar }
+      include: [{ model: User, as: 'Creator', include: Avatar }],
+      distinct: true
+      
     });
 
     const collaboratedProjects = await Project.findAll({
@@ -77,9 +80,13 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
       ]
     });
 
+    const allProjects = [...createdProjects, ...collaboratedProjects].filter((project, index, self) => 
+      index === self.findIndex((p) => p.projectId === project.projectId)
+    );
+
     const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
 
-    res.render('userProjects/all', { createdProjects, collaboratedProjects, user, avatarUrl });
+    res.render('userProjects/all', { createdProjects, collaboratedProjects, allProjects, user, avatarUrl, loggedInUsername });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error while fetching projects list.");
