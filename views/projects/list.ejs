@@ -150,7 +150,7 @@
                     projectDiv.innerHTML = `
                         <img src="${project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3'}" alt="${project.User.username}" class="profile-pic" />
                         <h2>${project.title}</h2>
-                        <p><strong>Created by:</strong> ${project.User.username}</p>
+                        <p><strong>Created by:</strong> ${project.Creator.username}</p>
                         <p><strong>Description:</strong> ${project.description}</p>
                         <p><strong>Date:</strong> ${new Date(project.date).toDateString()}</p>
                         <a href="/projects/${project.projectId}">View More</a>

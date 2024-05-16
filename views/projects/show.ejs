@@ -48,6 +48,14 @@
             </a>
           </div>
         <% } %>
+
+        <% if (project.Collaborators && project.Collaborators.map(c => c.username).includes(loggedInUsername)) { %>
+          <div class="action-buttons">
+            <a href="/projects/<%= project.projectId %>/update">
+              <button type="button">Edit Project</button>
+            </a>
+          </div>
+        <% } %>
       </div>
 
       <div class="container">

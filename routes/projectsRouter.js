@@ -380,7 +380,7 @@ router.post('/:id/update', ensureAuthenticated, async (req, res) => {
   }
 
   const updatedAt = new Date();
-  const { title, description, date, step } = req.body;
+  const { title, description, date, steps } = req.body;
   console.log("Update details:", req.body);
 
   try {
@@ -393,7 +393,7 @@ router.post('/:id/update', ensureAuthenticated, async (req, res) => {
       return res.status(404).send("Project not found");
     }
 
-    await project.update({ title, description, date, updatedAt });
+    await project.update({ title, description, steps, updatedAt });
 
     // Delete existing steps
     await Step.destroy({ where: { projectId: id } });
@@ -442,16 +442,16 @@ router.post('/:projectId/join', ensureAuthenticated, async (req, res) => {
     const projectId = req.params.projectId;
     const user = await User.findOne({ where: { username: req.session.username } });
 
-    // Add the user as a collaborator
     if (user) {
       await Collaborator.create({ projectId, userId: user.userId });
       console.log(`Collaborator added: ${user.username} to project ${projectId}`);
     }
 
-    res.redirect('/projects');
-} catch (err) {
-    res.status(500).send(err.message);
-}
+    res.redirect(`/projects/${projectId}`);
+  } catch (err) {
+    console.error('Error joining project:', err);
+    res.status(500).send('Failed to join project.');
+  }
 });
 
 // Leave project
@@ -460,17 +460,17 @@ router.post('/:projectId/leave', ensureAuthenticated, async (req, res) => {
     const projectId = req.params.projectId;
     const user = await User.findOne({ where: { username: req.session.username } });
 
-    // Remove the user as a collaborator
     if (user) {
-      console.log(`Collaborator removed: ${user.username} from project ${projectId}`);
-      
       await Collaborator.destroy({ where: { projectId, userId: user.userId } });
+      console.log(`Collaborator removed: ${user.username} from project ${projectId}`);
     }
 
-    res.redirect('/projects'); 
-} catch (err) {
-    res.status(500).send(err.message);
-}
+    res.redirect(`/projects/${projectId}`);
+  } catch (err) {
+    console.error('Error leaving project:', err);
+    res.status(500).send('Failed to leave project.');
+  }
 });
+
 
 module.exports = router;
