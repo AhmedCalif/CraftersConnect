@@ -26,6 +26,26 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
+
+function checkProjectOwnership(req, res, next) {
+  Project.findByPk(req.params.projectId)
+    .then(project => {
+      if (!project) {
+        return res.status(404).send('Project not found');
+      }
+      if (project.userId !== req.user.userId) {
+        return res.status(403).send('You are not authorized to modify this project');
+      }
+      req.project = project; // pass project to the next middleware or route handler
+      next();
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send("Server Error");
+    });
+}
+
+
 // View all projects
 router.get("/", ensureAuthenticated, async (req, res) => {
   try {

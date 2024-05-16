@@ -111,7 +111,11 @@ const Collaborator = sequelize.define('Collaborator', {
       model: User,
       key: 'userId'
     }
-  }
+  },
+  role: {
+    type: DataTypes.STRING,
+    defaultValue: 'collaborator' // Can be 'collaborator', 'viewer', 'editor', etc.
+  },
 }, {
   timestamps: true
 });
@@ -189,8 +193,8 @@ Post.belongsTo(User, { as: 'creator', foreignKey: 'createdBy' });
 Like.belongsTo(Post, { foreignKey: 'postId' });
 Post.hasMany(Like, { foreignKey: 'postId' });
 
-User.hasMany(Project, {  foreignKey: 'userId' });
-Project.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(Project, { foreignKey: 'userId' });
+Project.belongsTo(User, { foreignKey: 'userId', as: 'Creator' });
 
 User.hasOne(Avatar, { foreignKey: 'userId' });
 Avatar.belongsTo(User, { as: 'User', foreignKey: 'userId' });
