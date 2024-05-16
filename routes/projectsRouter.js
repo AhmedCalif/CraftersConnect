@@ -256,7 +256,7 @@ router.post('/:id/update', ensureAuthenticated, async (req, res) => {
 
     if (steps && steps.length) {
       const stepRecords = steps.map(step => ({
-        description: step,
+        description: step.description,
         projectId: id
       }));
       await Step.bulkCreate(stepRecords);
