@@ -123,7 +123,7 @@
               message: messageInput.value,
               receiverId: receiverIdSelect.value,
               projectId: projectId,
-              username: '<%= loggedInUsername %>' // Make sure this is set correctly
+              username: '<%= loggedInUsername %>' 
             };
 
             fetch(`/projects/chat?projectId=${projectId}`, {
