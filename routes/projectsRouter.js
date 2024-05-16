@@ -30,21 +30,26 @@ const upload = multer({ storage: storage });
 
 
 function checkProjectOwnership(req, res, next) {
-  Project.findByPk(req.params.projectId)
-    .then(project => {
-      if (!project) {
-        return res.status(404).send('Project not found');
-      }
-      if (project.userId !== req.user.userId) {
-        return res.status(403).send('You are not authorized to modify this project');
-      }
-      req.project = project; // pass project to the next middleware or route handler
-      next();
-    })
-    .catch(error => {
-      console.error(error);
-      res.status(500).send("Server Error");
-    });
+  Project.findByPk(req.params.projectId, {
+    include: [{
+      model: User,
+      as: 'Creator'
+    }]
+  })
+  .then(project => {
+    if (!project) {
+      return res.status(404).send('Project not found');
+    }
+    if (project.Creator.userId !== req.user.userId) {
+      return res.status(403).send('You are not authorized to modify this project');
+    }
+    req.project = project; // pass project to the next middleware or route handler
+    next();
+  })
+  .catch(error => {
+    console.error(error);
+    res.status(500).send("Server Error");
+  });
 }
 
 
@@ -83,13 +88,14 @@ router.get("/", ensureAuthenticated, async (req, res) => {
       include: [
         {
           model: User,
-          as: 'User',
+          as: 'Creator',
           include: {
             model: Avatar,
-            as: 'Avatar'
+            as: 'Avatar',
+            required: false
           },
-          include: { model: Avatar, as: 'Avatar' }
         },
+  
         {
           model: User,
           as: 'Collaborators',
@@ -307,11 +313,20 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
       include: [
         { model: Step, as: 'Steps' },
         { model: Image },
-        { model: User, include: Avatar },
+        {
+          model: User,
+          as: 'Creator',
+          include: {
+            model: Avatar,
+            as: 'Avatar',
+            required: false
+          },
+        },
         {
           model: User,
           as: 'Collaborators',
-          through: { attributes: [] } 
+          through: { attributes: [] },
+          include: { model: Avatar, required: false }
         }
       ]
     });
@@ -321,7 +336,7 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
       avatarUrl: collaborator.Avatar ? collaborator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3'
     }));
 
-    const avatarUrl = project.User.Avatar ? project.User.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
+    const avatarUrl = project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
     if (project) {
       console.log('Project Details:', project);
       res.render('projects/show', { project, loggedInUsername, avatar: avatarUrl, collaborators });
@@ -364,7 +379,8 @@ router.post('/:id/update', ensureAuthenticated, async (req, res) => {
     return res.status(400).json({ message: "Invalid project ID" });
   }
 
-  const { title, description, date, steps } = req.body;
+  const updatedAt = new Date();
+  const { title, description, date, step } = req.body;
   console.log("Update details:", req.body);
 
   try {
@@ -377,7 +393,7 @@ router.post('/:id/update', ensureAuthenticated, async (req, res) => {
       return res.status(404).send("Project not found");
     }
 
-    await project.update({ title, description, date });
+    await project.update({ title, description, date, updatedAt });
 
     // Delete existing steps
     await Step.destroy({ where: { projectId: id } });
