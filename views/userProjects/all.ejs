@@ -46,7 +46,7 @@
     <h1>All Projects</h1>
     <% allProjects.forEach(project => { %>
     <div class="card">
-      <img src="<%= project.Creator && project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator ? project.Creator.username : 'Unknown' %>" class="profile-pic" />
+      <img src="<%= project.Images && project.Images.length > 0 ? project.Images[0].link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="cover-pic" />
       <h2><%= project.title %></h2>
       <% if (project.Creator) { %>
       <p><strong>Created by:</strong> <%= project.Creator.username %></p>
@@ -82,7 +82,7 @@
     <h1>Collaborated Projects</h1>
     <% collaboratedProjects.forEach(project => { %>
     <div class="card">
-      <img src="<%= project.Creator && project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator ? project.Creator.username : 'Unknown' %>" class="profile-pic" />
+      <img src="<%= project.Images && project.Images.length > 0 ? project.Images[0].link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="cover-pic" />
       <h2><%= project.title %></h2>
       <% if (project.Creator) { %>
       <p><strong>Created by:</strong> <%= project.Creator.username %></p>
@@ -111,7 +111,7 @@
     <h1>Created Projects</h1>
     <% createdProjects.forEach(project => { %>
     <div class="card">
-      <img src="<%= project.Creator && project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator ? project.Creator.username : 'Unknown' %>" class="profile-pic" />
+      <img src="<%= createdProjects.coverImage && createdProjects.coverImage.length > 0 ? createdProjects.coverImage[0].link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="cover-pic" />
       <h2><%= project.title %></h2>
       <% if (project.Creator) { %>
       <p><strong>Created by:</strong> <%= project.Creator.username %></p>

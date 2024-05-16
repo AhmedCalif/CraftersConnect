@@ -100,6 +100,12 @@
         .then(data => {
           if (data.success) {
             document.getElementById('coverImageUrl').value = data.imageUrl;
+            Swal.fire({
+              icon: 'success',
+              title: 'Cover image uploaded successfully!',
+              showConfirmButton: false,
+              timer: 1500
+            });
           } else {
             Swal.fire({
               icon: 'error',

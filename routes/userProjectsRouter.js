@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { User, Project, Collaborator, Avatar } = require('../database/schema/schemaModel');
+const { User, Project, Collaborator, Avatar, Image } = require('../database/schema/schemaModel');
 const { ensureAuthenticated } = require('../middleware/middleware');
 
 // Route for projects created by the user
@@ -16,7 +16,10 @@ router.get("/created", ensureAuthenticated, async (req, res) => {
 
   const projects = await Project.findAll({
     where: { userId: user.userId },
-    include: { model: User, as: 'Creator', include: Avatar }
+    include: [
+      { model: User, as: 'Creator', include: Avatar },
+      { model: Image }
+    ]
   });
 
   res.render('userProjects/created', { projects, user });
@@ -41,7 +44,8 @@ router.get("/collaborated", ensureAuthenticated, async (req, res) => {
         where: { userId: user.userId },
         include: [{ model: Avatar }]
       },
-      { model: User, as: 'Creator', include: Avatar }
+      { model: User, as: 'Creator', include: Avatar },
+      { model: Image }
     ]
   });
 
@@ -63,9 +67,11 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
 
     const createdProjects = await Project.findAll({ 
       where: { userId: user.userId }, 
-      include: [{ model: User, as: 'Creator', include: Avatar }],
+      include: [
+        { model: User, as: 'Creator', include: Avatar },
+        { model: Image }
+      ],
       distinct: true
-      
     });
 
     const collaboratedProjects = await Project.findAll({
@@ -76,7 +82,8 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
           where: { userId: user.userId },
           include: [{ model: Avatar }]
         },
-        { model: User, as: 'Creator', include: Avatar }
+        { model: User, as: 'Creator', include: Avatar },
+        { model: Image }
       ]
     });
 
@@ -86,7 +93,10 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
 
     const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
 
-    res.render('userProjects/all', { createdProjects, collaboratedProjects, allProjects, user, avatarUrl, loggedInUsername });
+    const coverImage = Project.coverImage || 'https://via.placeholder.com/150';
+
+
+    res.render('userProjects/all', { createdProjects, collaboratedProjects, allProjects, user, avatarUrl, loggedInUsername, coverImage });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error while fetching projects list.");
