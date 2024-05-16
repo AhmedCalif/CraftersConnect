@@ -44,7 +44,6 @@
   </div>
   <div class="container" id="projects">
     <h1>All Projects</h1>
-    <% console.log('Created Projects:', JSON.stringify(createdProjects)); %>
     <% allProjects.forEach(project => { %>
     <div class="card">
       <img src="<%= project.Creator && project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator ? project.Creator.username : 'Unknown' %>" class="profile-pic" />
@@ -108,9 +107,8 @@
       <a href="/projects/<%= project.projectId %>">View More</a>
     </div>
     <% }); %>
-  </div>
 
-  <h1>Created Projects</h1>
+    <h1>Created Projects</h1>
     <% createdProjects.forEach(project => { %>
     <div class="card">
       <img src="<%= project.Creator && project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator ? project.Creator.username : 'Unknown' %>" class="profile-pic" />
@@ -144,7 +142,6 @@
     </div>
     <% }); %>
   </div>
-    <script defer src="/script.js">
-    </script>
-  </body>
+  <script defer src="/script.js"></script>
+</body>
 </html>

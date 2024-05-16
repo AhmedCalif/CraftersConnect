@@ -62,11 +62,7 @@
                 });
             })
             .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Registration Error',
-                    text: 'Username and Password must be at least 6 characters.'
-                });
+            console.log('Error:', error);
             });
         });
     </script>
