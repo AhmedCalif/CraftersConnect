@@ -30,8 +30,10 @@
     "redis": "^4.6.13",
     "sequelize": "^6.37.3",
     "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
     "sweetalert2": "^11.10.8",
     "typescript": "^5.4.5",
+    "ws": "^8.17.0",
     "zod": "^3.23.6"
   },
   "devDependencies": {
