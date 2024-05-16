@@ -111,10 +111,6 @@ const Collaborator = sequelize.define('Collaborator', {
       key: 'userId'
     }
   },
-  role: {
-    type: DataTypes.STRING,
-    defaultValue: 'collaborator' // Can be 'collaborator', 'viewer', 'editor', etc.
-  },
 }, {
   timestamps: true
 });
