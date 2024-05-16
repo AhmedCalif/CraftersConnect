@@ -120,6 +120,7 @@ app.use('/home', homeRouter);
 app.use('/my-projects', userProjectsRouter);
 app.use('/chat', chatRouter);
 
+
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
 });

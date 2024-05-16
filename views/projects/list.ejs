@@ -71,13 +71,13 @@
       <% projects.forEach(project => { %>
       <div class="card">
         <img
-          src="<%= project.User.Avatar ? project.User.Avatar.imageUrl : 'default-avatar.png' %>"
-          alt="<%= project.User.username %>"
+          src="<%= project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>"
+          alt="<%= project.Creator.username %>"
           class="profile-pic"
         />
         <h2><%= project.title %></h2>
-        <% if (project.User) { %>
-        <p><strong>Created by:</strong> <%= project.User.username %></p>
+        <% if (project.Creator) { %>
+        <p><strong>Created by:</strong> <%= project.Creator.username %></p>
         <% } else { %>
         <p><strong>Created by:</strong> Unknown</p>
         <% } %>
@@ -96,7 +96,7 @@
         <% } %>
 
         <!-- Logic for displaying the appropriate button -->
-        <% const isCreator = project.User && project.User.username === username;
+        <% const isCreator = project.Creator && project.Creator.username === username;
         const isCollaborator = project.Collaborators &&
         project.Collaborators.some(collaborator => collaborator.username ===
         username); %> <% if (!isCreator) { %> <% if (isCollaborator) { %>
@@ -148,7 +148,7 @@
                     const projectDiv = document.createElement('div');
                     projectDiv.className = 'project-card';
                     projectDiv.innerHTML = `
-                        <img src="${project.User.Avatar ? project.User.Avatar.imageUrl : 'default-avatar.png'}" alt="${project.User.username}" class="profile-pic" />
+                        <img src="${project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3'}" alt="${project.User.username}" class="profile-pic" />
                         <h2>${project.title}</h2>
                         <p><strong>Created by:</strong> ${project.User.username}</p>
                         <p><strong>Description:</strong> ${project.description}</p>

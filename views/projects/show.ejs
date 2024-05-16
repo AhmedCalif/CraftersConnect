@@ -38,7 +38,7 @@
             style="max-width: 100%; height: auto"
           />
         <% } %>
-        <% if (project.User && project.User.username === loggedInUsername) { %>
+        <% if (project.Creator && project.Creator.username === loggedInUsername) { %>
           <div class="action-buttons">
             <a href="/projects/<%= project.projectId %>/update">
               <button type="button">Edit Project</button>
