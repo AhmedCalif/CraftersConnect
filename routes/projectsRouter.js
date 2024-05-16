@@ -4,6 +4,7 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 const { User, Project, Step, Image, Avatar, Collaborator } = require('../database/schema/schemaModel');
 const { ensureAuthenticated } = require('../middleware/middleware');
+const { Sequelize } = require('sequelize')
 const router = express.Router();
 
 // Configure Cloudinary
@@ -28,33 +29,58 @@ const upload = multer({ storage: storage });
 // View all projects
 router.get("/", ensureAuthenticated, async (req, res) => {
   try {
-    
-    console.log("Session Username:", req.session.username);  
-    const user = await User.findOne({ where: { username: req.session.username }, include: Avatar });
+    console.log("Session Username:", req.session.username);
+    const user = await User.findOne({
+      where: { username: req.session.username },
+      include: Avatar
+    });
     const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
-    console.log("Found User:", user); 
+    console.log("Found User:", user);
     if (!user) {
-        return res.status(404).send("User not found");  
+      return res.status(404).send("User not found");
     }
+
+    const searchQuery = req.query.search || '';
+    const sortOption = req.query.sort || '';
+    let whereCondition = {};
+    let order = [];
+
+    // Applying search filtering
+    if (searchQuery) {
+      whereCondition.title = { [Sequelize.Op.like]: `%${searchQuery}%` };
+    }
+
+    // Applying sorting
+    if (sortOption) {
+      const [sortBy, sortOrder] = sortOption.split('_');
+      order = [[sortBy, sortOrder]];
+    }
+
     const projects = await Project.findAll({
+      where: whereCondition,
       include: [
-          {
-              model: User,
-              as: 'User',
-              include: {
-                  model: Avatar,
-                  as: 'Avatar'
-              }
-          },
-          {
-              model: User,
-              as: 'Collaborators',
-              through: { attributes: [] } // This avoids including the join table attributes
-          }
-      ]
+        {
+          model: User,
+          as: 'User',
+          include: { model: Avatar, as: 'Avatar' }
+        },
+        {
+          model: User,
+          as: 'Collaborators',
+          through: { attributes: [] },
+          include: { model: Avatar, required: false }
+        }
+      ],
+      order: order
     });
 
-    res.render('projects/list', { projects, username: req.session.username, avatar: avatarUrl });  
+    res.render('projects/list', {
+      projects,
+      username: req.session.username,
+      avatar: avatarUrl,
+      searchQuery, // Pass the current search query back to the view
+      sortOption // Pass the current sort option back to the view
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error while fetching projects list.");

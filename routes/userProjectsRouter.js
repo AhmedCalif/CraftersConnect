@@ -1,32 +1,84 @@
 const express = require('express');
-const { User, Project, Step, Image, Avatar } = require('../database/schema/schemaModel');
 const router = express.Router();
+const { User, Project, Collaborator, Avatar } = require('../database/schema/schemaModel');
+const { ensureAuthenticated } = require('../middleware/middleware');
 
-// View projects created by the logged-in user
-router.get("/", async (req, res) => {
-  try {
-    const username = req.session.username;
-    if (!username) {
-      return res.status(401).send("Unauthorized: No session available");
+// Route for projects created by the user
+router.get("/created", ensureAuthenticated, async (req, res) => {
+  const user = await User.findOne({
+    where: { username: req.session.username },
+    include: Avatar
+  });
+
+  if (!user) {
+    return res.status(404).send("User not found");
+  }
+
+  const projects = await Project.findAll({
+    where: { userId: user.userId },
+    include: { model: User, as: 'Creator', include: Avatar }
+  });
+
+  res.render('userProjects/created', { projects, user });
+});
+
+// Route for projects where the user is a collaborator
+router.get("/collaborated", ensureAuthenticated, async (req, res) => {
+  const user = await User.findOne({
+    where: { username: req.session.username },
+    include: Avatar
+  });
+
+  if (!user) {
+    return res.status(404).send("User not found");
+  }
+
+  const projects = await Project.findAll({
+    include: {
+      model: User,
+      as: 'Collaborators',
+      where: { userId: user.userId },
+      include: [{ model: Avatar }]
     }
+  });
 
-    const user = await User.findOne({ where: { username: username }, include: Avatar });
+  res.render('userProjects/collaborated', { projects, user });
+});
+
+// Route for all projects related to the user
+router.get("/all", ensureAuthenticated, async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { username: req.session.username },
+      include: Avatar
+    });
+
     if (!user) {
       return res.status(404).send("User not found");
     }
-    const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
-    const projects = await Project.findAll({ 
-      where: { userId: user.userId }, 
+
+    // Fetching projects where the user is either the creator or a collaborator
+    const projects = await Project.findAll({
       include: [
-        { model: Step, as: 'Steps' },
-        { model: User, include: Avatar }  // Include the User model
-      ] 
+        {
+          model: User, 
+          as: 'Creator', 
+          include: Avatar,
+          where: { userId: user.userId }
+        },
+        {
+          model: User,
+          as: 'Collaborators',
+          through: { attributes: [] },
+          where: { userId: user.userId }
+        }
+      ]
     });
 
-    res.render('userProjects/list', { projects, user, avatar: avatarUrl });
+    res.render('userProjects/all', { projects, user });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Server Error while fetching user's projects");
+    res.status(500).send("Server Error while fetching projects list.");
   }
 });
 

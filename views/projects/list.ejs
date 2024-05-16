@@ -50,17 +50,23 @@
         </a>
       </div>
     </div>
-    <form action="/search/results" method="GET">
-      <div class="search-bar action-buttons">
-        <p>Looking For A New Project?</p>
-        <input type="text" name="query" placeholder="Search" />
-        <button class="button">Search</button>
-        <button id="filterRecent">Filter by Most Recent</button>
-        <div id="projects"></div>
-      </div>
-    </form>
-
-    <div class="container">
+    <form id="searchForm" action="/projects" method="GET">
+        <div class="search-bar action-buttons">
+          <p>Looking For A New Project?</p>
+          <!-- Set the input value to the current search query -->
+          <input type="text" id="searchInput" name="search" placeholder="Search" value="<%= searchQuery %>" />
+          <select id="sortSelect" name="sort">
+            <option value="">No Sorting</option>
+            <option value="createdAt_DESC" <%= sortOption === 'createdAt_DESC' ? 'selected' : '' %>>Most Recent</option>
+            <option value="createdAt_ASC" <%= sortOption === 'createdAt_ASC' ? 'selected' : '' %>>Oldest</option>
+            <option value="title_ASC" <%= sortOption === 'title_ASC' ? 'selected' : '' %>>Title A-Z</option>
+            <option value="title_DESC" <%= sortOption === 'title_DESC' ? 'selected' : '' %>>Title Z-A</option>
+          </select>
+          <button type="submit" class="button" id="searchButton">Search</button>
+          <div id="projects"></div>
+        </div>
+      </form>
+    <div class="container" id="projects">
       <h1>Projects From All Users</h1>
       <% projects.forEach(project => { %>
       <div class="card">
@@ -114,20 +120,55 @@
     </div>
 
     <script defer src="/script.js">
-        document.getElementById('filterRecent').addEventListener('click', () => {
-      fetch('/projects?sortBy=createdAt&sortOrder=DESC')
-        .then(response => response.json())
-        .then(data => {
-          const projectsDiv = document.getElementById('projects');
-          projectsDiv.innerHTML = ''; // Clear previous results
-          data.forEach(project => {
-            const projectDiv = document.createElement('div');
-            projectDiv.textContent = project.title; // Display project title
-            projectsDiv.appendChild(projectDiv);
-          });
-        })
-        .catch(error => console.error('Error:', error));
+      document.addEventListener('DOMContentLoaded', function () {
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const projectsDiv = document.getElementById('projects');
+
+    // Handle form submission for search and sorting
+    searchForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        fetchProjects(searchInput.value, sortSelect.value);
     });
+
+    // Function to fetch and display projects based on search and sorting
+    function fetchProjects(query = '', sort = '') {
+        let url = `/search/results?search=${encodeURIComponent(query)}`;
+        if (sort) {
+            const [sortBy, sortOrder] = sort.split('_');
+            url += `&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                projectsDiv.innerHTML = ''; // Clear previous results
+                data.forEach(project => {
+                    const projectDiv = document.createElement('div');
+                    projectDiv.className = 'project-card';
+                    projectDiv.innerHTML = `
+                        <img src="${project.User.Avatar ? project.User.Avatar.imageUrl : 'default-avatar.png'}" alt="${project.User.username}" class="profile-pic" />
+                        <h2>${project.title}</h2>
+                        <p><strong>Created by:</strong> ${project.User.username}</p>
+                        <p><strong>Description:</strong> ${project.description}</p>
+                        <p><strong>Date:</strong> ${new Date(project.date).toDateString()}</p>
+                        <a href="/projects/${project.projectId}">View More</a>
+                    `;
+                    projectsDiv.appendChild(projectDiv);
+                });
+                searchInput.value = query; // Set the search input to the current query after fetching
+            })
+            .catch(error => console.error('Error fetching projects:', error));
+    }
+
+    // Initially fetch all projects when page loads without altering the search query
+    if (searchInput.value) { // Check if there's an existing search term (useful for page reloads)
+        fetchProjects(searchInput.value, sortSelect.value);
+    } else {
+        fetchProjects();
+    }
+});
     </script>
   </body>
 </html>

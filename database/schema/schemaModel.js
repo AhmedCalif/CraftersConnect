@@ -189,7 +189,7 @@ Post.belongsTo(User, { as: 'creator', foreignKey: 'createdBy' });
 Like.belongsTo(Post, { foreignKey: 'postId' });
 Post.hasMany(Like, { foreignKey: 'postId' });
 
-User.hasMany(Project, { foreignKey: 'userId' });
+User.hasMany(Project, {  foreignKey: 'userId' });
 Project.belongsTo(User, { foreignKey: 'userId' });
 
 User.hasOne(Avatar, { foreignKey: 'userId' });

@@ -24,7 +24,7 @@
           <ul>
             <% if (project.Steps && project.Steps.length > 0) { %> <%
             project.Steps.forEach((step, index) => { %>
-              <p><strong>Step <%= index + 1 %>:</strong></p>
+              <p><strong>Step <%= index + 1 %>:</p>
               <p> <%= step.description %> </p>
             <% }); %> <% } else { %>
             <li>No steps available</li>
