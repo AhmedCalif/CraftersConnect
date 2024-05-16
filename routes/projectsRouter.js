@@ -209,14 +209,16 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
         }
       ]
     });
-    const collaborators = project.Collaborators.map(collaborator => ({
-      userId: collaborator.userId,
-      username: collaborator.username,
-      avatarUrl: collaborator.Avatar ? collaborator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3'
-    }));
 
-    const avatarUrl = project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
     if (project) {
+      const collaborators = project.Collaborators.map(collaborator => ({
+        userId: collaborator.userId,
+        username: collaborator.username,
+        avatarUrl: collaborator.Avatar ? collaborator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3'
+      }));
+
+      const avatarUrl = project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
+
       console.log('Project Details:', project);
       res.render('projects/show', { project, loggedInUsername, avatar: avatarUrl, collaborators });
     } else {
@@ -226,7 +228,8 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
     console.error("Error fetching project:", err);
     res.status(500).send("Server Error while fetching project details.");
   }
-}); 
+});
+
 
 // Update project
 router.get('/:id/update', ensureAuthenticated, async (req, res) => {

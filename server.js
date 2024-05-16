@@ -10,15 +10,9 @@ const projectsRouter = require('./routes/projectsRouter');
 const homeRouter = require('./routes/homeRoute');
 const userProjectsRouter = require('./routes/userProjectsRouter');
 const chatRouter = require('./routes/chatRoute');
-const { Message, User } = require('./database/schema/schemaModel');
 
 const app = express();
-const http = require('http');
-const server = http.createServer(app);
-const { Server } = require('socket.io');
-const io = new Server(server);
 
-// Middleware and configurations
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your_default_secret_key',
     resave: false,
@@ -51,47 +45,7 @@ app.get('/', (req, res) => {
 
 app.use(middleware.errorHandler);
 
-// Socket.io connection handling
-io.on('connection', (socket) => {
-    console.log('New connection');
-    socket.on('message', async (msg) => {
-        const savedMessage = await saveMessage(msg);
-        io.emit('message', savedMessage);
-    });
-});
-
-const saveMessage = async (message) => {
-    const user = await User.findById(message.user);
-    const newMessage = await Message.create({
-        user: user._id,
-        message: message.message,
-        date: message.date
-    });
-    return newMessage;
-};
-
-app.get('/projects/chat', async (req, res) => {
-    const { projectId } = req.query;
-    const chats = await Message.find({ project: projectId }).populate('user');
-    res.json({ chats });
-});
-
-app.post('/projects/chat', async (req, res) => {
-    const { message, receiverId, projectId, username } = req.body;
-    const user = await User.findOne({ username });
-    const newMessage = await Message.create({
-        user: user._id,
-        message,
-        receiver: receiverId,
-        project: projectId,
-        date: new Date()
-    });
-    res.json(newMessage);
-});
-
 const port = 8000;
-server.listen(port, () => {
+app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
-
-module.exports = { server, io };

@@ -4,20 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Show Project</title>
-  <link rel="stylesheet" href="/projects.css" />
-  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="/projects.css"/>
 </head>
 <body>
   <div class="container">
     <div class="card">
       <div class="action-buttons">
-        <a href="/my-projects">
+        <a href="/my-projects/all">
           <button type="button">Back to My Projects</button>
         </a>
       </div>
       <h1>Project Details</h1>
       <div>
         <h2><%= project.title %></h2>
+        <p><strong>By:</strong> <%= project.Creator.username %></p>
         <p><strong>Description:</strong> <%= project.description %></p>
         <p><strong>Date:</strong> <%= project.date %></p>
         <p><strong>Steps:</strong></p>
@@ -58,92 +58,6 @@
           </div>
         <% } %>
       </div>
-
-      <div class="container">
-        <div class="chat-container" data-project-id="<%= project.projectId %>">
-          <h2>Project Chat</h2>
-          <div id="messages"></div>
-          <form id="message-form">
-            <select id="receiver-id" required>
-              <% collaborators.forEach(collaborator => { %>
-                <option value="<%= collaborator.userId %>"><%= collaborator.username %></option>
-              <% }); %>
-            </select>
-            <input id="message" type="text" placeholder="Type your message..." required />
-            <button type="submit">Send</button>
-          </form>
-        </div>
-      </div>
-      <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-          const socket = io();
-
-          const messageForm = document.getElementById('message-form');
-          const messagesDiv = document.getElementById('messages');
-          const messageInput = document.getElementById('message');
-          const receiverIdSelect = document.getElementById('receiver-id');
-          const chatContainer = document.querySelector('.chat-container');
-          const projectId = chatContainer.getAttribute('data-project-id');
-
-          if (!projectId) {
-            console.error('Project ID is not defined');
-            return;
-          }
-
-          // Function to load messages
-          const loadMessages = () => {
-            console.log('Loading messages...');
-            fetch(`/projects/chat?projectId=${projectId}`)
-              .then(response => response.json())
-              .then(data => {
-                messagesDiv.innerHTML = '';
-                data.chats.forEach(chat => {
-                  appendMessage(chat.senderUsername, chat.lastMessage);
-                });
-              })
-              .catch(error => console.error('Error loading messages:', error));
-          };
-
-          // Function to append a message to the chat
-          const appendMessage = (username, message) => {
-            const messageElement = document.createElement('div');
-            messageElement.textContent = `${username}: ${message}`;
-            messagesDiv.appendChild(messageElement);
-          };
-
-          
-          loadMessages();
-
-          // Handle form submission
-          messageForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const message = {
-              message: messageInput.value,
-              receiverId: receiverIdSelect.value,
-              projectId: projectId,
-              username: '<%= loggedInUsername %>' 
-            };
-
-            fetch(`/projects/chat?projectId=${projectId}`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(message)
-            })
-            .then(response => response.json())
-            .then(data => {
-              messageInput.value = '';
-              socket.emit('message', data);
-            })
-            .catch(error => console.error('Error sending message:', error));
-          });
-
-          socket.on('message', (data) => {
-            appendMessage(data.username, data.message);
-          });
-        });
-      </script>
     </div>
   </div>
 </body>
