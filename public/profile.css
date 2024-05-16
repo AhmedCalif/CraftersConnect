@@ -88,8 +88,8 @@ button:active {
 }
 
 .accordion-toggle {
-    background-color: #0CB0EA;
-    color: white;
+    background-color: #ED960A;
+    color: #000;
     cursor: pointer;
     padding: 10px 20px;
     margin: 10px 0;
@@ -100,7 +100,7 @@ button:active {
     font-size: 16px;
     font-family: 'Mada', sans-serif;
     font-weight: bold;
-    border-radius: 10px;
+    border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s, box-shadow 0.3s;
 }

@@ -10,7 +10,7 @@ const projectsRouter = require('./routes/projectsRouter');
 const homeRouter = require('./routes/homeRoute');
 const userProjectsRouter = require('./routes/userProjectsRouter');
 const chatRouter = require('./routes/chatRoute');
-const searchRouter = require('./routes/searchRoute');
+
 
 const app = express();
 const http = require('http');
@@ -119,7 +119,6 @@ app.use('/projects', projectsRouter);
 app.use('/home', homeRouter);
 app.use('/my-projects', userProjectsRouter);
 app.use('/chat', chatRouter);
-app.use('/search', searchRouter);
 
 app.get('/', (req, res) => {
     res.redirect('/auth/login');

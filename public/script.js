@@ -1,4 +1,5 @@
 
+
 // Sidebar toggle
 document.addEventListener('DOMContentLoaded', function() {
     const menuToggle = document.getElementById('menu-toggle');
@@ -127,3 +128,4 @@ async function deletePost(postId) {
         });
     }
 }
+
