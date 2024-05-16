@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create a New Project</title>
   <link rel="stylesheet" href="/projects.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>
 <body>
   <div class="container">
@@ -14,6 +16,7 @@
         <div class="createContainer">
           <input type="hidden" name="username" value="<%= username %>" />
           <input type="hidden" id="date" name="date">
+          <input type="hidden" id="coverImageUrl" name="coverImageUrl">
 
           <label for="title"> Project Name</label>
           <input type="text" name="title" placeholder="What do you want to do?" required />
@@ -32,7 +35,7 @@
 
         <div>
           <label for="coverImage">Cover Image:</label>
-          <input type="file" id="coverImage" name="coverImage" accept="image/*" >
+          <input type="file" id="coverImage" name="coverImage" accept="image/*">
         </div>
 
         <div class="action-buttons">
@@ -46,32 +49,21 @@
 
   <script>
     document.getElementById("addStepBtn").addEventListener("click", function () {
-      // Get the steps container
       var stepsContainer = document.getElementById("stepsContainer");
-
-      // Create new step div
       var newStepDiv = document.createElement("div");
-
-      // Clone the first step's structure
       var firstStep = stepsContainer.firstElementChild.cloneNode(true);
-
-      // Update the new step's label and input attributes
       var stepNumber = stepsContainer.children.length + 1;
       firstStep.querySelector("label").textContent = "Step " + stepNumber + ":";
       var input = firstStep.querySelector("input");
       input.id = "step" + stepNumber;
       input.dataset.id = stepNumber;
-      input.value = ""; // Clear the value
-
-      // Add event listener to the new delete button
+      input.value = "";
       firstStep.querySelector(".deleteStepBtn").addEventListener("click", function () {
         if (stepsContainer.children.length > 1) {
           stepsContainer.removeChild(newStepDiv);
           updateStepNumbers();
         }
       });
-
-      // Append the cloned structure to the new step div
       newStepDiv.appendChild(firstStep);
       stepsContainer.appendChild(newStepDiv);
     });
@@ -88,8 +80,50 @@
     }
 
     document.querySelector("form").addEventListener("submit", function (event) {
-      const currentDate = new Date().toISOString(); // Generate current timestamp in ISO format
+      const currentDate = new Date().toISOString();
       document.querySelector('#date').value = currentDate;
+    });
+
+    const form = document.getElementById('projectForm');
+    const fileInput = document.getElementById('coverImage');
+
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        let formData = new FormData();
+        formData.append('coverImage', this.files[0]);
+
+        fetch('/projects/upload-coverImage', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('coverImageUrl').value = data.imageUrl;
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Failed to upload cover image',
+              text: 'Please try again later'
+            });
+            console.log('error', data.message)
+          }
+        })
+        .catch(error => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed to upload cover image',
+            text: error.message
+          });
+        });
+      }
+    });
+
+    form.addEventListener('submit', function(event) {
+      if (!fileInput.files.length || document.getElementById('coverImageUrl').value) {
+        return;
+      }
+      event.preventDefault();
     });
   </script>
 </body>

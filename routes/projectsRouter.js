@@ -2,11 +2,11 @@ const express = require('express');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
+const path = require('path');
 const { User, Project, Step, Image, Avatar, Collaborator, Message } = require('../database/schema/schemaModel');
 const { ensureAuthenticated } = require('../middleware/middleware');
 const Sequelize = require('sequelize');
 const router = express.Router();
-
 
 // Configure Cloudinary
 cloudinary.config({
@@ -16,20 +16,30 @@ cloudinary.config({
 });
 
 // Configure Multer to use Cloudinary storage
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'project_covers',
-    format: async (req, file) => 'png',
-    public_id: (req, file) => Date.now() + '-' + file.originalname
-  }
-});
+function uploadMiddleware(folderName) {
+  const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: (req, file) => {
+      const folderPath = `${folderName.trim()}`;
+      const fileExtension = path.extname(file.originalname).substring(1);
+      const publicId = `${req.session.userId}-${file.fieldname}`;
+      
+      return {
+        folder: folderPath,
+        public_id: publicId,
+        format: fileExtension,
+        overwrite: true,
+      };
+    },
+  });
+  return multer({ storage: storage });
+}
 
-const upload = multer({ storage: storage });
-
+const upload = uploadMiddleware('uploads');
 
 function checkProjectOwnership(req, res, next) {
-  Project.findByPk(req.params.projectId, {
+  const projectId = req.body.projectId || req.params.projectId;
+  Project.findByPk(projectId, {
     include: [{
       model: User,
       as: 'Creator'
@@ -37,20 +47,37 @@ function checkProjectOwnership(req, res, next) {
   })
   .then(project => {
     if (!project) {
-      return res.status(404).send('Project not found');
+      return res.status(404).json({ success: false, message: 'Project not found' });
     }
     if (project.Creator.userId !== req.user.userId) {
-      return res.status(403).send('You are not authorized to modify this project');
+      return res.status(403).json({ success: false, message: 'You are not authorized to modify this project' });
     }
     req.project = project; // pass project to the next middleware or route handler
     next();
   })
   .catch(error => {
     console.error(error);
-    res.status(500).send("Server Error");
+    res.status(500).json({ success: false, message: 'Server Error' });
   });
 }
 
+router.post('/upload-coverImage', upload.single('coverImage'), async (req, res) => {
+  try {
+    const project = req.project;
+    const coverImage = req.file.path;
+    if (!coverImage) {
+      return res.status(400).json({ success: false, message: 'Image not uploaded' });
+    }
+
+    await Image.create({ link: coverImage });
+    return res.status(200).json({ success: true, imageUrl: coverImage });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+});
+
+module.exports = router;
 
 // View all projects
 router.get("/", ensureAuthenticated, async (req, res) => {
@@ -127,7 +154,7 @@ router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (
   try {
     const { title, description, steps, date } = req.body;
     const username = await User.findOne({ where: { username: req.session.username }});
-    const coverImage = req.file ? req.file.path : null; // URL of the uploaded image
+    const coverImage = req.file ? req.file.path : null; 
     
     // Debugging statement to check the request body
     console.log("Form submission data:", req.body);
