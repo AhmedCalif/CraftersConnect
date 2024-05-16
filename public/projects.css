@@ -124,6 +124,9 @@ body, html {
   border-radius: 5px;
 }
 
+.filter-link.active {
+  color: red; 
+}
 
 .card {
   background-color: #F5E2C2;
