@@ -34,12 +34,15 @@ router.get("/collaborated", ensureAuthenticated, async (req, res) => {
   }
 
   const projects = await Project.findAll({
-    include: {
-      model: User,
-      as: 'Collaborators',
-      where: { userId: user.userId },
-      include: [{ model: Avatar }]
-    }
+    include: [
+      {
+        model: User,
+        as: 'Collaborators',
+        where: { userId: user.userId },
+        include: [{ model: Avatar }]
+      },
+      { model: User, as: 'Creator', include: Avatar }
+    ]
   });
 
   res.render('userProjects/collaborated', { projects, user });
@@ -59,23 +62,7 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
 
     const createdProjects = await Project.findAll({ 
       where: { userId: user.userId }, 
-    });
-
-    const projects = await Project.findAll({
-      include: [
-        {
-          model: User, 
-          as: 'Creator', 
-          include: Avatar,
-          where: { userId: user.userId }
-        },
-        {
-          model: User,
-          as: 'Collaborators',
-          through: { attributes: [] },
-          where: { userId: user.userId }
-        }
-      ]
+      include: { model: User, as: 'Creator', include: Avatar }
     });
 
     const collaboratedProjects = await Project.findAll({
@@ -83,20 +70,20 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
         {
           model: User,
           as: 'Collaborators',
-          where: {userId: user.userId }
+          where: { userId: user.userId },
+          include: [{ model: Avatar }]
         },
-        {model: Step, as: 'Steps' },
-        {model: User, include: Avatar }
+        { model: User, as: 'Creator', include: Avatar }
       ]
     });
 
     const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
 
-    res.render('userProjects/all', { createdProjects, projects, user, avatarUrl, collaboratedProjects });
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Server Error while fetching projects list.");
-    }
-  });
+    res.render('userProjects/all', { createdProjects, collaboratedProjects, user, avatarUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error while fetching projects list.");
+  }
+});
 
 module.exports = router;
