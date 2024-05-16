@@ -10,89 +10,15 @@ const projectsRouter = require('./routes/projectsRouter');
 const homeRouter = require('./routes/homeRoute');
 const userProjectsRouter = require('./routes/userProjectsRouter');
 const chatRouter = require('./routes/chatRoute');
-
+const { Message, User } = require('./database/schema/schemaModel');
 
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-const WebSocket = require('ws');
-const wss = new WebSocket.Server({ server });
+const { Server } = require('socket.io');
+const io = new Server(server);
 
-const { Message, User } = require('./database/schema/schemaModel'); 
-
-
-wss.on('connection', (ws, req) => {
-    const sessionParser = (ws) => {
-        return new Promise((resolve, reject) => {
-            session(req, {}, (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(req.session);
-                }
-            });
-        });
-    };
-
-    sessionParser(ws).then(session => {
-        const username = session.username;
-        console.log('Client connected with username:', username);
-
-        ws.on('message', async (data) => {
-            const messageData = JSON.parse(data);
-            const { message, receiverId, projectId } = messageData;
-
-            console.log('Received message:', messageData);
-
-            const user = await User.findOne({ where: { username: username } });
-            if (!user) {
-                console.error('User does not exist');
-                return;
-            }
-
-            const receiver = await User.findOne({ where: { userId: receiverId } });
-            if (!receiver) {
-                console.error('Receiver does not exist');
-                return;
-            }
-
-            try {
-                // Save the message to the database
-                const newMessage = await Message.create({
-                    message,
-                    userId: user.userId,
-                    receiverId,
-                    projectId
-                });
-
-                const broadcastData = {
-                    username: user.username,
-                    message: newMessage.message,
-                    projectId,
-                };
-
-                // Broadcast the new message to all connected clients
-                wss.clients.forEach((client) => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify(broadcastData));
-                    }
-                });
-            } catch (error) {
-                console.error('Error saving message:', error);
-            }
-        });
-
-        ws.on('close', () => {
-            console.log('Client disconnected');
-        });
-    }).catch(err => {
-        console.error('Failed to parse session:', err);
-        ws.terminate();
-    });
-});
-
-const port = 8000;
-
+// Middleware and configurations
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your_default_secret_key',
     resave: false,
@@ -104,14 +30,13 @@ app.use(session({
 }));
 
 app.set('view engine', 'ejs');
-app.use(express.static('public')); 
+app.use(express.static('public'));
 app.set('views', __dirname + '/views');
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
 app.use(middleware.attachUser);
 
+// Route configurations
 app.use('/auth', userRouter);
 app.use('/posts', postsRouter);
 app.use('/profile', profileRouter);
@@ -120,15 +45,53 @@ app.use('/home', homeRouter);
 app.use('/my-projects', userProjectsRouter);
 app.use('/chat', chatRouter);
 
-
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
 });
 
 app.use(middleware.errorHandler);
 
+// Socket.io connection handling
+io.on('connection', (socket) => {
+    console.log('New connection');
+    socket.on('message', async (msg) => {
+        const savedMessage = await saveMessage(msg);
+        io.emit('message', savedMessage);
+    });
+});
+
+const saveMessage = async (message) => {
+    const user = await User.findById(message.user);
+    const newMessage = await Message.create({
+        user: user._id,
+        message: message.message,
+        date: message.date
+    });
+    return newMessage;
+};
+
+app.get('/projects/chat', async (req, res) => {
+    const { projectId } = req.query;
+    const chats = await Message.find({ project: projectId }).populate('user');
+    res.json({ chats });
+});
+
+app.post('/projects/chat', async (req, res) => {
+    const { message, receiverId, projectId, username } = req.body;
+    const user = await User.findOne({ username });
+    const newMessage = await Message.create({
+        user: user._id,
+        message,
+        receiver: receiverId,
+        project: projectId,
+        date: new Date()
+    });
+    res.json(newMessage);
+});
+
+const port = 8000;
 server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
 
-module.exports = {server, wss}
+module.exports = { server, io };

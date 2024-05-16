@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Show Project</title>
   <link rel="stylesheet" href="/projects.css" />
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
   <div class="container">
@@ -75,7 +76,7 @@
       </div>
       <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-          const socket = new WebSocket('ws://localhost:8000');
+          const socket = io();
 
           const messageForm = document.getElementById('message-form');
           const messagesDiv = document.getElementById('messages');
@@ -93,19 +94,8 @@
           const loadMessages = () => {
             console.log('Loading messages...');
             fetch(`/projects/chat?projectId=${projectId}`)
-              .then(response => {
-                if (!response.ok) {
-                  return response.text().then(text => { throw new Error(text) });
-                }
-                return response.json();
-              })
+              .then(response => response.json())
               .then(data => {
-                console.log('Messages loaded:', data.chats);
-                if (!data.chats) {
-                  console.error('No chats found');
-                  return;
-                }
-                // Clear existing messages on initial load
                 messagesDiv.innerHTML = '';
                 data.chats.forEach(chat => {
                   appendMessage(chat.senderUsername, chat.lastMessage);
@@ -121,7 +111,7 @@
             messagesDiv.appendChild(messageElement);
           };
 
-          // Initial load of messages
+          
           loadMessages();
 
           // Handle form submission
@@ -141,25 +131,15 @@
               },
               body: JSON.stringify(message)
             })
-            .then(response => {
-              if (!response.ok) {
-                return response.text().then(text => { throw new Error(text) });
-              }
-              return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-              console.log('Message sent:', data);
               messageInput.value = '';
-              // Send the message to WebSocket
-              socket.send(JSON.stringify(message));
+              socket.emit('message', data);
             })
             .catch(error => console.error('Error sending message:', error));
           });
 
-          // Listen for new messages from the WebSocket server
-          socket.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
-            console.log('New message received:', data);
+          socket.on('message', (data) => {
             appendMessage(data.username, data.message);
           });
         });

@@ -6,8 +6,7 @@ const { User, Project, Step, Image, Avatar, Collaborator, Message } = require('.
 const { ensureAuthenticated } = require('../middleware/middleware');
 const Sequelize = require('sequelize');
 const router = express.Router();
-const WebSocket = require('ws');
-const { wss } = require('../server');
+
 
 // Configure Cloudinary
 cloudinary.config({
@@ -175,126 +174,6 @@ router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (
   } catch (err) {
     console.error("Error creating project:", err);
     res.status(500).send("Failed to create project. Please try again.");
-  }
-});
-
-
-router.get('/chat', async (req, res) => {
-  if (!req.session.userId) {
-    return res.status(403).json({ message: "Not logged in" });
-  }
-
-  try {
-    const userId = req.session.userId;
-    const projectId = req.query.projectId;
-
-    if (!projectId) {
-      return res.status(400).json({ error: 'Project ID is required' });
-    }
-
-    const project = await Project.findOne({
-      where: { projectId },
-      include: [
-        { model: User, as: 'Collaborators', through: { attributes: [] }, include: [{ model: Avatar }] }
-      ]
-    });
-
-    if (!project) {
-      return res.status(404).json({ message: "Project not found" });
-    }
-
-    const collaborators = project.Collaborators.map(collaborator => ({
-      userId: collaborator.userId,
-      username: collaborator.username,
-      avatarUrl: collaborator.Avatar ? collaborator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3'
-    }));
-
-    const messages = await Message.findAll({
-      include: [
-        {
-          model: User,
-          as: 'Sender',
-          attributes: ['username'],
-          include: [{ model: Avatar, attributes: ['imageUrl'] }]
-        },
-        {
-          model: User,
-          as: 'Receiver',
-          attributes: ['username'],
-          include: [{ model: Avatar, attributes: ['imageUrl'] }]
-        }
-      ],
-      order: [['createdAt', 'ASC']]
-    });
-
-    const chats = messages.map(message => ({
-      senderUsername: message.Sender.username,
-      receiverUsername: message.Receiver.username,
-      lastMessage: message.message,
-      userId: message.userId,
-      receiverId: message.receiverId,
-      senderAvatarUrl: message.Sender.Avatar ? message.Sender.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3',
-      receiverAvatarUrl: message.Receiver.Avatar ? message.Receiver.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3'
-    }));
-
-    res.json({ chats: chats, collaborators: collaborators, userId: userId });
-  } catch (error) {
-    console.error("Error fetching messages:", error);
-    res.status(500).json({ error: 'Error fetching messages' });
-  }
-});
-
-router.post('/chat', async (req, res) => {
-  const userId = req.session.userId; 
-  const messageText = req.body.message;
-  const receiverId = req.body.receiverId;
-  const projectId = req.body.projectId; 
-
-  if (!userId|| !messageText || !receiverId || !projectId) { 
-    return res.status(400).json({ error: 'Username, message, receiver ID, and project ID are required' });
-  }
-
-  try {
-    const user = await User.findOne({ where: { userId: userId } }); 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const receiver = await User.findOne({ where: { userId: receiverId } });
-    if (!receiver) {
-      return res.status(404).json({ error: 'Receiver not found' });
-    }
-
-    const newMessage = await Message.create({
-      message: messageText,
-      userId: user.userId, 
-      receiverId: receiver.userId, 
-      projectId: projectId
-    });
-
-    const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
-
-    res.json({
-      newMessage: {
-        userId: user.userId,
-        message: newMessage.message,
-        avatarUrl: avatarUrl
-      }
-    });
-
-    const messageData = {
-      userId: user.userId,
-      message: newMessage.message,
-    };
-
-    wss.clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        console.log('Broadcasting message:', messageData);
-      }
-    });
-
-  } catch (error) {
-    console.error('Failed to save message:', error);
   }
 });
 
