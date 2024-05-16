@@ -5,38 +5,43 @@ const { ensureAuthenticated } = require('../middleware/middleware');
 
 // Route for projects created by the user
 router.get("/created", ensureAuthenticated, async (req, res) => {
+  const loggedInUsername = req.session.username;
   const user = await User.findOne({
     where: { username: req.session.username },
     include: Avatar
   });
-
+  
   if (!user) {
     return res.status(404).send("User not found");
   }
 
-  const projects = await Project.findAll({
-    where: { userId: user.userId },
-    include: [
-      { model: User, as: 'Creator', include: Avatar },
-      { model: Image }
-    ]
+  const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
+  
+  const createdProjects = await Project.findAll({ 
+    where: { userId: user.userId }, 
+    include: [{ model: User, as: 'Creator', include: Avatar}, {model: Image }],
+    distinct: true
+    
   });
 
-  res.render('userProjects/created', { projects, user });
+
+  res.render('userProjects/created', { createdProjects, user, loggedInUsername, avatarUrl });
 });
 
 // Route for projects where the user is a collaborator
 router.get("/collaborated", ensureAuthenticated, async (req, res) => {
+  const loggedInUsername = req.session.username;
   const user = await User.findOne({
     where: { username: req.session.username },
     include: Avatar
   });
-
+  
   if (!user) {
     return res.status(404).send("User not found");
   }
+  const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
 
-  const projects = await Project.findAll({
+  const collaboratedProjects = await Project.findAll({
     include: [
       {
         model: User,
@@ -49,7 +54,7 @@ router.get("/collaborated", ensureAuthenticated, async (req, res) => {
     ]
   });
 
-  res.render('userProjects/collaborated', { projects, user });
+  res.render('userProjects/collaborated', { collaboratedProjects, user, avatarUrl, loggedInUsername });
 });
 
 // Route for all projects related to the user
