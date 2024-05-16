@@ -20,7 +20,7 @@
         <a href="/profile"><i class="fas fa-user"></i> Profile</a>
       </li>
       <li>
-        <a href="/my-projects"><i class="fa fa-briefcase"></i> Projects</a>
+        <a href="/my-projects/all"><i class="fa fa-briefcase"></i> Projects</a>
       </li>
       <li>
         <a href="/posts"><i class="fa fa-newspaper"></i> Posts</a>
@@ -43,8 +43,9 @@
     </div>
   </div>
   <div class="container" id="projects">
-    <h1>Created Projects</h1>
-    <% createdProjects.forEach(project => { %>
+    <h1>All Projects</h1>
+    <% console.log('Created Projects:', JSON.stringify(createdProjects)); %>
+    <% allProjects.forEach(project => { %>
     <div class="card">
       <img src="<%= project.Creator && project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator ? project.Creator.username : 'Unknown' %>" class="profile-pic" />
       <h2><%= project.title %></h2>
@@ -55,14 +56,25 @@
       <% } %>
       <p><strong>Description:</strong> <%= project.description %></p>
       <p><strong>Date:</strong> <%= new Date(project.date).toDateString() %></p>
-      <div class="action-buttons">
-        <a href="/projects/<%= project.projectId %>/update">
-          <button type="button">Edit Project</button>
-        </a>
-        <a href="/projects/<%= project.projectId %>/delete">
-          <button type="button">Delete Project</button>
-        </a>
-      </div>
+      <% if (project.Creator && project.Creator.username === loggedInUsername) { %>
+        <div class="action-buttons">
+          <a href="/projects/<%= project.projectId %>/update">
+            <button type="button">Edit Project</button>
+          </a>
+          <a href="/projects/<%= project.projectId %>/delete">
+            <button type="button">Delete Project</button>
+          </a>
+        </div>
+      <% } %>
+
+      <% if (project.Collaborators && project.Collaborators.map(c => c.username).includes(loggedInUsername)) { %>
+        <form action="/projects/<%= project.projectId %>/leave" method="POST">
+            <div class="action-buttons">
+              <button type="submit">Leave</button>
+            </div>
+          </form>
+      <% } %>
+
       <br />
       <a href="/projects/<%= project.projectId %>">View More</a>
     </div>
@@ -98,6 +110,40 @@
     <% }); %>
   </div>
 
+  <h1>Created Projects</h1>
+    <% createdProjects.forEach(project => { %>
+    <div class="card">
+      <img src="<%= project.Creator && project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator ? project.Creator.username : 'Unknown' %>" class="profile-pic" />
+      <h2><%= project.title %></h2>
+      <% if (project.Creator) { %>
+      <p><strong>Created by:</strong> <%= project.Creator.username %></p>
+      <% } else { %>
+      <p><strong>Created by:</strong> Unknown</p>
+      <% } %>
+      <p><strong>Description:</strong> <%= project.description %></p>
+      <p><strong>Date:</strong> <%= new Date(project.date).toDateString() %></p>
+      <% if (project.Collaborators && project.Collaborators.length > 0) { %>
+      <p><strong>Collaborators:</strong>
+        <% project.Collaborators.forEach(collaborator => { %> <%= collaborator.username %>, <% }); %>
+      </p>
+      <% } else { %>
+      <p>No collaborators found.</p>
+      <% } %>
+      <br />
+      <a href="/projects/<%= project.projectId %>">View More</a>
+      <% if (project.Creator && project.Creator.username === loggedInUsername) { %>
+        <div class="action-buttons">
+          <a href="/projects/<%= project.projectId %>/update">
+            <button type="button">Edit Project</button>
+          </a>
+          <a href="/projects/<%= project.projectId %>/delete">
+            <button type="button">Delete Project</button>
+          </a>
+        </div>
+      <% } %>
+    </div>
+    <% }); %>
+  </div>
     <script defer src="/script.js">
     </script>
   </body>
