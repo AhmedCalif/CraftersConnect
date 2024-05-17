@@ -244,7 +244,7 @@ router.post('/:id/update', ensureAuthenticated, async (req, res) => {
     const project = await Project.findOne({
       where: { projectId: id },
       include: [{ model: Step, as: 'Steps' }]
-    });
+    }); 
 
     if (!project) {
       return res.status(404).send("Project not found");
