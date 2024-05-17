@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Projects</title>
     <link rel="stylesheet" href="/projects.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   </head>
   <body>
     <div class="sidebar">
@@ -51,7 +52,7 @@
       </div>
     </div>
     <form id="searchForm" action="/projects" method="GET">
-        <div class="search-bar action-buttons">
+        <div class="search-bar action-buttons header">
           <p>Looking For A New Project?</p>
           <!-- Set the input value to the current search query -->
           <input type="text" id="searchInput" name="search" placeholder="Search" value="<%= searchQuery %>" />
