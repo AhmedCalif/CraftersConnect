@@ -256,3 +256,13 @@ input[type="text"], textarea {
   border: 1px solid #ddd;
   border-radius: 5px;
 }
+
+.cover-pic {
+  width: 100px; 
+  height: 100px; 
+  object-fit: cover; 
+  border-radius: 8px;
+  margin-bottom: 10px; 
+}
+
+

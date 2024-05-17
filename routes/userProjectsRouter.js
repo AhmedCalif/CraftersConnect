@@ -1,7 +1,79 @@
 const express = require('express');
-const router = express.Router();
-const { User, Project, Collaborator, Avatar, Image } = require('../database/schema/schemaModel');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
+const path = require('path');
+const { User, Project, Step, Image, Avatar, Collaborator } = require('../database/schema/schemaModel');
 const { ensureAuthenticated } = require('../middleware/middleware');
+const Sequelize = require('sequelize');
+const router = express.Router();
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configure Multer to use Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: (req, file) => {
+    const fileExtension = path.extname(file.originalname).substring(1);
+    const publicId = `${req.session.userId}-${file.fieldname}-${Date.now()}`;
+    return {
+      folder: 'uploads',
+      public_id: publicId,
+      format: fileExtension,
+      overwrite: true,
+    };
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// Route to create a new project
+router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (req, res) => {
+  try {
+    const { title, description, steps, date } = req.body;
+    const user = await User.findOne({ where: { username: req.session.username }});
+    const coverImage = req.file ? req.file.path : null;
+
+    if (!user) {
+      console.error("User not found");
+      return res.status(400).send("User not found");
+    }
+
+    const newProject = await Project.create({
+      title,
+      description,
+      userId: user.userId,
+      date,
+      createdAt: date,
+      updatedAt: date
+    });
+
+    if (coverImage) {
+      await Image.create({
+        link: coverImage,
+        projectId: newProject.projectId
+      });
+    }
+
+    if (steps && steps.length) {
+      const stepRecords = steps.map(step => ({
+        description: step,
+        projectId: newProject.projectId
+      }));
+      await Step.bulkCreate(stepRecords);
+    }
+
+    res.redirect(`/projects/${newProject.projectId}`);
+  } catch (err) {
+    console.error("Error creating project:", err);
+    res.status(500).send("Failed to create project. Please try again.");
+  }
+});
 
 // Route for projects created by the user
 router.get("/created", ensureAuthenticated, async (req, res) => {
@@ -52,7 +124,7 @@ router.get("/collaborated", ensureAuthenticated, async (req, res) => {
   res.render('userProjects/collaborated', { projects, user });
 });
 
-// Route for all projects related to the user
+// Route to view all projects
 router.get("/all", ensureAuthenticated, async (req, res) => {
   try {
     const loggedInUsername = req.session.username;
@@ -65,8 +137,8 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    const createdProjects = await Project.findAll({ 
-      where: { userId: user.userId }, 
+    const createdProjects = await Project.findAll({
+      where: { userId: user.userId },
       include: [
         { model: User, as: 'Creator', include: Avatar },
         { model: Image }
@@ -87,16 +159,21 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
       ]
     });
 
-    const allProjects = [...createdProjects, ...collaboratedProjects].filter((project, index, self) => 
+    const allProjects = [...createdProjects, ...collaboratedProjects].filter((project, index, self) =>
       index === self.findIndex((p) => p.projectId === project.projectId)
     );
 
     const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
 
-    const coverImage = Project.coverImage || 'https://via.placeholder.com/150';
-
-
-    res.render('userProjects/all', { createdProjects, collaboratedProjects, allProjects, user, avatarUrl, loggedInUsername, coverImage });
+    console.log("All Projects:", allProjects);
+    res.render('userProjects/all', {
+      allProjects,
+      createdProjects,
+      collaboratedProjects,
+      user,
+      avatarUrl,
+      loggedInUsername
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error while fetching projects list.");
