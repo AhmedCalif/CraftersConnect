@@ -6,13 +6,13 @@
   <title>Show Project</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <link rel="stylesheet" href="/projects.css"/>
+  <link rel="stylesheet" href="/showProjects.css"/>
 </head>
 <body>
   <div class="container mt-4">
-    <div class="card p-3">
+    <div class="card p-3 shadow-sm">
       <div class="d-flex justify-content-between align-items-center">
-        <a href="/my-projects/all" class="btn btn-outline-secondary">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary back-btn">
           <i class="fas fa-arrow-left"></i>
         </a>
         <div>
@@ -20,29 +20,29 @@
             <a href="/projects/<%= project.projectId %>/update" class="btn btn-outline-primary">
               <i class="fas fa-edit"></i>
             </a>
-            <a href="/projects/<%= project.projectId %>/delete" class="btn btn-outline-danger">
+            <button onclick="deleteProject('<%= project.projectId %>')" class="btn btn-outline-danger">
               <i class="fas fa-trash"></i>
-            </a>
+            </button>
           <% } %>
         </div>
       </div>
       <div class="text-center mt-3">
-        <h2><%= project.title %></h2>
+        <h2 class="project-title"><%= project.title %></h2>
       </div>
       <div class="text-center mb-3">
         <% if (project.Images && project.Images.length > 0) { %>
           <img src="<%= project.Images[0].link %>" alt="Cover Image" class="img-fluid rounded project-image" />
         <% } %>
       </div>
-      <div>
-        <h4>Project info</h4>
-        <h5>Process</h5>
+      <div class="project-info">
+        <h4 class="section-title">Project Info</h4>
+        <h5 class="section-subtitle">Process</h5>
         <ol class="pl-3">
           <% if (project.Steps && project.Steps.length > 0) { %>
             <% project.Steps.forEach((step, index) => { %>
               <li class="mb-2">
                 <strong>Step <%= index + 1 %>:</strong>
-                <p><%= step.description %></p>
+                <p class="step-description"><%= step.description %></p>
               </li>
             <% }); %>
           <% } else { %>
@@ -50,7 +50,7 @@
           <% } %>
         </ol>
         <% if (project.Collaborators && project.Collaborators.map(c => c.username).includes(loggedInUsername)) { %>
-          <div class="action-buttons mt-3">
+          <div class="action-buttons mt-3 text-center">
             <a href="/projects/<%= project.projectId %>/update" class="btn btn-outline-primary">
               <i class="fas fa-edit"></i> Edit Project
             </a>
@@ -63,7 +63,63 @@
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script>
+    async function deleteProject(projectId) {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#F5E2C2',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        });
+        if(result.isConfirmed){
+            try{
+                console.log('Deleting project with ID:', projectId);
+                const response = await fetch(`/projects/${projectId}/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
 
+                if (!response.ok) {
+                    const data = await response.json();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: data.message || 'Failed to delete the project, please try again later.'
+                    });
+                    throw new Error(data.message || 'Server responded with an error.');
+                }
+
+                const data = await response.json();
+                console.log('Project deleted:', data);
+
+                const projectElement = document.getElementById(`project-${projectId}`);
+                if (projectElement) {
+                    projectElement.remove();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: data.message || 'Project has been successfully deleted.'
+                    });
+                } else {
+                    console.error('Failed to find the project element:', `project-${projectId}`);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Failed to find the project element on the page.'
+                    });
+                }
+            } catch (error) {
+                console.error('Error deleting the project:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'There was an issue deleting your project.'
+                });
+            }
+        }
+    }
   </script>
 </body>
 </html>

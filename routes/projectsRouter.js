@@ -96,7 +96,7 @@ router.get("/", ensureAuthenticated, async (req, res) => {
       order: order
     });
 
-    res.render('projects/list', {
+    res.render('projects/search', {
       projects,
       username: req.session.username,
       avatar: avatarUrl,
@@ -273,9 +273,7 @@ router.post('/:id/update', ensureAuthenticated, async (req, res) => {
 router.get("/:id/delete", ensureAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id);
   const project = await Project.findOne({ where: { projectId: id } });
-  if (project) {
-    res.render("projects/delete", { project });
-  } else {
+  if (!project) {
     res.status(404).send("Project not found");
   }
 });
@@ -284,7 +282,7 @@ router.post("/:id/delete", ensureAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id);
   const success = await Project.destroy({ where: { projectId: id } });
   if (success) {
-    res.redirect("/projects");
+    res.status(200).json({ message: "Project deleted" });
   } else {
     res.status(404).json({ message: "Project not found" });
   }

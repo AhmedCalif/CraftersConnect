@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap');
+
+body {
+    font-family: 'Mada', sans-serif;
+    background-color: #F8F4EE;
+}
+
+.container {
+    max-width: 800px;
+}
+
+.card {
+    background-color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #0CB0EA;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    color: #FFF;
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.project-title {
+    color: #424B4F;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.project-image {
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.project-info {
+    padding: 1rem;
+}
+
+.section-title {
+    color: #ED960A;
+    margin-top: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.section-subtitle {
+    color: #424B4F;
+    font-size: 1.15rem;
+    margin-top: 1rem;
+}
+
+.step-description {
+    font-size: 1rem;
+    color: #424B4F;
+}
+
+.action-buttons .btn {
+    margin-right: 10px;
+}
+
+.action-buttons .btn-outline-primary {
+    color: #0CB0EA;
+    border-color: #0CB0EA;
+}
+
+.action-buttons .btn-outline-primary:hover {
+    background-color: #0CB0EA;
+    color: #FFF;
+}
+
+.action-buttons .btn-outline-danger {
+    color: #ED960A;
+    border-color: #ED960A;
+}
+
+.action-buttons .btn-outline-danger:hover {
+    background-color: #ED960A;
+    color: #FFF;
+}
+
+.action-buttons .btn-outline-secondary {
+    color: #424B4F;
+    border-color: #424B4F;
+}
+
+.action-buttons .btn-outline-secondary:hover {
+    background-color: #424B4F;
+    color: #FFF;
+}
+
+.back-btn {
+    font-size: 1.5rem;
+    color: #424B4F;
+}

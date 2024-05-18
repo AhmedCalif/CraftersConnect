@@ -3,106 +3,111 @@
 @import url('https://fonts.googleapis.com/css2?family=Orelega+One&display=swap');
 
 body {
-    font-family: 'Orelega One', cursive;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  font-family: 'Orelega One', sans-serif;
+  background-color: #F8F4EE;
+  color: #424B4F;
 }
 
-html, body {
-    height: 100%;
+.header, .navbar {
+  background-color: #F5E2C2;
 }
 
 .logo {
-    width: 50px;
+  max-width: 50px;
 }
 
-.header {
-    background-color: #f8f9fa;
-    padding: 10px;
-    border-bottom: 1px solid #e7e7e7;
+.carousel-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
 }
 
-.main-content {
-    padding: 10px;
+.carousel-controls .btn {
+  margin: 0 5px;
 }
 
-.search-bar, .recent-projects, .whats-new, .new-projects {
-    margin-bottom: 20px;
+.btn-outline-primary {
+  background-color: #0CB0EA;
+  border-color: #0CB0EA;
+  color: #000;
 }
 
-.search-bar h4, .recent-projects h3, .whats-new h3, .new-projects h5 {
-    margin-bottom: 10px;
+.btn-outline-primary:hover {
+  background-color: #0A97D9;
+  border-color: #0A97D9;
 }
 
-.search-bar .input-group {
-    width: 100%;
+.action-buttons .btn {
+  background-color: #ED960A;
+  border-color: #ED960A;
+  color: #000;
 }
 
-.card {
-    background-color: #F5E2C2;
-    border: none;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
+.action-buttons .btn:hover {
+  background-color: #DB8500;
+  border-color: #DB8500;
 }
 
-.card-body {
-    padding: 10px;
-}
-
-.card-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-}
-
-.card-text {
-    font-size: 1rem;
-}
-
-.custom-img {
-    border-radius: 50%;
-    width: 50px; 
-    height: 50px; 
-    object-fit: cover; 
-}
-.cover-pic {
-    width: 50%;
-    height: 100px;
-    object-fit: cover;
-}
-.carousel .carousel-item {
-    padding: 0 10px;
+.cover-pic, .custom-img {
+  width: 100%;
+  height: auto;
 }
 
 .action-buttons button {
-    height: 40px;
-    width: 150px;
-    background-color: #0CB0EA;
-    color: #000;
-    font-weight: bold;
-    font-size: 14px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  height: 45pt;
+  width: 180px;
+  background-color: #0CB0EA;
+  color: #000;
+  font-weight: bold;
+  padding: 12.75pt 33.75pt;
+  font-family: 'Orelega One', sans-serif;
+  font-size: 15pt;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px #999;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-buttons button:hover {
-    background-color: #0A97D9;
+  background-color: #0A97D9;
+  box-shadow: 0 6px #666;
+  transform: translateY(-2px);
 }
 
-.navbar-nav .nav-link {
-    text-align: center;
-    font-size: 0.875rem;
+.action-buttons button:active {
+  background-color: #0884C6;
+  box-shadow: 0 2px #333;
+  transform: translateY(1px);
 }
 
-.navbar-nav .nav-link i {
-    font-size: 1.25rem;
+.main-content {
+  padding-bottom: 70px; 
 }
+  
+  header .logo {
+    max-width: 100px;
+  }
+  
+  header .custom-font {
+    font-size: 1.5rem;
+  }
+  
+  #searchIcon {
+    color: #424B4F;
+    cursor: pointer;
+  }
+  
+  #searchForm {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+
 
 @media (max-width: 768px) {
     .header h1 {

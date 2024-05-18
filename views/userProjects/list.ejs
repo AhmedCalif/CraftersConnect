@@ -1,126 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Projects</title>
-    <link rel="stylesheet" href="/projects.css" />
-  </head>
-  <body>
-    <div class="sidebar">
-      <div class="profile-section">
-        <img src="<%= avatar %>" alt="User profile" class="profile-pic" />
-        <h2><%= username %></h2>
-      </div>
-      <ul class="menu-items">
-        <li>
-          <a href="/home/dashboard"><i class="fas fa-home"></i> Home</a>
-        </li>
-        <li>
-          <a href="/profile"><i class="fas fa-user"></i> Profile</a>
-        </li>
-        <li>
-          <a href="/my-projects/all"><i class="fa fa-briefcase"></i> Projects</a>
-        </li>
-        <li>
-          <a href="/posts"><i class="fa fa-newspaper"></i>Posts</a>
-        </li>
-        <li>
-          <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a>
-        </li>
-      </ul>
-    </div>
-    <div class="header">
-      <div class="menu-icon">
-        <a href="#" id="menu-toggle">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Hamburger_icon.svg/1200px-Hamburger_icon.svg.png"
-            alt="Menu icon"
-          />
-        </a>
-      </div>
-
-      <div class="action-buttons">
-        <a
-          href="/projects/create"
-          class="add-projects-button"
-          onclick="document.getElementById('addProjectForm').style.display='block'"
-        >
-          <button>Add Project</button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects</title>
+  <link rel="stylesheet" href="/listProjects.css"/>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+  <div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3">Projects From All Users</h1>
+      <div class='action-buttons'>
+        <a href="/projects/create">
+          <button class="custom-btn">Add Project</button>
         </a>
       </div>
     </div>
-    <form id="searchForm" action="/projects" method="GET">
-        <div class="search-bar action-buttons">
-          <p>Looking For A New Project?</p>
-          <!-- Set the input value to the current search query -->
-          <input type="text" id="searchInput" name="search" placeholder="Search" value="<%= searchQuery %>" />
-          <select id="sortSelect" name="sort">
-            <option value="">No Sorting</option>
-            <option value="createdAt_DESC" <%= sortOption === 'createdAt_DESC' ? 'selected' : '' %>>Most Recent</option>
-            <option value="createdAt_ASC" <%= sortOption === 'createdAt_ASC' ? 'selected' : '' %>>Oldest</option>
-            <option value="title_ASC" <%= sortOption === 'title_ASC' ? 'selected' : '' %>>Title A-Z</option>
-            <option value="title_DESC" <%= sortOption === 'title_DESC' ? 'selected' : '' %>>Title Z-A</option>
-          </select>
-          <button type="submit" class="button" id="searchButton">Search</button>
-          <div id="projects"></div>
+    <form id="searchForm" action="/projects" method="GET" class="mb-4">
+      <div class="input-group">
+        <input type="text" id="searchInput" name="search" class="form-control" placeholder="Search" value="<%= searchQuery %>"/>
+        <select id="sortSelect" name="sort" class="form-control">
+          <option value="">No Sorting</option>
+          <option value="createdAt_DESC" <%= sortOption === 'createdAt_DESC' ? 'selected' : '' %>>Most Recent</option>
+          <option value="createdAt_ASC" <%= sortOption === 'createdAt_ASC' ? 'selected' : '' %>>Oldest</option>
+          <option value="title_ASC" <%= sortOption === 'title_ASC' ? 'selected' : '' %>>Title A-Z</option>
+          <option value="title_DESC" <%= sortOption === 'title_DESC' ? 'selected' : '' %>>Title Z-A</option>
+        </select>
+        <div class="input-group-append">
+          <button type="submit" class="btn btn-secondary">Search</button>
         </div>
-      </form>
-    <div class="container" id="projects">
-      <h1>Projects From All Users</h1>
-      <% projects.forEach(project => { %>
-      <div class="card">
-        <img
-          src="<%= project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>"
-          alt="<%= project.Creator.username %>"
-          class="profile-pic"
-        />
-        <h2><%= project.title %></h2>
-        <% if (project.Creator) { %>
-        <p><strong>Created by:</strong> <%= project.Creator.username %></p>
-        <% } else { %>
-        <p><strong>Created by:</strong> Unknown</p>
-        <% } %>
-        <p><strong>Description:</strong> <%= project.description %></p>
-        <p><strong>Date:</strong> <%= project.date.toDateString() %></p>
-
-        <!-- Check if the project has collaborators -->
-        <% if (project.Collaborators && project.Collaborators.length > 0) { %>
-        <p>
-          <strong>Collaborators:</strong>
-          <% project.Collaborators.forEach(collaborator => { %> <%=
-          collaborator.username %>, <% }); %>
-        </p>
-        <% } else { %>
-        <p>No collaborators found.</p>
-        <% } %>
-
-        <!-- Logic for displaying the appropriate button -->
-        <% const isCreator = project.Creator && project.Creator.username === username;
-        const isCollaborator = project.Collaborators &&
-        project.Collaborators.some(collaborator => collaborator.username ===
-        username); %> <% if (!isCreator) { %> <% if (isCollaborator) { %>
-
-        <form action="/projects/<%= project.projectId %>/leave" method="POST">
-          <div class="action-buttons">
-            <button type="submit">Leave</button>
-          </div>
-        </form>
-        <% } else { %>
-        <form action="/projects/<%= project.projectId %>/join" method="POST">
-          <div class="action-buttons">
-            <button type="submit">Join</button>
-          </div>
-        </form>
-        <% } %> <% } %>
-        <br />
-        <a href="/projects/<%= project.projectId %>">View More</a>
       </div>
+    </form>
+    <div class="row" id="projects">
+      <% projects.forEach(project => { %>
+        <div class="col-md-6 mb-4">
+          <div class="card">
+            <img src="<%= project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator.username %>" class="card-img-top profile-pic" />
+            <div class="card-body">
+              <h5 class="card-title"><%= project.title %></h5>
+              <p class="card-text"><strong>Created by:</strong> <%= project.Creator ? project.Creator.username : 'Unknown' %></p>
+              <p class="card-text"><strong>Description:</strong> <%= project.description %></p>
+              <p class="card-text"><strong>Date:</strong> <%= project.date.toDateString() %></p>
+              <% if (project.Collaborators && project.Collaborators.length > 0) { %>
+                <p class="card-text"><strong>Collaborators:</strong> <%= project.Collaborators.map(c => c.username).join(', ') %></p>
+              <% } else { %>
+                <p class="card-text">No collaborators found.</p>
+              <% } %>
+              <% const isCreator = project.Creator && project.Creator.username === username;
+              const isCollaborator = project.Collaborators && project.Collaborators.some(collaborator => collaborator.username === username); %>
+              <% if (!isCreator) { %>
+                <% if (isCollaborator) { %>
+                  <form action="/projects/<%= project.projectId %>/leave" method="POST">
+                    <button type="submit" class="btn btn-warning">Leave</button>
+                  </form>
+                <% } else { %>
+                  <form action="/projects/<%= project.projectId %>/join" method="POST">
+                    <button type="submit" class="btn btn-success">Join</button>
+                  </form>
+                <% } %>
+              <% } %>
+              <a href="/projects/<%= project.projectId %>" class="btn btn-link mt-2">View More</a>
+            </div>
+          </div>
+        </div>
       <% }); %>
     </div>
-
-    <script defer src="/script.js">
-      
-    </script>
-  </body>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script defer src="/script.js"></script>
+</body>
 </html>

@@ -1,32 +1,4 @@
 
-
-// Sidebar toggle
-document.addEventListener('DOMContentLoaded', function() {
-    const menuToggle = document.getElementById('menu-toggle');
-    if (menuToggle) {
-        menuToggle.addEventListener('click', function(event) {
-            event.preventDefault();
-            const sidebar = document.querySelector('.sidebar');
-            const container = document.querySelector('.container');
-            const header = document.querySelector('.header');
-
-            if (!sidebar) console.error('Sidebar element is missing!');
-            if (!container) console.error('Container element is missing!');
-            if (!header) console.error('Header element is missing!');
-
-            if (sidebar && container && header) {
-                sidebar.classList.toggle('open');
-                container.classList.toggle('open');
-                header.classList.toggle('open');
-            } else {
-                console.error('One or more elements are missing!');
-            }
-        });
-    } else {
-        console.error('Menu toggle button not found!');
-    }
-});
-
 // Like posts
 async function likePost(id) {
     try {
@@ -128,4 +100,3 @@ async function deletePost(postId) {
         });
     }
 }
-

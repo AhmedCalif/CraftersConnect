@@ -1,15 +1,17 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const initCarousel = (carouselId, prevBtnId, nextBtnId) => {
+    const initCarousel = (carouselId) => {
         const carousel = document.getElementById(carouselId);
-        const prevBtn = document.getElementById(prevBtnId);
-        const nextBtn = document.getElementById(nextBtnId);
-        const carouselContent = carousel.querySelector('.carousel-content');
+        const prevBtn = carousel.querySelector('.carousel-control-prev');
+        const nextBtn = carousel.querySelector('.carousel-control-next');
         const carouselItems = carousel.querySelectorAll('.carousel-item');
         let currentIndex = 0;
 
         function showItem(index) {
             carouselItems.forEach((item, i) => {
-                item.style.display = i === index ? 'block' : 'none';
+                item.classList.remove('active');
+                if (i === index) {
+                    item.classList.add('active');
+                }
             });
         }
 
@@ -31,6 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    initCarousel('projectsCarousel', 'prevProjectsBtn', 'nextProjectsBtn');
-    initCarousel('postsCarousel', 'prevPostsBtn', 'nextPostsBtn');
+    initCarousel('projectsCarousel');
+    initCarousel('newProjectsCarousel');
 });

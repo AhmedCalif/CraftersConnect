@@ -2,8 +2,7 @@
 
 body {
   font-family: 'Mada', sans-serif;
-  background-color: #F5E2C2;
-  color: #424B4F;
+  background-color: #ED960A;
 }
 
 .container {
@@ -81,25 +80,33 @@ body {
   border-color: #A39082;
 }
 
-.custom-nav-tabs .nav-item {
-  margin-right: 10px;
-}
-
-.custom-nav-tabs .custom-tab {
-  background-color: #A0E4FC;
-  border-radius: 8px;
-  padding: 10px 20px;
+.custom-btn {
+  height: 45pt;
+  width: 141.75pt;
+  background-color: #0CB0EA;
   color: #000;
   font-weight: bold;
-  transition: background-color 0.3s ease;
+  padding: 12.75pt 33.75pt;
+  font-family: 'Mada', sans-serif;
+  font-size: 15pt;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px #999;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.custom-nav-tabs .custom-tab.active {
-  background-color: #ED960A;
-  color: #FFF;
+.custom-btn:hover {
+  background-color: #0A97D9;
+  box-shadow: 0 6px #666;
+  transform: translateY(-2px);
 }
 
-.custom-nav-tabs .custom-tab:hover {
-  background-color: #DB8500;
-  color: #FFF;
+.custom-btn:active {
+  background-color: #0884C6;
+  box-shadow: 0 2px #333;
+  transform: translateY(1px);
 }
