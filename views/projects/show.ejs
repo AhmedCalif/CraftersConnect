@@ -6,6 +6,7 @@
   <title>Show Project</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="/showProjects.css"/>
 </head>
 <body>
@@ -83,69 +84,143 @@
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
-  const chatForm = document.getElementById('chat-form');
-  const chatMessage = document.getElementById('chat-message');
-  const chatContent = document.getElementById('chat-content');
-  const loggedInUsername = '<%= loggedInUsername %>';
-  const projectId = '<%= project.projectId %>';
-
-  // Fetch chat messages
-  async function fetchChats(projectId) {
-    try {
-      chatContent.innerHTML = ''; // Clear current chat content
-      const response = await fetch(`/chats/${projectId}`);
-      const chats = await response.json();
-      console.log('Fetched chats:', chats);
-      chats.forEach(chat => {
-        displayMessage(chat);
-      });
-    } catch (error) {
-      console.error('Error fetching chats:', error);
-    }
-  }
-
-  function displayMessage(chat) {
-    const messageElement = document.createElement('div');
-    messageElement.innerHTML = `<strong>${chat.Sender.username}:</strong> ${chat.message}`;
-    chatContent.appendChild(messageElement);
-    chatContent.scrollTop = chatContent.scrollHeight;
-  }
-
-  // Handle incoming messages
-  socket.on('chat message', function(msg) {
-    console.log('Received chat message from socket:', msg);
-    if (msg.projectId === projectId) {
-      displayMessage(msg);
-    }
-  });
-
-  // Handle form submission
-  chatForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    if (chatMessage.value) {
-      const message = chatMessage.value;
-      chatMessage.value = '';
+  <script>
+    const socket = io();
+    const chatForm = document.getElementById('chat-form');
+    const chatMessage = document.getElementById('chat-message');
+    const chatContent = document.getElementById('chat-content');
+    const loggedInUsername = '<%= loggedInUsername %>';
+    const projectId = '<%= project.projectId %>';
+  
+    // Fetch chat messages
+    async function fetchChats(projectId) {
       try {
-        const response = await fetch('/chats', {
+        chatContent.innerHTML = ''; // Clear current chat content
+        const response = await fetch(`/chats/${projectId}`);
+        const chats = await response.json();
+        chats.forEach(chat => {
+          displayMessage(chat);
+        });
+      } catch (error) {
+        console.error('Error fetching chats:', error);
+      }
+    }
+  
+    function displayMessage(chat) {
+      const isLiked = chat.likedBy && chat.likedBy.includes(loggedInUsername);
+      const heartClass = isLiked ? 'fas' : 'far';
+  
+      const messageElement = document.createElement('div');
+      messageElement.id = `chat-${chat.chatId}`;
+      messageElement.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <strong>${chat.Sender.username}:</strong> ${chat.message}
+          </div>
+          <div>
+            <i class="${heartClass} fa-heart text-danger" onclick="likeChat(${chat.chatId})"></i>
+            <i class="fas fa-trash text-danger" onclick="deleteChat(${chat.chatId})"></i>
+          </div>
+        </div>
+      `;
+      chatContent.appendChild(messageElement);
+      chatContent.scrollTop = chatContent.scrollHeight;
+    }
+  
+    // Handle incoming messages
+    socket.on('chat message', function(msg) {
+      if (msg.projectId === projectId) {
+        displayMessage(msg);
+      }
+    });
+  
+    // Handle form submission
+    chatForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      if (chatMessage.value) {
+        const message = chatMessage.value;
+        chatMessage.value = '';
+        try {
+          const response = await fetch('/chats', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message, projectId })
+          });
+          const chat = await response.json();
+          socket.emit('chat message', { ...chat, projectId });
+        } catch (error) {
+          console.error('Error sending message:', error);
+        }
+      }
+    });
+  
+    fetchChats(projectId);
+  
+    async function likeChat(chatId) {
+      try {
+        const response = await fetch(`/chats/${chatId}/like`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ message, projectId })
+          }
         });
-        const chat = await response.json();
-        console.log('Sent chat message:', chat);
-        socket.emit('chat message', { ...chat, projectId });
+        const result = await response.json();
+        if (response.ok) {
+          const chatElement = document.getElementById(`chat-${chatId}`);
+          const heartIcon = chatElement.querySelector('.fa-heart');
+          if (result.liked) {
+            heartIcon.classList.remove('far');
+            heartIcon.classList.add('fas');
+          } else {
+            heartIcon.classList.remove('fas');
+            heartIcon.classList.add('far');
+          }
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: result.liked ? 'You liked this chat.' : 'You unliked this chat.'
+          });
+        }
       } catch (error) {
-        console.error('Error sending message:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Failed to like the chat, please try again later.'
+        });
       }
     }
-  });
-
-  fetchChats(projectId);
-</script>
+  
+    async function deleteChat(chatId) {
+      try {
+        const response = await fetch(`/chats/${chatId}/delete`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const result = await response.json();
+        if (response.ok) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: 'Chat has been successfully deleted.'
+          });
+          const chatElement = document.getElementById(`chat-${chatId}`);
+          if (chatElement) {
+            chatElement.remove();
+          }
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Failed to delete the chat, please try again later.'
+        });
+      }
+    }
+  </script>
   <script>
     async function deleteProject(projectId) {
       const result = await Swal.fire({
