@@ -4,89 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel="stylesheet" href="/homepage.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orelega+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/homepage.css">
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <div class="logo-container">
-                <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/39f8664a4cb8e1d79c375d70d49357c512a0be146f87e9f33d98852407c52c3b?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="logo" class="logo"/>
+    <header class="bg-light p-4 mb-4 text-center">
+        <div class="d-flex justify-content-center align-items-center">
+            <div class="logo-container mr-3">
+                <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/39f8664a4cb8e1d79c375d70d49357c512a0be146f87e9f33d98852407c52c3b?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="logo" class="logo" />
             </div>
-            <h1>Welcome Back <%= user.username %>!</h1>
+            <h1 class="h4 custom-font">Welcome back, <%= user.username %>!</h1>
         </div>
     </header>
-    <section class="search-bar">
-        <p>Looking For Something?</p>
-        <form action="/projects" method="GET">
-            <div class="search-bar action-buttons">
-            <button class="button">All Projects</button>
-    </section>
-        </div>
+    
+    <main class="main-content">
+        <section class="search-bar mb-4 text-center">
+            <h4>Looking for something?</h4>
+            <form action="/projects" method="GET" class="d-inline-block w-75">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search projects..." name="query">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </section>
 
-    </form>
-        <div class="recent-projects">
-    </section>
-    <section class="carousel-section">
-        <div class="carousel" id="projectsCarousel">
-            <h2>My Projects</h2>
-            <button class="carousel-btn prev-btn" id="prevProjectsBtn">&lt;</button>
-            <div class="carousel-content">
-                <% projects.forEach(function(project) { %>
-                    <div class="carousel-item">
-                        <article class="card">
-                            <div class="card-details">
-                                <h3><%= project.title %></h3>
-                                <p>Description: <%= project.description %></p>
-                                <p>Date: <%= project.date %></p>
-                                <a href="/projects/<%= project.projectId %>">View More</a>
+        <section class="recent-projects mb-4 text-center">
+            <h3>My Projects</h3>
+            <div id="projectsCarousel" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    <% allProjects.forEach(project => { %>
+                        <div class="carousel-item <%= allProjects.indexOf(project) === 0 ? 'active' : '' %>">
+                            <div class="card mx-auto" style="max-width: 200px;">
+                                <div class="row no-gutters">
+                                    <div class="col-12">
+                                        <img src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="cover-pic" />
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><%= project.title %></h5>
+                                            <p class="card-text">Description: <%= project.description %></p>
+                                            <p class="card-text">Date: <%= new Date(project.date).toDateString() %></p>
+                                            <a href="/projects/<%= project.projectId %>">View More</a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </article>
-                    </div>
-                <% }); %>
+                        </div>
+                    <% }); %>
+                </div>
+                <a class="carousel-control-prev" href="#projectsCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#projectsCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
             </div>
-            <button class="carousel-btn next-btn" id="nextProjectsBtn">&gt;</button>
-        </div>
-        <div class="carousel" id="postsCarousel">
-            <h2>What's New Today</h2>
-            <button class="carousel-btn prev-btn" id="prevPostsBtn">&lt;</button>
-            <div class="carousel-content">
-                <% posts.forEach(post => { %>
-                    <div class="carousel-item">
-                        <article class="card">
-                            <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" class="avatar">
-                            <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
-                            <h2><%= post.title %></h2>
-                            <p><%= post.description %></p>
-                        </article>
-                    </div>
-                <% }); %>
+            <div class="action-buttons text-center">
+                <a href="/my-projects/all">
+                    <button class="btn btn-outline-primary mt-3">My Projects</button>
+                </a>
             </div>
-            <button class="carousel-btn next-btn" id="nextPostsBtn">&gt;</button>
-        </div>
-    </section>
-    <nav class="bottom-nav">
-        <a href="/home/dashboard" class="nav-link">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="/my-projects/all" class="nav-link">
-            <i class="fas fa-briefcase"></i>
-            <span>Projects</span>
-        </a>
-        <a href="/posts" class="nav-link">
-            <i class="fas fa-newspaper"></i>
-            <span>Posts</span>
-        </a>
-        <a href="/profile" class="nav-link">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-        </a>
-        <a href="/auth/logout" class="nav-link">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
-        </a>
+        </section>
+
+        <section class="whats-new mb-4 text-center">
+            <h3>What's new today?</h3>
+            <% posts.forEach(function(post) { %>
+                <div class="card mb-3 mx-auto" style="max-width: 200px;">
+                    <div class="row no-gutters">
+                        <div class="col-12 text-center">
+                            <img 
+                                src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" 
+                                class="img-fluid custom-img" 
+                                alt="User Avatar"
+                            />
+                        </div>
+                        <div class="col-12">
+                            <div class="card-body">
+                                <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
+                                <h5 class="card-title"><%= post.title %></h5>
+                                <p class="card-text"><%= post.description %></p>
+                                <a href="/posts">View More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+            <div class="action-buttons text-center">
+                <a href="/posts">
+                    <button class="btn btn-outline-primary mt-3">View Posts</button>
+                </a>
+            </div>
+        </section>
+
+        <section class="new-projects mb-4 text-center">
+            <h5>Explore new projects</h5>
+            <div id="newProjectsCarousel" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    <% newProjects.forEach(function(project, index) { %>
+                        <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                            <div class="card mx-auto" style="max-width: 200px;">
+                                <div class="row no-gutters">
+                                    <div class="col-12">
+                                        <img src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>" class="img-fluid custom-img" alt="Project Image">
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><%= project.title %></h5>
+                                            <p class="card-text">Description: <%= project.description %></p>
+                                            <p class="card-text">Date: <%= project.date %></p>
+                                            <a href="/projects/<%= project.projectId %>">View More</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+                <a class="carousel-control-prev" href="#newProjectsCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#newProjectsCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+            <div class="action-buttons text-center">
+                <a href="/projects">
+                    <button class="btn btn-outline-primary mt-3">Projects</button>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <nav class="navbar navbar-expand navbar-light bg-light fixed-bottom">
+        <ul class="navbar-nav nav-justified w-100">
+            <li class="nav-item">
+                <a class="nav-link" href="/home/dashboard">
+                    <i class="fas fa-home"></i><br>Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/my-projects/all">
+                    <i class="fas fa-briefcase"></i><br>Projects
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/posts">
+                    <i class="fas fa-newspaper"></i><br>Posts
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/profile">
+                    <i class="fas fa-user"></i><br>Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/auth/logout">
+                    <i class="fas fa-sign-out-alt"></i><br>Logout
+                </a>
+            </li>
+        </ul>
     </nav>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script defer src="/home.js"></script>
 </body>
 </html>
