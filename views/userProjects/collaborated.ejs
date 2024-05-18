@@ -3,88 +3,83 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Projects</title>
+  <title>Collaborated Projects</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/projects.css" />
 </head>
 <body>
-  <div class="sidebar">
-    <div class="profile-section">
-      <img src="<%= avatarUrl %>" alt="User profile" class="profile-pic" />
-      <h2><%= user.username %></h2>
+  <div class="container mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3">Collaborated Projects</h1>
+      <a href="/projects/create" class="btn btn-primary">Add Project</a>
     </div>
-    <ul class="menu-items">
-      <li>
-        <a href="/home/dashboard"><i class="fas fa-home"></i> Home</a>
-      </li>
-      <li>
-        <a href="/profile"><i class="fas fa-user"></i> Profile</a>
-      </li>
-      <li>
-        <a href="/my-projects/all"><i class="fa fa-briefcase"></i> Projects</a>
-      </li>
-      <li>
-        <a href="/posts"><i class="fa fa-newspaper"></i> Posts</a>
-      </li>
-      <li>
-        <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a>
-      </li>
-    </ul>
-  </div>
-  <div class="header">
-    <div class="menu-icon">
-      <a href="#" id="menu-toggle">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Hamburger_icon.svg/1200px-Hamburger_icon.svg.png" alt="Menu icon" />
-      </a>
-    </div>
-    <div class="action-buttons">
-      <a href="/projects/create" class="add-projects-button">
-        <button>Add Project</button>
-      </a>
-    </div>
-  </div>
-
-  <div>
-    <a href="/my-projects/all">All projects</a>
-    <a href="/my-projects/collaborated">Collaborated Projects</a>
-    <a href="/my-projects/created">Created Projects</a>
-  </div>
-  
-  <div class="container" id="projects">
-    
-
-
-    <h1>Collaborated Projects</h1>
-    <% collaboratedProjects.forEach(project => { %>
-    <div class="card">
-      <img src="<%= project.Creator && project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator ? project.Creator.username : 'Unknown' %>" class="profile-pic" />
-      <h2><%= project.title %></h2>
-      <% if (project.Creator) { %>
-      <p><strong>Created by:</strong> <%= project.Creator.username %></p>
-      <% } else { %>
-      <p><strong>Created by:</strong> Unknown</p>
-      <% } %>
-      <p><strong>Description:</strong> <%= project.description %></p>
-      <p><strong>Date:</strong> <%= new Date(project.date).toDateString() %></p>
-      <% if (project.Collaborators && project.Collaborators.length > 0) { %>
-      <p><strong>Collaborators:</strong>
-        <% project.Collaborators.forEach(collaborator => { %> <%= collaborator.username %>, <% }); %>
-      </p>
-      <% } else { %>
-      <p>No collaborators found.</p>
-      <% } %>
-      <form action="/projects/<%= project.projectId %>/leave" method="POST">
-        <div class="action-buttons">
-          <button type="submit">Leave</button>
+    <nav>
+      <div class="nav nav-tabs mb-3">
+        <a href="/my-projects/all" class="nav-item nav-link">All Projects</a>
+        <a href="/my-projects/collaborated" class="nav-item nav-link active">Collaborated Projects</a>
+        <a href="/my-projects/created" class="nav-item nav-link">Created Projects</a>
+      </div>
+    </nav>
+    <div class="row" id="projects">
+      <% collaboratedProjects.forEach(project => { %>
+        <div class="col-md-6 mb-4">
+          <div class="card">
+            <img src="<%= project.Creator && project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="card-img-top cover-pic" />
+            <div class="card-body">
+              <h5 class="card-title"><%= project.title %></h5>
+              <p class="card-text"><strong>Created by:</strong> <%= project.Creator ? project.Creator.username : 'Unknown' %></p>
+              <p class="card-text"><strong>Description:</strong> <%= project.description %></p>
+              <p class="card-text"><strong>Date:</strong> <%= new Date(project.date).toDateString() %></p>
+              <% if (project.Collaborators && project.Collaborators.length > 0) { %>
+                <p class="card-text"><strong>Collaborators:</strong> 
+                  <% project.Collaborators.forEach(collaborator => { %>
+                    <%= collaborator.username %>, 
+                  <% }); %>
+                </p>
+              <% } else { %>
+                <p class="card-text">No collaborators found.</p>
+              <% } %>
+              <form action="/projects/<%= project.projectId %>/leave" method="POST" class="mt-2">
+                <button type="submit" class="btn btn-outline-secondary">Leave</button>
+              </form>
+              <a href="/projects/<%= project.projectId %>" class="btn btn-link mt-2">View More</a>
+            </div>
+          </div>
         </div>
-      </form>
-      <br />
-      <a href="/projects/<%= project.projectId %>">View More</a>
+      <% }); %>
     </div>
-    <% }); %>
   </div>
-
-  
-    <script defer src="/script.js">
-    </script>
-  </body>
+  <nav class="navbar navbar-expand navbar-light bg-light fixed-bottom">
+    <ul class="navbar-nav nav-justified w-100">
+        <li class="nav-item">
+            <a class="nav-link" href="/home/dashboard">
+                <i class="fas fa-home"></i><br>Home
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/my-projects/all">
+                <i class="fas fa-briefcase"></i><br>Projects
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/posts">
+                <i class="fas fa-newspaper"></i><br>Posts
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/profile">
+                <i class="fas fa-user"></i><br>Profile
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/auth/logout">
+                <i class="fas fa-sign-out-alt"></i><br>Logout
+            </a>
+        </li>
+    </ul>
+  </nav>
+  <script defer src="/script.js"></script>
+</body>
 </html>

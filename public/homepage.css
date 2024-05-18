@@ -7,7 +7,6 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    overflow-y: scroll;
 }
 
 html, body {
@@ -18,13 +17,26 @@ html, body {
     width: 50px;
 }
 
-.custom-font {
-    font-family: 'Orelega One', cursive;
-}
-
 .header {
     background-color: #f8f9fa;
+    padding: 10px;
     border-bottom: 1px solid #e7e7e7;
+}
+
+.main-content {
+    padding: 10px;
+}
+
+.search-bar, .recent-projects, .whats-new, .new-projects {
+    margin-bottom: 20px;
+}
+
+.search-bar h4, .recent-projects h3, .whats-new h3, .new-projects h5 {
+    margin-bottom: 10px;
+}
+
+.search-bar .input-group {
+    width: 100%;
 }
 
 .card {
@@ -32,17 +44,11 @@ html, body {
     border: none;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.card-header {
-    background-color: #fff;
-    border-bottom: 1px solid #e7e7e7;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    margin-bottom: 20px;
 }
 
 .card-body {
-    padding: 1.5rem;
+    padding: 10px;
 }
 
 .card-title {
@@ -54,15 +60,39 @@ html, body {
     font-size: 1rem;
 }
 
-.trash-icon {
-    color: #dc3545;
-}
-
 .custom-img {
     border-radius: 50%;
     width: 50px; 
     height: 50px; 
     object-fit: cover; 
+}
+.cover-pic {
+    width: 50%;
+    height: 100px;
+    object-fit: cover;
+}
+.carousel .carousel-item {
+    padding: 0 10px;
+}
+
+.action-buttons button {
+    height: 40px;
+    width: 150px;
+    background-color: #0CB0EA;
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-buttons button:hover {
+    background-color: #0A97D9;
 }
 
 .navbar-nav .nav-link {
@@ -74,59 +104,11 @@ html, body {
     font-size: 1.25rem;
 }
 
-.main-content {
-    padding-bottom: 60px; 
-}
-
-.action-buttons {
-    margin-top: 1.5rem;
-}
-
-.action-buttons button {
-    height: 45pt;
-    width: 180px;
-    background-color: #0CB0EA;
-    color: #000;
-    font-weight: bold;
-    padding: 12.75pt 33.75pt;
-    font-family: 'Mada', sans-serif;
-    font-size: 15pt;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    box-shadow: 0 4px #999;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.action-buttons button:hover {
-    background-color: #0A97D9;
-    box-shadow: 0 6px #666;
-    transform: translateY(-2px);
-}
-
-.action-buttons button:active {
-    background-color: #0884C6;
-    box-shadow: 0 2px #333;
-    transform: translateY(1px);
-}
-
-/* Responsive Design for Smaller Screens */
 @media (max-width: 768px) {
-    .logo {
-        width: 40px;
-    }
-
     .header h1 {
         font-size: 1.5rem;
     }
 
-    .card-body {
-        padding: 0.75rem;
-    }
-
     .card-title {
         font-size: 1rem;
     }
@@ -136,53 +118,8 @@ html, body {
     }
 
     .action-buttons button {
-        height: 40pt;
-        width: 100%;
-        padding: 10pt 20pt;
-        font-size: 12pt;
-    }
-
-    .navbar-nav .nav-link {
-        font-size: 0.75rem;
-    }
-
-    .navbar-nav .nav-link i {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .logo {
-        width: 30px;
-    }
-
-    .header h1 {
-        font-size: 1.25rem;
-    }
-
-    .card-body {
-        padding: 0.75rem;
-    }
-
-    .card-title {
-        font-size: 0.875rem;
-    }
-
-    .card-text {
-        font-size: 0.75rem;
-    }
-
-    .action-buttons button {
-        height: 35pt;
-        font-size: 10pt;
-        padding: 8pt 15pt;
-    }
-
-    .navbar-nav .nav-link {
-        font-size: 0.625rem;
-    }
-
-    .navbar-nav .nav-link i {
-        font-size: 0.875rem;
+        height: 35px;
+        width: 100px;
+        font-size: 12px;
     }
 }

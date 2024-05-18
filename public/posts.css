@@ -2,29 +2,34 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Orelega+One&display=swap');
 
-body {
-    font-family: 'Orelega One', cursive;
+html, body {
+    height: 100%;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    overflow-y: scroll;
+    font-family: 'Orelega One', cursive;
 }
 
-html, body {
-    height: 100%;
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e7e7e7;
+    padding: 10px;
+    text-align: center;
 }
 
 .logo {
     width: 50px;
 }
 
-.custom-font {
-    font-family: 'Orelega One', cursive;
-}
-
-.header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e7e7e7;
+.container {
+    flex: 1; /* Ensures the container takes up the remaining space */
+    overflow-y: auto; /* Enables scrolling */
+    padding: 20px;
 }
 
 .card {
@@ -32,6 +37,7 @@ html, body {
     border: none;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
 .card-header {
@@ -39,12 +45,11 @@ html, body {
     border-bottom: 1px solid #e7e7e7;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
+    padding: 15px;
 }
 
 .card-body {
     padding: 1.5rem;
-    background-color: #F5E2C2;
-
 }
 
 .card-title {
@@ -74,14 +79,6 @@ html, body {
 
 .navbar-nav .nav-link i {
     font-size: 1.25rem;
-}
-
-.main-content {
-    padding-bottom: 60px; 
-}
-
-.action-buttons {
-    margin-top: 1.5rem;
 }
 
 .action-buttons button {

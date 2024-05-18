@@ -4,46 +4,54 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create a New Project</title>
-  <link rel="stylesheet" href="/projects.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/createProject.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>
 <body>
-  <div class="container">
+  <div class="container mt-4">
     <div class="card">
-      <h1>Create a New Project</h1>
-      <form id="projectForm" action="/projects/create" method="POST" enctype="multipart/form-data">
-        <div class="createContainer">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h1>Create a New Project</h1>
+        <label for="coverImage" class="btn btn-outline-secondary">
+          <i class="fas fa-camera"></i> Add Image
+        </label>
+        <input type="file" id="coverImage" name="coverImage" accept="image/*" class="img-upload d-none">
+      </div>
+      <div class="card-body">
+        <img id="coverImagePreview" src="https://i.pravatar.cc/500?img=4" alt="Project Cover" class="custom-img img-fluid mb-3">
+        <form id="projectForm" action="/projects/create" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="username" value="<%= username %>" />
           <input type="hidden" id="date" name="date">
           <input type="hidden" id="coverImageUrl" name="coverImageUrl">
-
-          <label for="title"> Project Name</label>
-          <input type="text" name="title" placeholder="What do you want to do?" required />
-
-          <label for="description">About the Project</label>
-          <input type="text" name="description" placeholder="What's it all about?" required />
-        </div>
-
-        <div id="stepsContainer">
-          <div>
-            <label for="step1">Step 1:</label>
-            <button type="button" class="deleteStepBtn">Delete</button>
-            <input type="text" id="step1" name="steps[]" data-id="1" required/>
+          <div class="form-group">
+            <label for="title">Project Name</label>
+            <input type="text" name="title" class="form-control" placeholder="What do you want to do?" required />
           </div>
-        </div>
-
-        <div>
-          <label for="coverImage">Cover Image:</label>
-          <input type="file" id="coverImage" name="coverImage" accept="image/*">
-        </div>
-
-        <div class="action-buttons">
-          <button type="button" id="addStepBtn">Add Step</button>
-          <button type="submit">Create Project</button>
-          <a href="/projects"><button type="button">Go Back</button></a>
-        </div>
-      </form>
+          <div class="form-group">
+            <label for="description">About the Project</label>
+            <textarea name="description" class="form-control" placeholder="What's it all about?" required></textarea>
+          </div>
+          <div id="stepsContainer" class="form-group">
+            <label>Process</label>
+            <div class="input-group mb-3">
+              <input type="text" name="steps[]" class="form-control" placeholder="Step one" required> 
+              <div class="input-group-append">
+                <button type="button" class="btn btn-danger deleteStepBtn">Delete</button>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <button type="button" id="addStepBtn" class="btn btn-success">Add step</button>
+            <div>
+              <button type="submit" class="btn btn-primary">Create</button>
+              <a href="/my-projects/all" class="btn btn-secondary">Go Back</a>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -51,31 +59,26 @@
     document.getElementById("addStepBtn").addEventListener("click", function () {
       var stepsContainer = document.getElementById("stepsContainer");
       var newStepDiv = document.createElement("div");
-      var firstStep = stepsContainer.firstElementChild.cloneNode(true);
+      newStepDiv.classList.add("input-group", "mb-3");
       var stepNumber = stepsContainer.children.length + 1;
-      firstStep.querySelector("label").textContent = "Step " + stepNumber + ":";
-      var input = firstStep.querySelector("input");
-      input.id = "step" + stepNumber;
-      input.dataset.id = stepNumber;
-      input.value = "";
-      firstStep.querySelector(".deleteStepBtn").addEventListener("click", function () {
-        if (stepsContainer.children.length > 1) {
-          stepsContainer.removeChild(newStepDiv);
-          updateStepNumbers();
-        }
+      newStepDiv.innerHTML = `
+        <input type="text" name="steps[]" class="form-control" placeholder="Step ${stepNumber}" required>
+        <div class="input-group-append">
+          <button type="button" class="btn btn-danger deleteStepBtn">Delete</button>
+        </div>
+      `;
+      newStepDiv.querySelector(".deleteStepBtn").addEventListener("click", function () {
+        stepsContainer.removeChild(newStepDiv);
+        updateStepNumbers();
       });
-      newStepDiv.appendChild(firstStep);
       stepsContainer.appendChild(newStepDiv);
     });
 
     function updateStepNumbers() {
       var stepsContainer = document.getElementById("stepsContainer");
       for (var i = 0; i < stepsContainer.children.length; i++) {
-        var stepDiv = stepsContainer.children[i].firstElementChild;
-        stepDiv.querySelector("label").textContent = "Step " + (i + 1) + ":";
-        var input = stepDiv.querySelector("input");
-        input.id = "step" + (i + 1);
-        input.dataset.id = (i + 1);
+        var input = stepsContainer.children[i].querySelector("input");
+        input.placeholder = `Step ${i + 1}`;
       }
     }
 
@@ -86,6 +89,7 @@
 
     const form = document.getElementById('projectForm');
     const fileInput = document.getElementById('coverImage');
+    const coverImagePreview = document.getElementById('coverImagePreview');
 
     fileInput.addEventListener('change', function() {
       if (this.files && this.files[0]) {
@@ -100,6 +104,7 @@
         .then(data => {
           if (data.success) {
             document.getElementById('coverImageUrl').value = data.imageUrl;
+            coverImagePreview.src = URL.createObjectURL(fileInput.files[0]);
             Swal.fire({
               icon: 'success',
               title: 'Cover image uploaded successfully!',
