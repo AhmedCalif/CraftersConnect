@@ -22,8 +22,9 @@ html, body {
     font-family: 'Orelega One', cursive;
 }
 
-.search-bar p {
-    font-size: 1.25rem;
+.header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e7e7e7;
 }
 
 .card {
@@ -31,11 +32,17 @@ html, body {
     border: none;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    margin: 10px auto;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #e7e7e7;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 .card-body {
-    padding: 1rem;
+    padding: 1.5rem;
 }
 
 .card-title {
@@ -47,17 +54,14 @@ html, body {
     font-size: 1rem;
 }
 
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    background-color: #000;
-    border-radius: 50%;
-    padding: 1rem;
+.trash-icon {
+    color: #dc3545;
 }
 
 .custom-img {
     border-radius: 50%;
-    width: 100px; 
-    height: 100px; 
+    width: 50px; 
+    height: 50px; 
     object-fit: cover; 
 }
 
@@ -109,26 +113,14 @@ html, body {
     transform: translateY(1px);
 }
 
-.cover-pic {
-    width: 100px; 
-    height: 100px; 
-    object-fit: cover; 
-    border-radius: 8px;
-    margin-bottom: 10px; 
-}
-
 /* Responsive Design for Smaller Screens */
 @media (max-width: 768px) {
     .logo {
         width: 40px;
     }
 
-    .custom-font {
+    .header h1 {
         font-size: 1.5rem;
-    }
-
-    .search-bar p {
-        font-size: 1rem;
     }
 
     .card-body {
@@ -157,19 +149,6 @@ html, body {
     .navbar-nav .nav-link i {
         font-size: 1rem;
     }
-
-    .carousel-inner .carousel-item {
-        flex-direction: column;
-    }
-
-    .carousel-inner .carousel-item .card {
-        max-width: 100%;
-    }
-
-    .custom-img {
-        width: 80px; 
-        height: 80px; 
-    }
 }
 
 @media (max-width: 480px) {
@@ -177,12 +156,8 @@ html, body {
         width: 30px;
     }
 
-    .custom-font {
+    .header h1 {
         font-size: 1.25rem;
-    }
-
-    .search-bar p {
-        font-size: 0.875rem;
     }
 
     .card-body {
@@ -209,18 +184,5 @@ html, body {
 
     .navbar-nav .nav-link i {
         font-size: 0.875rem;
-    }
-
-    .carousel-inner .carousel-item {
-        flex-direction: column;
-    }
-
-    .carousel-inner .carousel-item .card {
-        max-width: 100%;
-    }
-
-    .custom-img {
-        width: 60px; 
-        height: 60px; 
     }
 }

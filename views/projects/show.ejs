@@ -4,61 +4,66 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Show Project</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="/projects.css"/>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <div class="action-buttons">
-        <a href="/my-projects/all">
-          <button type="button">Back to My Projects</button>
+  <div class="container mt-4">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <a href="/my-projects/all" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left"></i>
         </a>
+        <div>
+          <% if (project.Creator && project.Creator.username === loggedInUsername) { %>
+            <a href="/projects/<%= project.projectId %>/update" class="btn btn-outline-primary">
+              <i class="fas fa-edit"></i>
+            </a>
+            <a href="/projects/<%= project.projectId %>/delete" class="btn btn-outline-danger">
+              <i class="fas fa-trash"></i>
+            </a>
+          <% } %>
+        </div>
       </div>
-      <h1>Project Details</h1>
-      <div>
+      <div class="text-center mt-3">
         <h2><%= project.title %></h2>
-        <p><strong>By:</strong> <%= project.Creator.username %></p>
-        <p><strong>Description:</strong> <%= project.description %></p>
-        <p><strong>Date:</strong> <%= project.date %></p>
-        <p><strong>Steps:</strong></p>
-        <ul>
+      </div>
+      <div class="text-center mb-3">
+        <% if (project.Images && project.Images.length > 0) { %>
+          <img src="<%= project.Images[0].link %>" alt="Cover Image" class="img-fluid rounded project-image" />
+        <% } %>
+      </div>
+      <div>
+        <h4>Project info</h4>
+        <h5>Process</h5>
+        <ol class="pl-3">
           <% if (project.Steps && project.Steps.length > 0) { %>
             <% project.Steps.forEach((step, index) => { %>
-              <p><strong>Step <%= index + 1 %>:</strong></p>
-              <p><%= step.description %></p>
+              <li class="mb-2">
+                <strong>Step <%= index + 1 %>:</strong>
+                <p><%= step.description %></p>
+              </li>
             <% }); %>
           <% } else { %>
             <li>No steps available</li>
           <% } %>
-        </ul>
-        <% if (project.Images && project.Images.length > 0) { %>
-          <p><strong>Cover Image:</strong></p>
-          <img
-            src="<%= project.Images[0].link %>"
-            alt="Cover Image"
-            style="max-width: 100%; height: auto"
-          />
-        <% } %>
-        <% if (project.Creator && project.Creator.username === loggedInUsername) { %>
-          <div class="action-buttons">
-            <a href="/projects/<%= project.projectId %>/update">
-              <button type="button">Edit Project</button>
-            </a>
-            <a href="/projects/<%= project.projectId %>/delete">
-              <button type="button">Delete Project</button>
-            </a>
-          </div>
-        <% } %>
-
+        </ol>
         <% if (project.Collaborators && project.Collaborators.map(c => c.username).includes(loggedInUsername)) { %>
-          <div class="action-buttons">
-            <a href="/projects/<%= project.projectId %>/update">
-              <button type="button">Edit Project</button>
+          <div class="action-buttons mt-3">
+            <a href="/projects/<%= project.projectId %>/update" class="btn btn-outline-primary">
+              <i class="fas fa-edit"></i> Edit Project
             </a>
           </div>
         <% } %>
       </div>
     </div>
   </div>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+
+  </script>
 </body>
 </html>

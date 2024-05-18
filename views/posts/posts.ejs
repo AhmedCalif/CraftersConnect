@@ -7,51 +7,77 @@
   <link rel="stylesheet" href="/posts.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="profile-section">
-            <h2><%= username %></h2>
-           <img src="<%= avatarUrl %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
-        </div>
-        <ul class="menu-items">
-            <li><a href="/home/dashboard"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
-            <li><a href="/my-projects/all"><i class="fa fa-briefcase"></i> Projects</a></li>
-            <li><a href="/posts"><i class="fa fa-newspaper"></i>Posts</a></li>
-            <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
-        </ul>
-    </div>
-    <div class="header">
-        <div class="menu-icon">
-            <a href="#" id="menu-toggle">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Hamburger_icon.svg/1200px-Hamburger_icon.svg.png" alt="Menu icon">
-            </a>
+    <header class="header d-flex justify-content-between align-items-center p-3 mb-4">
+        <div class="d-flex align-items-center">
+            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/39f8664a4cb8e1d79c375d70d49357c512a0be146f87e9f33d98852407c52c3b?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="logo" class="logo" />
+            <h1 class="ml-3 mb-0">Community Posts</h1>
         </div>
         <div class="action-buttons">
-        <a href="/posts/create"  class="add-post-button" onclick="document.getElementById('addPostForm').style.display='block'">
-            <button>Add Post</button>
-        </a>
+            <a href="/posts/create">
+                <button>Add Post</button>
+            </a>
         </div>
-    </div>
+    </header>
+    
     <div class="container">
-      <%posts.forEach(post => { %>
-        <div class="card" id="post-<%= post.postId %>">
-          <i onclick="deletePost('<%= post.postId %>')"class="fa fa-trash trash-icon"></i>
-          <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" style="width: 100px; height: 100px; border-radius: 50%;">
-              <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
-              <h2><%= post.title %></h2>
-              <p><%= post.description %></p>
-              <div class="action-buttons">
-                <button onclick="likePost('<%= post.postId %>')">Like</button>
-                  <span>Likes: <span id="likes-count-<%= post.postId %>"><%= post.currentLikes %></span></span>
-                  <div class='delete'>
-                  </div>
-              </div>
+        <% posts.forEach(post => { %>
+            <div class="card mb-4" id="post-<%= post.postId %>">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
+                        <div>
+                            <strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong>
+                        </div>
+                    </div>
+                    <i class="fa fa-trash trash-icon" onclick="deletePost('<%= post.postId %>')" style="cursor: pointer;"></i>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title"><%= post.title %></h2>
+                    <p class="card-text"><%= post.description %></p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-outline-primary" onclick="likePost('<%= post.postId %>')">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <span>Likes: <span id="likes-count-<%= post.postId %>"><%= post.currentLikes %></span></span>
+                    </div>
+                </div>
             </div>
-          <% }); %>
-      </div>
+        <% }); %>
+    </div>
+
+    <nav class="navbar navbar-expand navbar-light bg-light fixed-bottom">
+        <ul class="navbar-nav nav-justified w-100">
+            <li class="nav-item">
+                <a class="nav-link" href="/home/dashboard">
+                    <i class="fas fa-home"></i><br>Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/my-projects/all">
+                    <i class="fas fa-briefcase"></i><br>Projects
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/posts">
+                    <i class="fas fa-newspaper"></i><br>Posts
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/profile">
+                    <i class="fas fa-user"></i><br>Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/auth/logout">
+                    <i class="fas fa-sign-out-alt"></i><br>Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
     <script defer src="/script.js"></script>  
 </body>
 </html>
