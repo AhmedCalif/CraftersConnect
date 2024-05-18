@@ -226,11 +226,20 @@ const Chat = sequelize.define('Chat', {
       model: User,
       key: 'userId'
     }
+  },
+  projectId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Project,
+      key: 'projectId'
+    }
   }
 }, {
   timestamps: true
 });
 
+// Associations
 // Associations
 User.hasMany(Post, { as: 'Posts', foreignKey: 'createdBy' });
 User.hasMany(Like, { foreignKey: 'userId' });
@@ -259,8 +268,11 @@ User.hasMany(Message, { as: 'ReceivedMessages', foreignKey: 'receiverId' });
 Message.belongsTo(User, { as: 'Sender', foreignKey: 'userId' });
 Message.belongsTo(User, { as: 'Receiver', foreignKey: 'receiverId' });
 
-User.hasMany(Chat, { as: 'Chats', foreignKey: 'userId' });
+User.hasMany(Chat, { as: 'UserChats', foreignKey: 'userId' });
 Chat.belongsTo(User, { foreignKey: 'userId', as: 'Sender' });
+
+Project.hasMany(Chat, { as: 'ProjectChats', foreignKey: 'projectId' });
+Chat.belongsTo(Project, { foreignKey: 'projectId', as: 'Project' });
 
 module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message, Chat };
 
@@ -268,3 +280,4 @@ module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar,
 sequelize.sync({ force: false }).then(() => {
     console.log("Tables have been created");
 }).catch(error => console.error('Unable to create tables', error));
+

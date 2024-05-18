@@ -89,11 +89,13 @@
   const chatMessage = document.getElementById('chat-message');
   const chatContent = document.getElementById('chat-content');
   const loggedInUsername = '<%= loggedInUsername %>';
+  const projectId = '<%= project.projectId %>';
 
   // Fetch chat messages
-  async function fetchChats() {
+  async function fetchChats(projectId) {
     try {
-      const response = await fetch('/chats');
+      chatContent.innerHTML = ''; // Clear current chat content
+      const response = await fetch(`/chats/${projectId}`);
       const chats = await response.json();
       console.log('Fetched chats:', chats);
       chats.forEach(chat => {
@@ -114,7 +116,9 @@
   // Handle incoming messages
   socket.on('chat message', function(msg) {
     console.log('Received chat message from socket:', msg);
-    displayMessage(msg);
+    if (msg.projectId === projectId) {
+      displayMessage(msg);
+    }
   });
 
   // Handle form submission
@@ -129,18 +133,18 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ message })
+          body: JSON.stringify({ message, projectId })
         });
         const chat = await response.json();
         console.log('Sent chat message:', chat);
-        socket.emit('chat message', chat);
+        socket.emit('chat message', { ...chat, projectId });
       } catch (error) {
         console.error('Error sending message:', error);
       }
     }
   });
 
-  fetchChats();
+  fetchChats(projectId);
 </script>
   <script>
     async function deleteProject(projectId) {

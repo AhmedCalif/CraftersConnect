@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { Chat, User } = require('../database/schema/schemaModel');
+const { Chat, User, Project } = require('../database/schema/schemaModel');
 const { ensureAuthenticated } = require('../middleware/middleware');
 
-// Route to get all chat messages
-router.get('/', ensureAuthenticated, async (req, res) => {
+// Route to get all chat messages for a specific project
+router.get('/:projectId', ensureAuthenticated, async (req, res) => {
   try {
+    const { projectId } = req.params;
     const chats = await Chat.findAll({
+      where: { projectId },
       include: {
         model: User,
         as: 'Sender',
@@ -16,26 +18,27 @@ router.get('/', ensureAuthenticated, async (req, res) => {
     });
     res.json(chats);
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching chat messages:', error);
     res.status(500).send('Server Error');
   }
 });
 
-// Route to post a new chat message
+// Route to post a new chat message for a specific project
 router.post('/', ensureAuthenticated, async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, projectId } = req.body;
     const userId = req.session.userId;
 
     console.log('Received message:', message);
+    console.log('Project ID:', projectId);
     console.log('User ID:', userId);
 
-    // Ensure message and userId are provided
-    if (!message || !userId) {
-      return res.status(400).json({ error: 'Message and userId are required' });
+    // Ensure message, projectId, and userId are provided
+    if (!message || !projectId || !userId) {
+      return res.status(400).json({ error: 'Message, projectId, and userId are required' });
     }
 
-    const newChat = await Chat.create({ message, userId });
+    const newChat = await Chat.create({ message, projectId, userId });
     console.log('New chat created:', newChat);
 
     const chatWithUser = await Chat.findOne({
@@ -55,6 +58,5 @@ router.post('/', ensureAuthenticated, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
 
 module.exports = router;
