@@ -49,7 +49,6 @@ const Post = sequelize.define('Post', {
   timestamps: true
 });
 
-
 const Project = sequelize.define('Project', {
   projectId: {
     type: DataTypes.INTEGER,
@@ -210,7 +209,27 @@ const Message = sequelize.define('Message', {
   timestamps: true
 });
 
-
+const Chat = sequelize.define('Chat', {
+  chatId: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  message: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'userId'
+    }
+  }
+}, {
+  timestamps: true
+});
 
 // Associations
 User.hasMany(Post, { as: 'Posts', foreignKey: 'createdBy' });
@@ -240,9 +259,10 @@ User.hasMany(Message, { as: 'ReceivedMessages', foreignKey: 'receiverId' });
 Message.belongsTo(User, { as: 'Sender', foreignKey: 'userId' });
 Message.belongsTo(User, { as: 'Receiver', foreignKey: 'receiverId' });
 
+User.hasMany(Chat, { as: 'Chats', foreignKey: 'userId' });
+Chat.belongsTo(User, { foreignKey: 'userId', as: 'Sender' });
 
-
-module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message };
+module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message, Chat };
 
 // Sync database
 sequelize.sync({ force: false }).then(() => {

@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/projects.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
   <div class="container mt-3">
@@ -24,7 +25,7 @@
     </nav>
     <div class="row" id="projects">
       <% allProjects.forEach(project => { %>
-        <div class="col-md-6 mb-4">
+        <div class="col-md-6 mb-4" id="project-<%= project.projectId %>">
           <div class="card">
             <img src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="card-img-top cover-pic" />
             <div class="card-body">
@@ -49,7 +50,6 @@
         </div>
       <% }); %>
     </div>
-  </div>
   <nav class="navbar navbar-expand navbar-light bg-light fixed-bottom">
     <ul class="navbar-nav nav-justified w-100">
         <li class="nav-item">
@@ -80,64 +80,5 @@
     </ul>
   </nav>
   <script defer src="/script.js"></script>
-  <script>
-    async function deleteProject(projectId) {
-      const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#F5E2C2',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-      });
-      if (result.isConfirmed) {
-        try {
-          console.log('Deleting project with ID:', projectId);
-          const response = await fetch(`/projects/${projectId}/delete`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          });
-
-          if (!response.ok) {
-            const data = await response.json();
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: data.message || 'Failed to delete the project, please try again later.'
-            });
-            throw new Error(data.message || 'Server responded with an error.');
-          }
-
-          const data = await response.json();
-          console.log('Project deleted:', data);
-
-          const projectElement = document.getElementById(`project-${projectId}`);
-          if (projectElement) {
-            projectElement.remove();
-            Swal.fire({
-              icon: 'success',
-              title: 'Deleted!',
-              text: data.message || 'Project has been successfully deleted.'
-            });
-          } else {
-            console.error('Failed to find the project element:', `project-${projectId}`);
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Failed to find the project element on the page.'
-            });
-          }
-        } catch (error) {
-          console.error('Error deleting the project:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'There was an issue deleting your project.'
-          });
-        }
-      }
-    }
-  </script>
 </body>
 </html>

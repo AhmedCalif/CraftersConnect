@@ -10,8 +10,25 @@ const projectsRouter = require('./routes/projectsRouter');
 const homeRouter = require('./routes/homeRoute');
 const userProjectsRouter = require('./routes/userProjectsRouter');
 const chatRouter = require('./routes/chatRoute');
+const socket = require('socket.io');
+const http = require('http');
 
 const app = express();
+const server = http.createServer(app);
+const io = socket(server);
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+  
+    socket.on('chat message', (msg) => {
+      io.emit('chat message', msg);
+    });
+  
+    socket.on('disconnect', () => {
+      console.log('user disconnected');
+    });
+  });
+  
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your_default_secret_key',
@@ -37,7 +54,7 @@ app.use('/profile', profileRouter);
 app.use('/projects', projectsRouter);
 app.use('/home', homeRouter);
 app.use('/my-projects', userProjectsRouter);
-app.use('/chat', chatRouter);
+app.use('/chats', chatRouter);
 
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
@@ -46,6 +63,6 @@ app.get('/', (req, res) => {
 app.use(middleware.errorHandler);
 
 const port = 8000;
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });

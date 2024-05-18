@@ -4,7 +4,7 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 const path = require('path');
 const { User, Project, Step, Image, Avatar, Collaborator } = require('../database/schema/schemaModel');
-const { ensureAuthenticated } = require('../middleware/middleware');
+const { ensureAuthenticated, uploadMiddleware } = require('../middleware/middleware');
 const Sequelize = require('sequelize');
 const router = express.Router();
 
@@ -30,7 +30,7 @@ const storage = new CloudinaryStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = uploadMiddleware('/uploads');
 
 // Route to create a new project
 router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (req, res) => {
@@ -38,6 +38,8 @@ router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (
     const { title, description, steps, date } = req.body;
     const user = await User.findOne({ where: { username: req.session.username }});
     const coverImage = req.file ? req.file.path : null;
+
+    console.log('File uploaded:', req.file); // Log the file details
 
     if (!user) {
       console.error("User not found");
@@ -53,11 +55,16 @@ router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (
       updatedAt: date
     });
 
+    console.log('New Project:', newProject);
+
     if (coverImage) {
-      await Image.create({
+      const newImage = await Image.create({
         link: coverImage,
         projectId: newProject.projectId
       });
+      console.log('New Image:', newImage);
+    } else {
+      console.log('No cover image provided');
     }
 
     if (steps && steps.length) {
@@ -74,7 +81,6 @@ router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (
     res.status(500).send("Failed to create project. Please try again.");
   }
 });
-
 // Route for projects created by the user
 router.get("/created", ensureAuthenticated, async (req, res) => {
   const loggedInUsername = req.session.username;
@@ -95,7 +101,6 @@ router.get("/created", ensureAuthenticated, async (req, res) => {
     distinct: true
     
   });
-
 
   res.render('userProjects/created', { createdProjects, user, loggedInUsername, avatarUrl });
 });
@@ -130,6 +135,7 @@ router.get("/collaborated", ensureAuthenticated, async (req, res) => {
 });
 
 // Route to view all projects
+// Route to view all projects
 router.get("/all", ensureAuthenticated, async (req, res) => {
   try {
     const loggedInUsername = req.session.username;
@@ -146,7 +152,7 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
       where: { userId: user.userId },
       include: [
         { model: User, as: 'Creator', include: Avatar },
-        { model: Image }
+        { model: Image }  // Ensure Image is included
       ],
       distinct: true
     });
@@ -160,7 +166,7 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
           include: [{ model: Avatar }]
         },
         { model: User, as: 'Creator', include: Avatar },
-        { model: Image }
+        { model: Image }  // Ensure Image is included
       ]
     });
 

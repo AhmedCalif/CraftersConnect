@@ -98,3 +98,44 @@ body {
     font-size: 1.5rem;
     color: #424B4F;
 }
+
+
+/* projects.css */
+
+.chat-section {
+    margin-top: 30px;
+  }
+  
+  .chat-box {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .chat-content {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .chat-message {
+    margin-bottom: 15px;
+  }
+  
+  .chat-message .message {
+    display: block;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+  }
+  
+  .chat-message .message.self {
+    background-color: #e0f7fa;
+    text-align: right;
+  }
+  
+  .chat-message .message.other {
+    background-color: #fff3e0;
+    text-align: left;
+  }
+  
