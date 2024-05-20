@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const carousel = document.getElementById(carouselId);
         const prevBtn = carousel.querySelector('.carousel-control-prev');
         const nextBtn = carousel.querySelector('.carousel-control-next');
+
+        
         const carouselItems = carousel.querySelectorAll('.carousel-item');
         let currentIndex = 0;
 

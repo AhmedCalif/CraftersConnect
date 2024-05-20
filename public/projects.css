@@ -9,6 +9,7 @@ body {
 .container {
   max-width: 1200px;
   margin: 0 auto;
+  padding-bottom: 80px; /* Add padding to prevent the nav bar from covering content */
 }
 
 .card {
@@ -16,15 +17,21 @@ body {
   border: none;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  width: 300px;
+  height: 450px; /* Adjust height to fit content */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .card-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem; /* Adjusted for better fit */
   color: #0CB0EA;
 }
 
 .card-text {
-  font-size: 1rem;
+  font-size: 0.9rem; /* Adjusted for better fit */
 }
 
 .profile-pic {
@@ -35,8 +42,35 @@ body {
   margin-bottom: 1rem;
 }
 
-.action-buttons .btn {
-  margin-right: 10px;
+.action-buttons button, .action-buttons .btn {
+  height: 45pt;
+  width: 180px;
+  background-color: #0CB0EA;
+  color: #000;
+  font-weight: bold;
+  padding: 12.75pt 33.75pt;
+  font-family: 'Mada', sans-serif;
+  font-size: 15pt;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px #999;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-buttons button:hover, .action-buttons .btn:hover {
+  background-color: #0A97D9;
+  box-shadow: 0 6px #666;
+  transform: translateY(-2px);
+}
+
+.action-buttons button:active, .action-buttons .btn:active {
+  background-color: #0884C6;
+  box-shadow: 0 2px #333;
+  transform: translateY(1px);
 }
 
 .btn-primary {
@@ -49,36 +83,14 @@ body {
   border-color: #0A97D9;
 }
 
-.btn-secondary {
-  background-color: #ED960A;
-  border-color: #ED960A;
+.btn-outline-danger {
+  color: #dc3545;
+  border-color: #dc3545;
 }
 
-.btn-secondary:hover {
-  background-color: #DB8500;
-  border-color: #DB8500;
-}
-
-.btn-warning {
-  background-color: #F5E2C2;
-  border-color: #F5E2C2;
-  color: #000;
-}
-
-.btn-warning:hover {
-  background-color: #F8D7A1;
-  border-color: #F8D7A1;
-  color: #000;
-}
-
-.btn-success {
-  background-color: #B1A593;
-  border-color: #B1A593;
-}
-
-.btn-success:hover {
-  background-color: #A39082;
-  border-color: #A39082;
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
 }
 
 .custom-nav-tabs .nav-item {
@@ -106,7 +118,13 @@ body {
 
 .cover-pic {
   width: 100%;
-  height: 300px;
+  height: 150px; 
   object-fit: cover;
   border-radius: 8px 8px 0 0;
 }
+
+.fixed-bottom {
+  background-color: #f8f9fa;
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+}
+
