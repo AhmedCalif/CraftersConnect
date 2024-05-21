@@ -21,6 +21,9 @@
             <a href="/projects/<%= project.projectId %>/update" class="btn btn-outline-primary">
               <i class="fas fa-edit"></i>
             </a>
+            <div class="project" id="project-<%= project.projectId %>">
+           
+            </div>
             <button onclick="deleteProject('<%= project.projectId %>')" class="btn btn-outline-danger">
               <i class="fas fa-trash"></i>
             </button>
@@ -222,63 +225,67 @@
     }
   </script>
   <script>
-    async function deleteProject(projectId) {
-      const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#F5E2C2',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+   async function deleteProject(projectId) {
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#F5E2C2',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  });
+  
+  if (result.isConfirmed) {
+    try {
+      console.log('Deleting project with ID:', projectId);
+      const response = await fetch(`/projects/${projectId}/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
       });
-      if (result.isConfirmed) {
-        try {
-          console.log('Deleting project with ID:', projectId);
-          const response = await fetch(`/projects/${projectId}/delete`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          });
 
-          if (!response.ok) {
-            const data = await response.json();
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: data.message || 'Failed to delete the project, please try again later.'
-            });
-            throw new Error(data.message || 'Server responded with an error.');
-          }
-
-          const data = await response.json();
-          console.log('Project deleted:', data);
-
-          const projectElement = document.getElementById(`project-${projectId}`);
-          if (projectElement) {
-            projectElement.remove();
-            Swal.fire({
-              icon: 'success',
-              title: 'Deleted!',
-              text: data.message || 'Project has been successfully deleted.'
-            });
-          } else {
-            console.error('Failed to find the project element:', `project-${projectId}`);
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Failed to find the project element on the page.'
-            });
-          }
-        } catch (error) {
-          console.error('Error deleting the project:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'There was an issue deleting your project.'
-          });
-        }
+      if (!response.ok) {
+        const data = await response.json();
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: data.message || 'Failed to delete the project, please try again later.'
+        });
+        throw new Error(data.message || 'Server responded with an error.');
       }
+
+      const data = await response.json();
+      console.log('Project deleted:', data);
+
+      const projectElement = document.getElementById(`project-${projectId}`);
+      if (projectElement) {
+        projectElement.remove();
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: data.message || 'Project has been successfully deleted.'
+        }).then(() => {
+          window.location.href = '/my-projects/all'; 
+        });
+      } else {
+        console.error('Failed to find the project element:', `project-${projectId}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Failed to find the project element on the page.'
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting the project:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'There was an issue deleting your project.'
+      });
     }
+  }
+}
+
   </script>
 </body>
 </html>

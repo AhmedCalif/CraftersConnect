@@ -48,7 +48,7 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Failed to register');
+                    return response.json().then(error => { throw new Error(error.message); });
                 }
                 return response.json();
             })
@@ -56,13 +56,18 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'Registered!',
-                    text: 'Registration successful! Redirecting to dashboard...'
+                    text: result.message
                 }).then(() => {
                     window.location.href = '/home/dashboard';
                 });
             })
             .catch(error => {
-            console.log('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Registration Failed',
+                    text: error.message
+                });
+                console.log('Error:', error);
             });
         });
     </script>

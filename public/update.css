@@ -1,85 +1,209 @@
 @import url('https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Orelega+One&display=swap');
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Orelega One', cursive;
+}
 
 body {
-    font-family: 'Mada', sans-serif;
-    background-color: #F8F4EE;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f0f0;
+}
+
+.header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e7e7e7;
+    padding: 10px;
+    text-align: center;
+}
+
+.logo {
+    width: 50px;
 }
 
 .container {
-    max-width: 800px;
-    margin: auto;
+    flex: 1; /* Ensures the container takes up the remaining space */
+    overflow-y: auto; /* Enables scrolling */
+    padding: 20px;
 }
 
 .card {
-    background-color: #FFFFFF;
+    background-color: #F5E2C2;
     border: none;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
 .card-header {
-    background-color: #0CB0EA;
+    background-color: #F5E2C2;
+    border-bottom: 1px solid #e7e7e7;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-    font-size: 1.5rem;
+    padding: 15px;
 }
 
 .card-body {
     padding: 1.5rem;
 }
 
-.input-group-text {
-    background-color: #F5E2C2;
-    color: #424B4F;
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    font-family: 'Mada', sans-serif;
 }
 
-.input-group-prepend .input-group-text {
-    width: 100px;
+.card-text {
+    font-size: 1rem;
+    font-family: 'Mada', sans-serif;
+}
+
+.trash-icon {
+    color: #dc3545;
+}
+
+.custom-img {
+    border-radius: 50%;
+    width: 50px; 
+    height: 50px; 
+    object-fit: cover; 
+}
+
+.navbar-nav .nav-link {
+    text-align: center;
+    font-size: 0.875rem;
+    font-family: 'Mada', sans-serif;
+}
+
+.navbar-nav .nav-link i {
+    font-size: 1.25rem;
+}
+
+.action-buttons button {
+    height: 45pt;
+    width: 180px;
+    background-color: #0CB0EA;
+    color: #000;
+    font-weight: bold;
+    padding: 12.75pt 33.75pt;
+    font-family: 'Mada', sans-serif;
+    font-size: 15pt;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px #999;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
 }
 
-.deleteStepBtn {
-    background-color: #ED960A;
-    border: none;
-    color: white;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.deleteStepBtn:hover {
-    background-color: #B1A593;
-}
-
-.action-buttons .btn {
-    margin-right: 10px;
-    color: #FFF;
-    background-color: #0CB0EA;
-}
-
-.action-buttons .btn.btn-secondary {
-    background-color: #424B4F;
-}
-
-.action-buttons .btn.btn-warning {
-    background-color: #ED960A;
-    color: #FFF;
-}
-
-.action-buttons .btn.btn-danger {
-    background-color: #B1A593;
-    color: #FFF;
-}
-
-.action-buttons .btn.btn-primary {
-    background-color: #0CB0EA;
-    color: #FFF;
-}
-
-.action-buttons .btn.btn-primary:hover {
+.action-buttons button:hover {
     background-color: #0A97D9;
+    box-shadow: 0 6px #666;
+    transform: translateY(-2px);
 }
 
-.action-buttons .btn:last-child {
-    margin-right: 0;
+.action-buttons button:active {
+    background-color: #0884C6;
+    box-shadow: 0 2px #333;
+    transform: translateY(1px);
+}
+
+/* Carousel Controls */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5); /* Darker background for better visibility */
+    border-radius: 50%;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    filter: invert(0%) brightness(0%) sepia(100%) saturate(0%) hue-rotate(0deg) grayscale(100%) contrast(100%);
+    color: #000; /* Darker arrow color */
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    color: #555; /* Slightly lighter on hover */
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+    .logo {
+        width: 40px;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-text {
+        font-size: 0.875rem;
+    }
+
+    .action-buttons button {
+        height: 40pt;
+        width: 100%;
+        padding: 10pt 20pt;
+        font-size: 12pt;
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 0.75rem;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        width: 30px;
+    }
+
+    .header h1 {
+        font-size: 1.25rem;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .card-title {
+        font-size: 0.875rem;
+    }
+
+    .card-text {
+        font-size: 0.75rem;
+    }
+
+    .action-buttons button {
+        height: 35pt;
+        font-size: 10pt;
+        padding: 8pt 15pt;
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 0.625rem;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 0.875rem;
+    }
 }

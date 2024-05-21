@@ -13,6 +13,7 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
+    background-color: #f0f0f0;
 }
 
 .header {
@@ -55,10 +56,12 @@ body {
 .card-title {
     font-size: 1.25rem;
     font-weight: bold;
+    font-family: 'Mada', sans-serif;
 }
 
 .card-text {
     font-size: 1rem;
+    font-family: 'Mada', sans-serif;
 }
 
 .trash-icon {
@@ -75,6 +78,7 @@ body {
 .navbar-nav .nav-link {
     text-align: center;
     font-size: 0.875rem;
+    font-family: 'Mada', sans-serif;
 }
 
 .navbar-nav .nav-link i {
@@ -110,6 +114,24 @@ body {
     background-color: #0884C6;
     box-shadow: 0 2px #333;
     transform: translateY(1px);
+}
+
+/* Carousel Controls */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5); /* Darker background for better visibility */
+    border-radius: 50%;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    filter: invert(0%) brightness(0%) sepia(100%) saturate(0%) hue-rotate(0deg) grayscale(100%) contrast(100%);
+    color: #000; /* Darker arrow color */
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    color: #555; /* Slightly lighter on hover */
 }
 
 /* Responsive Design for Smaller Screens */

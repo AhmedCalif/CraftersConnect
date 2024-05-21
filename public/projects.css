@@ -1,130 +1,240 @@
 @import url('https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Orelega+One&display=swap');
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Orelega One', cursive;
+}
 
 body {
-  font-family: 'Mada', sans-serif;
-  background-color: #F5E2C2;
-  color: #424B4F;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f0f0;
+}
+
+.header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e7e7e7;
+    padding: 10px;
+    text-align: center;
+}
+
+.logo {
+    width: 50px;
 }
 
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-bottom: 80px; /* Add padding to prevent the nav bar from covering content */
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 20px;
 }
 
 .card {
-  background-color: #FFFFFF;
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  width: 300px;
-  height: 450px; /* Adjust height to fit content */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+    height: 130pt;
+    width: 300pt;
+    background-color: #F5E2C2;
+    border: 0.375pt solid #424B4F;
+    border-radius: 3.75pt;
+    font-family: 'Mada', sans-serif;
+    color: #000000;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 12.75pt;
+    display: flex;
+    align-items: center;
+    padding: 10pt;
+    overflow: hidden;
+}
+
+.project-img {
+    border-radius: 3.75pt;
+    width: 50pt;
+    height: 50pt;
+    object-fit: cover;
+    margin-right: 12pt;
+}
+
+.card-content {
+    flex-grow: 1;
+    margin-right: 12pt;
 }
 
 .card-title {
-  font-size: 1.2rem; /* Adjusted for better fit */
-  color: #0CB0EA;
+    font-size: 15pt;
+    font-weight: bold;
+    margin: 0;
+    font-family: 'Mada', sans-serif;
 }
 
 .card-text {
-  font-size: 0.9rem; /* Adjusted for better fit */
+    font-size: 12pt;
+    margin: 0;
+    font-family: 'Mada', sans-serif;
 }
 
-.profile-pic {
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  margin-bottom: 1rem;
+.card-progress {
+    width: 100%;
+    height: 8pt;
+    background-color: #e0e0e0;
+    border-radius: 4pt;
+    overflow: hidden;
+    margin-top: 8pt;
 }
 
-.action-buttons button, .action-buttons .btn {
-  height: 45pt;
-  width: 180px;
-  background-color: #0CB0EA;
-  color: #000;
-  font-weight: bold;
-  padding: 12.75pt 33.75pt;
-  font-family: 'Mada', sans-serif;
-  font-size: 15pt;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  box-shadow: 0 4px #999;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.card-progress-bar {
+    height: 100%;
+    background-color: #42A5F5;
 }
 
-.action-buttons button:hover, .action-buttons .btn:hover {
-  background-color: #0A97D9;
-  box-shadow: 0 6px #666;
-  transform: translateY(-2px);
+.card-button {
+    height: 45pt;
+    width: 100pt;
+    background-color: #424B4F;
+    color: #fff;
+    font-family: 'Mada', sans-serif;
+    font-size: 15pt;
+    font-weight: bold;
+    border: none;
+    border-radius: 3.75pt;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.action-buttons button:active, .action-buttons .btn:active {
-  background-color: #0884C6;
-  box-shadow: 0 2px #333;
-  transform: translateY(1px);
+.card-button:hover {
+    background-color: #333;
 }
 
-.btn-primary {
-  background-color: #0CB0EA;
-  border-color: #0CB0EA;
+.card-button:active {
+    background-color: #222;
 }
 
-.btn-primary:hover {
-  background-color: #0A97D9;
-  border-color: #0A97D9;
+.trash-icon {
+    color: #dc3545;
 }
 
-.btn-outline-danger {
-  color: #dc3545;
-  border-color: #dc3545;
+.custom-img {
+    border-radius: 50%;
+    width: 50px; 
+    height: 50px; 
+    object-fit: cover; 
 }
 
-.btn-outline-danger:hover {
-  background-color: #dc3545;
-  color: white;
+.navbar-nav .nav-link {
+    text-align: center;
+    font-size: 0.875rem;
+    font-family: 'Mada', sans-serif;
 }
 
-.custom-nav-tabs .nav-item {
-  margin-right: 10px;
+.navbar-nav .nav-link i {
+    font-size: 1.25rem;
 }
 
-.custom-nav-tabs .custom-tab {
-  background-color: #A0E4FC;
-  border-radius: 8px;
-  padding: 10px 20px;
-  color: #000;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
+.action-buttons button {
+    height: 45pt;
+    width: 180px;
+    background-color: #0CB0EA;
+    color: #000;
+    font-weight: bold;
+    padding: 12.75pt 33.75pt;
+    font-family: 'Mada', sans-serif;
+    font-size: 15pt;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px #999;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.custom-nav-tabs .custom-tab.active {
-  background-color: #ED960A;
-  color: #FFF;
+.action-buttons button:hover {
+    background-color: #0A97D9;
+    box-shadow: 0 6px #666;
+    transform: translateY(-2px);
 }
 
-.custom-nav-tabs .custom-tab:hover {
-  background-color: #DB8500;
-  color: #FFF;
+.action-buttons button:active {
+    background-color: #0884C6;
+    box-shadow: 0 2px #333;
+    transform: translateY(1px);
 }
 
-.cover-pic {
-  width: 100%;
-  height: 150px; 
-  object-fit: cover;
-  border-radius: 8px 8px 0 0;
+/* Carousel Controls */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5); /* Darker background for better visibility */
+    border-radius: 50%;
 }
 
-.fixed-bottom {
-  background-color: #f8f9fa;
-  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+.carousel-control-prev,
+.carousel-control-next {
+    filter: invert(0%) brightness(0%) sepia(100%) saturate(0%) hue-rotate(0deg) grayscale(100%) contrast(100%);
+    color: #000; /* Darker arrow color */
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    color: #555; /* Slightly lighter on hover */
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+    .logo {
+        width: 40px;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .card-content {
+        margin-top: 10pt;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-text {
+        font-size: 0.875rem;
+    }
+
+    .card-button {
+        width: 100%;
+        padding: 10pt 20pt;
+        font-size: 12pt;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 8pt;
+    }
+
+    .card-title {
+        font-size: 0.875rem;
+    }
+
+    .card-text {
+        font-size: 0.75rem;
+    }
+
+    .card-button {
+        height: 35pt;
+        font-size: 10pt;
+        padding: 8pt 15pt;
+    }
 }
 

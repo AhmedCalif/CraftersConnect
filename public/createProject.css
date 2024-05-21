@@ -1,68 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Orelega+One&display=swap');
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Orelega One', cursive;
+}
+
 body {
-  font-family: 'Mada', sans-serif;
-  background-color: #f8f9fa;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f0f0;
+}
+
+.header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e7e7e7;
+    padding: 10px;
+    text-align: center;
+}
+
+.logo {
+    width: 50px;
 }
 
 .container {
-  max-width: 600px;
-  margin: 50px auto;
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    flex: 1; /* Ensures the container takes up the remaining space */
+    overflow-y: auto; /* Enables scrolling */
+    padding: 20px;
 }
 
 .card {
-  border: none;
-  text-align: center;
+    background-color: #F5E2C2;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
 .card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: none;
+    background-color: #F5E2C2;
+    border-bottom: 1px solid #e7e7e7;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 15px;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    font-family: 'Mada', sans-serif;
+}
+
+.card-text {
+    font-size: 1rem;
+    font-family: 'Mada', sans-serif;
+}
+
+.trash-icon {
+    color: #dc3545;
 }
 
 .custom-img {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  cursor: pointer;
+    border-radius: 50%;
+    width: 50px; 
+    height: 50px; 
+    object-fit: cover; 
 }
 
-.img-upload {
-  display: none;
+.navbar-nav .nav-link {
+    text-align: center;
+    font-size: 0.875rem;
+    font-family: 'Mada', sans-serif;
 }
 
-.form-group label {
-  font-weight: bold;
+.navbar-nav .nav-link i {
+    font-size: 1.25rem;
 }
 
-.input-group {
-  display: flex;
-  align-items: center;
+.action-buttons button {
+    height: 45pt;
+    width: 180px;
+    background-color: #0CB0EA;
+    color: #000;
+    font-weight: bold;
+    padding: 12.75pt 33.75pt;
+    font-family: 'Mada', sans-serif;
+    font-size: 15pt;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px #999;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.input-group input {
-  flex: 1;
+.action-buttons button:hover {
+    background-color: #0A97D9;
+    box-shadow: 0 6px #666;
+    transform: translateY(-2px);
 }
 
-.input-group-append button {
-  margin-left: 10px;
+.action-buttons button:active {
+    background-color: #0884C6;
+    box-shadow: 0 2px #333;
+    transform: translateY(1px);
 }
 
-.d-flex.justify-content-between {
-  margin-top: 20px;
+/* Carousel Controls */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5); /* Darker background for better visibility */
+    border-radius: 50%;
 }
 
+.carousel-control-prev,
+.carousel-control-next {
+    filter: invert(0%) brightness(0%) sepia(100%) saturate(0%) hue-rotate(0deg) grayscale(100%) contrast(100%);
+    color: #000; /* Darker arrow color */
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    color: #555; /* Slightly lighter on hover */
+}
+
+/* Responsive Design for Smaller Screens */
 @media (max-width: 768px) {
-  .container {
-    padding: 15px;
-  }
+    .logo {
+        width: 40px;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-text {
+        font-size: 0.875rem;
+    }
+
+    .action-buttons button {
+        height: 40pt;
+        width: 100%;
+        padding: 10pt 20pt;
+        font-size: 12pt;
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 0.75rem;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        width: 30px;
+    }
+
+    .header h1 {
+        font-size: 1.25rem;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .card-title {
+        font-size: 0.875rem;
+    }
+
+    .card-text {
+        font-size: 0.75rem;
+    }
+
+    .action-buttons button {
+        height: 35pt;
+        font-size: 10pt;
+        padding: 8pt 15pt;
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 0.625rem;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 0.875rem;
+    }
 }

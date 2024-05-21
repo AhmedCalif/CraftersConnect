@@ -1,5 +1,5 @@
 const express = require('express');
-const {User} = require('../database/schema/schemaModel');
+const { User } = require('../database/schema/schemaModel');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
 
@@ -25,14 +25,12 @@ router.post('/login', async (req, res) => {
         }
         req.session.username = user.username;
         req.session.userId = user.userId;
-       res.redirect('/home/dashboard');
+        res.redirect('/home/dashboard');
     } catch (error) {
         console.error('Error logging in:', error);
         res.status(500).json({ message: 'Error logging in' });
     }
 });
-
-
 
 router.get('/register', (req, res) => {
     res.render('auth/register');
@@ -41,8 +39,8 @@ router.get('/register', (req, res) => {
 router.post('/register', async (req, res) => {
     try {
         const { username, password, email, id } = req.body;
-        if (username && password && email < 6) {
-         return res.status(400).json({ message: 'Username, password and email must be at least 6 characters long!' });
+        if (username.length < 6 || password.length < 6 || email.length < 6) {
+            return res.status(400).json({ message: 'Username, password and email must be at least 6 characters long!' });
         }
         const hashedPassword = bcrypt.hashSync(password, 10);
         const newUser = await User.create({
@@ -51,14 +49,14 @@ router.post('/register', async (req, res) => {
             email,
             userId: id
         });
-        if(!newUser) {
+        if (!newUser) {
             console.log('Error creating user');
+            return res.status(500).json({ message: 'Error creating user' });
         }
-        await newUser.save();
-        res.redirect('/home/dashboard');
+        res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
         console.error('Error registering user:', error);
-        res.status(500).send('Error registering user');
+        res.status(500).json({ message: 'Error registering user' });
     }
 });
 
@@ -66,6 +64,5 @@ router.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/auth/login');
 });
-
 
 module.exports = router;

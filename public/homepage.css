@@ -2,116 +2,150 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Orelega+One&display=swap');
 
-body {
-  font-family: 'Orelega One', sans-serif;
-  background-color: #F8F4EE;
-  color: #424B4F;
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Orelega One', cursive;
 }
 
-.header, .navbar {
-  background-color: #F5E2C2;
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f0f0;
+}
+
+.header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e7e7e7;
+    padding: 10px;
+    text-align: center;
 }
 
 .logo {
-  max-width: 50px;
+    width: 50px;
 }
 
-.carousel-controls {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
+.container {
+    flex: 1; /* Ensures the container takes up the remaining space */
+    overflow-y: auto; /* Enables scrolling */
+    padding: 20px;
 }
 
-.carousel-controls .btn {
-  margin: 0 5px;
+.card {
+    background-color: #F5E2C2;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
-.btn-outline-primary {
-  background-color: #0CB0EA;
-  border-color: #0CB0EA;
-  color: #000;
+.card-header {
+    background-color: #F5E2C2;
+    border-bottom: 1px solid #e7e7e7;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 15px;
 }
 
-.btn-outline-primary:hover {
-  background-color: #0A97D9;
-  border-color: #0A97D9;
+.card-body {
+    padding: 1.5rem;
 }
 
-.action-buttons .btn {
-  background-color: #ED960A;
-  border-color: #ED960A;
-  color: #000;
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    font-family: 'Mada', sans-serif;
 }
 
-.action-buttons .btn:hover {
-  background-color: #DB8500;
-  border-color: #DB8500;
+.card-text {
+    font-size: 1rem;
+    font-family: 'Mada', sans-serif;
 }
 
-.cover-pic, .custom-img {
-  width: 100%;
-  height: auto;
+.trash-icon {
+    color: #dc3545;
+}
+
+.custom-img {
+    border-radius: 50%;
+    width: 50px; 
+    height: 50px; 
+    object-fit: cover; 
+}
+
+.navbar-nav .nav-link {
+    text-align: center;
+    font-size: 0.875rem;
+    font-family: 'Mada', sans-serif;
+}
+
+.navbar-nav .nav-link i {
+    font-size: 1.25rem;
 }
 
 .action-buttons button {
-  height: 45pt;
-  width: 180px;
-  background-color: #0CB0EA;
-  color: #000;
-  font-weight: bold;
-  padding: 12.75pt 33.75pt;
-  font-family: 'Orelega One', sans-serif;
-  font-size: 15pt;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  box-shadow: 0 4px #999;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+    height: 45pt;
+    width: 180px;
+    background-color: #0CB0EA;
+    color: #000;
+    font-weight: bold;
+    padding: 12.75pt 33.75pt;
+    font-family: 'Mada', sans-serif;
+    font-size: 15pt;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px #999;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .action-buttons button:hover {
-  background-color: #0A97D9;
-  box-shadow: 0 6px #666;
-  transform: translateY(-2px);
+    background-color: #0A97D9;
+    box-shadow: 0 6px #666;
+    transform: translateY(-2px);
 }
 
 .action-buttons button:active {
-  background-color: #0884C6;
-  box-shadow: 0 2px #333;
-  transform: translateY(1px);
+    background-color: #0884C6;
+    box-shadow: 0 2px #333;
+    transform: translateY(1px);
 }
 
-.main-content {
-  padding-bottom: 70px; 
+/* Carousel Controls */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5); /* Darker background for better visibility */
+    border-radius: 50%;
 }
-  
-  header .logo {
-    max-width: 100px;
-  }
-  
-  header .custom-font {
-    font-size: 1.5rem;
-  }
-  
-  #searchIcon {
-    color: #424B4F;
-    cursor: pointer;
-  }
-  
-  #searchForm {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  
 
+.carousel-control-prev,
+.carousel-control-next {
+    filter: invert(0%) brightness(0%) sepia(100%) saturate(0%) hue-rotate(0deg) grayscale(100%) contrast(100%);
+    color: #000; /* Darker arrow color */
+}
 
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    color: #555; /* Slightly lighter on hover */
+}
+
+/* Responsive Design for Smaller Screens */
 @media (max-width: 768px) {
+    .logo {
+        width: 40px;
+    }
+
     .header h1 {
         font-size: 1.5rem;
+    }
+
+    .card-body {
+        padding: 0.75rem;
     }
 
     .card-title {
@@ -123,8 +157,53 @@ body {
     }
 
     .action-buttons button {
-        height: 35px;
-        width: 100px;
-        font-size: 12px;
+        height: 40pt;
+        width: 100%;
+        padding: 10pt 20pt;
+        font-size: 12pt;
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 0.75rem;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        width: 30px;
+    }
+
+    .header h1 {
+        font-size: 1.25rem;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .card-title {
+        font-size: 0.875rem;
+    }
+
+    .card-text {
+        font-size: 0.75rem;
+    }
+
+    .action-buttons button {
+        height: 35pt;
+        font-size: 10pt;
+        padding: 8pt 15pt;
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 0.625rem;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 0.875rem;
     }
 }

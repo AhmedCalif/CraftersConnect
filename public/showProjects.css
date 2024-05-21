@@ -1,141 +1,209 @@
 @import url('https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Orelega+One&display=swap');
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Orelega One', cursive;
+}
 
 body {
-    font-family: 'Mada', sans-serif;
-    background-color: #F8F4EE;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f0f0;
+}
+
+.header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e7e7e7;
+    padding: 10px;
+    text-align: center;
+}
+
+.logo {
+    width: 50px;
 }
 
 .container {
-    max-width: 800px;
+    flex: 1; /* Ensures the container takes up the remaining space */
+    overflow-y: auto; /* Enables scrolling */
+    padding: 20px;
 }
 
 .card {
-    background-color: #FFFFFF;
+    background-color: #F5E2C2;
     border: none;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
 .card-header {
-    background-color: #0CB0EA;
+    background-color: #F5E2C2;
+    border-bottom: 1px solid #e7e7e7;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-    color: #FFF;
-    font-size: 1.5rem;
-    text-align: center;
-    padding: 1rem;
+    padding: 15px;
 }
 
-.project-title {
-    color: #424B4F;
-    font-size: 2rem;
-    font-weight: 700;
+.card-body {
+    padding: 1.5rem;
 }
 
-.project-image {
-    max-height: 300px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.project-info {
-    padding: 1rem;
-}
-
-.section-title {
-    color: #ED960A;
-    margin-top: 1rem;
+.card-title {
     font-size: 1.25rem;
-    font-weight: 600;
+    font-weight: bold;
+    font-family: 'Mada', sans-serif;
 }
 
-.section-subtitle {
-    color: #424B4F;
-    font-size: 1.15rem;
-    margin-top: 1rem;
-}
-
-.step-description {
+.card-text {
     font-size: 1rem;
-    color: #424B4F;
+    font-family: 'Mada', sans-serif;
 }
 
-.action-buttons .btn {
-    margin-right: 10px;
+.trash-icon {
+    color: #dc3545;
 }
 
-.action-buttons .btn-outline-primary {
-    color: #0CB0EA;
-    border-color: #0CB0EA;
+.custom-img {
+    border-radius: 50%;
+    width: 50px; 
+    height: 50px; 
+    object-fit: cover; 
 }
 
-.action-buttons .btn-outline-primary:hover {
+.navbar-nav .nav-link {
+    text-align: center;
+    font-size: 0.875rem;
+    font-family: 'Mada', sans-serif;
+}
+
+.navbar-nav .nav-link i {
+    font-size: 1.25rem;
+}
+
+.action-buttons button {
+    height: 45pt;
+    width: 180px;
     background-color: #0CB0EA;
-    color: #FFF;
+    color: #000;
+    font-weight: bold;
+    padding: 12.75pt 33.75pt;
+    font-family: 'Mada', sans-serif;
+    font-size: 15pt;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px #999;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.action-buttons .btn-outline-danger {
-    color: #ED960A;
-    border-color: #ED960A;
+.action-buttons button:hover {
+    background-color: #0A97D9;
+    box-shadow: 0 6px #666;
+    transform: translateY(-2px);
 }
 
-.action-buttons .btn-outline-danger:hover {
-    background-color: #ED960A;
-    color: #FFF;
+.action-buttons button:active {
+    background-color: #0884C6;
+    box-shadow: 0 2px #333;
+    transform: translateY(1px);
 }
 
-.action-buttons .btn-outline-secondary {
-    color: #424B4F;
-    border-color: #424B4F;
+/* Carousel Controls */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5); /* Darker background for better visibility */
+    border-radius: 50%;
 }
 
-.action-buttons .btn-outline-secondary:hover {
-    background-color: #424B4F;
-    color: #FFF;
+.carousel-control-prev,
+.carousel-control-next {
+    filter: invert(0%) brightness(0%) sepia(100%) saturate(0%) hue-rotate(0deg) grayscale(100%) contrast(100%);
+    color: #000; /* Darker arrow color */
 }
 
-.back-btn {
-    font-size: 1.5rem;
-    color: #424B4F;
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    color: #555; /* Slightly lighter on hover */
 }
 
+/* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+    .logo {
+        width: 40px;
+    }
 
-/* projects.css */
+    .header h1 {
+        font-size: 1.5rem;
+    }
 
-.chat-section {
-    margin-top: 30px;
-  }
-  
-  .chat-box {
-    max-height: 400px;
-    overflow-y: auto;
-  }
-  
-  .chat-content {
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .chat-message {
-    margin-bottom: 15px;
-  }
-  
-  .chat-message .message {
-    display: block;
-    padding: 8px;
-    margin-bottom: 5px;
-    border-radius: 4px;
-  }
-  
-  .chat-message .message.self {
-    background-color: #e0f7fa;
-    text-align: right;
-  }
-  
-  .chat-message .message.other {
-    background-color: #fff3e0;
-    text-align: left;
-  }
-  
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-text {
+        font-size: 0.875rem;
+    }
+
+    .action-buttons button {
+        height: 40pt;
+        width: 100%;
+        padding: 10pt 20pt;
+        font-size: 12pt;
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 0.75rem;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        width: 30px;
+    }
+
+    .header h1 {
+        font-size: 1.25rem;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .card-title {
+        font-size: 0.875rem;
+    }
+
+    .card-text {
+        font-size: 0.75rem;
+    }
+
+    .action-buttons button {
+        height: 35pt;
+        font-size: 10pt;
+        padding: 8pt 15pt;
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 0.625rem;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 0.875rem;
+    }
+}
