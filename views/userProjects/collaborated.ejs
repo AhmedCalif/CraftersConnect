@@ -26,7 +26,7 @@
       <% collaboratedProjects.forEach(project => { %>
         <div class="col-md-6 mb-4">
           <div class="card">
-            <img src="<%= project.Creator && project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="card-img-top cover-pic" />
+            <img src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="project-img" />
             <div class="card-body">
               <h5 class="card-title"><%= project.title %></h5>
               <p class="card-text"><strong>Created by:</strong> <%= project.Creator ? project.Creator.username : 'Unknown' %></p>

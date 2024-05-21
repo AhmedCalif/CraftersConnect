@@ -62,6 +62,7 @@
         <% } %>
       </div>
       <!-- Chat Section -->
+      <% if (project.Creator.username === loggedInUsername || project.Collaborators.map(c => c.username).includes(loggedInUsername)) { %>
       <div class="chat-section mt-4">
         <h4 class="section-title">Chat</h4>
         <div class="chat-box card">
@@ -80,6 +81,7 @@
           </div>
         </div>
       </div>
+      <% } %>
       <!-- End of Chat Section -->
     </div>
   </div>

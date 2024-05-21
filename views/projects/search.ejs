@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Projects</title>
-    <link rel="stylesheet" href="/projects.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap" rel="stylesheet">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/search.css" />
   </head>
   <body>
     <div class="container mt-4">
@@ -32,26 +32,24 @@
       <div id="projects">
         <% projects.forEach(project => { %>
         <div class="card mb-4">
-          <div class="card-body">
-            <div class="d-flex align-items-center">
-              <img src="<%= project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator.username %>" class="profile-pic mr-3" />
-              <div>
-                <h2 class="card-title mb-1"><%= project.title %></h2>
-                <% if (project.Creator) { %>
-                <p class="card-text"><strong>Created by:</strong> <%= project.Creator.username %></p>
-                <% } else { %>
-                <p class="card-text"><strong>Created by:</strong> Unknown</p>
-                <% } %>
-                <p class="card-text"><strong>Description:</strong> <%= project.description %></p>
-                <p class="card-text"><strong>Date:</strong> <%= project.date.toDateString() %></p>
-                <% if (project.Collaborators && project.Collaborators.length > 0) { %>
-                <p class="card-text"><strong>Collaborators:</strong> <%= project.Collaborators.map(collaborator => collaborator.username).join(', ') %></p>
-                <% } else { %>
-                <p class="card-text">No collaborators found.</p>
-                <% } %>
-              </div>
+          <div class="card-body d-flex">
+            <img src="<%= project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator.username %>" class="profile-pic mr-3" />
+            <div class="card-content">
+              <h5 class="card-title"><%= project.title %></h5>
+              <% if (project.Creator) { %>
+              <p class="card-text"><strong>Created by:</strong> <%= project.Creator.username %></p>
+              <% } else { %>
+              <p class="card-text"><strong>Created by:</strong> Unknown</p>
+              <% } %>
+              <p class="card-text"><strong>Description:</strong> <%= project.description %></p>
+              <p class="card-text"><strong>Date:</strong> <%= project.date.toDateString() %></p>
+              <% if (project.Collaborators && project.Collaborators.length > 0) { %>
+              <p class="card-text"><strong>Collaborators:</strong> <%= project.Collaborators.map(collaborator => collaborator.username).join(', ') %></p>
+              <% } else { %>
+              <p class="card-text">No collaborators found.</p>
+              <% } %>
             </div>
-            <div class="mt-3">
+            <div class="card-action ml-auto d-flex align-items-center">
               <% const isCreator = project.Creator && project.Creator.username === username; %>
               <% const isCollaborator = project.Collaborators && project.Collaborators.some(collaborator => collaborator.username === username); %>
               <% if (!isCreator) { %>
@@ -65,7 +63,7 @@
                 </form>
                 <% } %>
               <% } %>
-              <a href="/projects/<%= project.projectId %>" class="btn btn-link">View More</a>
+              <a href="/projects/<%= project.projectId %>" class="btn btn-link ml-3">View More</a>
             </div>
           </div>
         </div>
