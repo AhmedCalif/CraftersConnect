@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/showProjects.css"/>
 </head>
 <body>
-  <div class="container mt-4">
+  <div id="project-<%= project.projectId %>" class="container mt-4">
     <div class="card p-3 shadow-sm">
       <div class="d-flex justify-content-between align-items-center">
         <a href="/my-projects/all" class="btn btn-outline-secondary back-btn">
@@ -252,6 +252,8 @@
           });
 
           const data = await response.json();
+          console.log('Response from server:', data);
+
           if (data.success) {
             document.getElementById('projectImage').src = data.imageUrl;
             Swal.fire({
@@ -287,7 +289,7 @@
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete it!'
       });
-      
+
       if (result.isConfirmed) {
         try {
           console.log('Deleting project with ID:', projectId);
@@ -317,7 +319,7 @@
               title: 'Deleted!',
               text: data.message || 'Project has been successfully deleted.'
             }).then(() => {
-              window.location.href = '/my-projects/all'; 
+              window.location.href = '/my-projects/all';
             });
           } else {
             console.error('Failed to find the project element:', `project-${projectId}`);
@@ -372,7 +374,7 @@
             title: 'Left Project!',
             text: data.message || 'You have successfully left the project.'
           }).then(() => {
-            window.location.href = '/my-projects/all'; 
+            window.location.href = '/my-projects/all';
           });
         } catch (error) {
           console.error('Error leaving the project:', error);
