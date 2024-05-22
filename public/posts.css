@@ -20,69 +20,101 @@ body {
     background-color: #f8f9fa;
     border-bottom: 1px solid #e7e7e7;
     padding: 10px;
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
 }
 
 .logo {
     width: 50px;
 }
 
+h1 {
+    margin: 0;
+    font-size: 24px;
+    font-family: 'Orelega One', cursive;
+}
+
 .container {
-    flex: 1; /* Ensures the container takes up the remaining space */
-    overflow-y: auto; /* Enables scrolling */
+    flex: 1;
+    overflow-y: auto;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the cards horizontally */
 }
 
 .card {
-    background-color: #F5E2C2;
-    border: none;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-}
-
-.card-header {
-    background-color: #F5E2C2;
-    border-bottom: 1px solid #e7e7e7;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    background-color: #F5E2C2 !important; /* Ensure this color is applied */
+    border: 0.75pt solid #414B4F !important; /* Ensure this color is applied */
+    border-radius: 7.5pt !important; /* Ensure this style is applied */
+    margin-bottom: 12.75pt;
+    width: 248.25pt; /* Point to pixel conversion */
     padding: 15px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.card-body {
-    padding: 1.5rem;
+.card-content {
+    display: flex;
+    align-items: center;
 }
 
-.card-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    font-family: 'Mada', sans-serif;
+.card-content img {
+    margin-right: 15px;
 }
 
-.card-text {
-    font-size: 1rem;
-    font-family: 'Mada', sans-serif;
-}
-
-.trash-icon {
-    color: #dc3545;
+.card-details {
+    flex-grow: 1;
 }
 
 .custom-img {
     border-radius: 50%;
-    width: 50px; 
-    height: 50px; 
-    object-fit: cover; 
+    width: 52.5pt; /* Converts points to pixels */
+    height: 52.5pt; /* Converts points to pixels */
+    object-fit: cover;
 }
 
-.navbar-nav .nav-link {
-    text-align: center;
-    font-size: 0.875rem;
-    font-family: 'Mada', sans-serif;
+.card-title {
+    font-size: 15pt;
+    font-weight: bold;
+    color: #000000;
 }
 
-.navbar-nav .nav-link i {
-    font-size: 1.25rem;
+.card-text {
+    font-size: 12pt;
+    color: #000000;
+}
+
+.trash-icon {
+    color: #dc3545;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+}
+
+.btn-like {
+    background: none;
+    border: none;
+    color: #0CB0EA;
+    cursor: pointer;
+}
+
+.btn-like i {
+    font-size: 20px;
 }
 
 .action-buttons button {
@@ -116,25 +148,23 @@ body {
     transform: translateY(1px);
 }
 
-/* Carousel Controls */
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
-    background-color: rgba(0, 0, 0, 0.5); /* Darker background for better visibility */
+    background-color: rgba(0, 0, 0, 0.5); 
     border-radius: 50%;
 }
 
 .carousel-control-prev,
 .carousel-control-next {
     filter: invert(0%) brightness(0%) sepia(100%) saturate(0%) hue-rotate(0deg) grayscale(100%) contrast(100%);
-    color: #000; /* Darker arrow color */
+    color: #000; 
 }
 
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-    color: #555; /* Slightly lighter on hover */
+    color: #555; 
 }
 
-/* Responsive Design for Smaller Screens */
 @media (max-width: 768px) {
     .logo {
         width: 40px;

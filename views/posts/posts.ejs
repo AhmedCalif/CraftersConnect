@@ -11,8 +11,8 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <header class="header d-flex justify-content-between align-items-center p-3 mb-4">
-        <div class="d-flex align-items-center">
+    <header class="header">
+        <div class="logo-container">
             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/39f8664a4cb8e1d79c375d70d49357c512a0be146f87e9f33d98852407c52c3b?apiKey=43882fedecf6460998ef8240965c4e1d&" alt="logo" class="logo" />
             <h1 class="ml-3 mb-0">Community Posts</h1>
         </div>
@@ -25,25 +25,23 @@
     
     <div class="container">
         <% posts.forEach(post => { %>
-            <div class="card mb-4 " id="post-<%= post.postId %>">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
-                        <div>
-                            <strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong>
-                        </div>
+            <div class="card mb-4" id="post-<%= post.postId %>">
+                <div class="card-content">
+                    <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" class="custom-img">
+                    <div class="card-details">
+                        <strong class="card-title"><%= post.creator ? post.creator.username : 'Unknown User' %></strong>
+                        <p class="card-text"><%= post.title %></p>
+                        <p class="card-text"><%= post.description %></p>
                     </div>
-                    <i class="fa fa-trash trash-icon" onclick="deletePost('<%= post.postId %>')" style="cursor: pointer;"></i>
+                    <% if (currentUser && currentUser.userId === post.creator.userId) { %>
+                        <i class="fa fa-trash trash-icon" onclick="deletePost('<%= post.postId %>')" style="cursor: pointer;"></i>
+                    <% } %>
                 </div>
-                <div class="card-body">
-                    <h2 class="card-title"><%= post.title %></h2>
-                    <p class="card-text"><%= post.description %></p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn btn-outline-primary" onclick="likePost('<%= post.postId %>')">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                        <span>Likes: <span id="likes-count-<%= post.postId %>"><%= post.currentLikes %></span></span>
-                    </div>
+                <div class="card-footer">
+                    <button class="btn-like" onclick="likePost('<%= post.postId %>')">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    <span>Likes: <span id="likes-count-<%= post.postId %>"><%= post.currentLikes %></span></span>
                 </div>
             </div>
         <% }); %>
@@ -81,3 +79,4 @@
     <script defer src="/script.js"></script>  
 </body>
 </html>
+
