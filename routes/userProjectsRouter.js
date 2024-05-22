@@ -105,6 +105,7 @@ router.get("/created", ensureAuthenticated, async (req, res) => {
     where: { userId: user.userId }, 
     include: [
       { model: User, as: 'Creator', include: Avatar },
+      { model: Step, as: 'Steps' },
       { model: Image }
     ],
     distinct: true
@@ -135,6 +136,7 @@ router.get("/collaborated", ensureAuthenticated, async (req, res) => {
         include: [{ model: Avatar }]
       },
       { model: User, as: 'Creator', include: Avatar },
+      { model: Step, as: 'Steps' },
       { model: Image }
     ]
   });
@@ -158,6 +160,7 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
       where: { userId: user.userId },
       include: [
         { model: User, as: 'Creator', include: Avatar },
+        { model: Step, as: 'Steps' },
         { model: Image }
       ],
       distinct: true
@@ -171,6 +174,7 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
           where: { userId: user.userId },
           include: [{ model: Avatar }]
         },
+        { model: Step, as: 'Steps' },
         { model: User, as: 'Creator', include: Avatar },
         { model: Image }
       ]

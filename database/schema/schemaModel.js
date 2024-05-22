@@ -121,6 +121,10 @@ const Step = sequelize.define('Step', {
     primaryKey: true
   },
   description: DataTypes.TEXT,
+  completed: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
   projectId: {
     type: DataTypes.INTEGER,
     references: {

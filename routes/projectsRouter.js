@@ -231,6 +231,8 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
         }
       ]
     });
+    
+
 
     if (project) {
       const collaborators = project.Collaborators.map(collaborator => ({
@@ -368,5 +370,26 @@ router.post('/:projectId/leave', ensureAuthenticated, async (req, res) => {
     res.status(500).send('Failed to leave project.');
   }
 });
+
+
+//toggle completion for steps
+router.post('/steps/:stepId/complete', async (req, res) => {
+  const { stepId } = req.params;
+  const { completed } = req.body;
+  try {
+    console.log(`Received request to update step ${stepId} to completed: ${completed}`);
+    const step = await Step.findByPk(stepId);
+    if (!step) {
+      return res.status(404).json({ success: false, message: 'Step not found' });
+    }
+    step.completed = completed;
+    await step.save();
+    res.json({ success: true, step });
+  } catch (error) {
+    console.error('Error updating step completion:', error);
+    res.status(500).json({ success: false, message: 'Failed to update step completion status' });
+  }
+});
+
 
 module.exports = router;
