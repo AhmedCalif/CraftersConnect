@@ -33,7 +33,7 @@
         <% projects.forEach(project => { %>
         <div class="card mb-4">
           <div class="card-body d-flex">
-            <img src="<%= project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.Creator.username %>" class="profile-pic mr-3" />
+            <img src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="project-img" />
             <div class="card-content">
               <h5 class="card-title"><%= project.title %></h5>
               <% if (project.Creator) { %>

@@ -45,6 +45,7 @@ router.post('/upload-coverImage', upload.single('coverImage'), async (req, res) 
   }
 });
 
+
 // View all projects
 router.get("/", ensureAuthenticated, async (req, res) => {
   try {
@@ -116,9 +117,8 @@ router.get("/create", ensureAuthenticated, (req, res) => {
 
 router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (req, res) => {
   try {
-    const { title, description, steps, date } = req.body;
+    const { title, description, steps, date, coverImageUrl } = req.body;
     const user = await User.findOne({ where: { username: req.session.username }});
-    const coverImage = req.file ? req.file.path : null;
 
     if (!user) {
       console.error("User not found");
@@ -134,9 +134,9 @@ router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (
       updatedAt: date
     });
 
-    if (coverImage) {
+    if (coverImageUrl) {
       await Image.create({
-        link: coverImage,
+        link: coverImageUrl,
         projectId: newProject.projectId
       });
     }
@@ -155,6 +155,7 @@ router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (
     res.status(500).send("Failed to create project. Please try again.");
   }
 });
+
 
 // View project details
 router.get("/:id", ensureAuthenticated, async (req, res) => {

@@ -87,24 +87,22 @@
       document.querySelector('#date').value = currentDate;
     });
 
-    const form = document.getElementById('projectForm');
-    const fileInput = document.getElementById('coverImage');
-    const coverImagePreview = document.getElementById('coverImagePreview');
-
-    fileInput.addEventListener('change', function() {
+    document.getElementById('coverImage').addEventListener('change', async function() {
       if (this.files && this.files[0]) {
         let formData = new FormData();
         formData.append('coverImage', this.files[0]);
 
-        fetch('/projects/upload-coverImage', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+          const response = await fetch('/projects/upload-coverImage', {
+            method: 'POST',
+            body: formData
+          });
+
+          const data = await response.json();
           if (data.success) {
             document.getElementById('coverImageUrl').value = data.imageUrl;
-            coverImagePreview.src = URL.createObjectURL(fileInput.files[0]);
+            document.getElementById('coverImagePreview').src = URL.createObjectURL(this.files[0]);
+            document.getElementById('coverImagePreview').style.display = 'block';
             Swal.fire({
               icon: 'success',
               title: 'Cover image uploaded successfully!',
@@ -117,24 +115,28 @@
               title: 'Failed to upload cover image',
               text: 'Please try again later'
             });
-            console.log('error', data.message)
+            console.error('Error:', data.message);
           }
-        })
-        .catch(error => {
+        } catch (error) {
           Swal.fire({
             icon: 'error',
             title: 'Failed to upload cover image',
             text: error.message
           });
-        });
+        }
       }
     });
 
-    form.addEventListener('submit', function(event) {
-      if (!fileInput.files.length || document.getElementById('coverImageUrl').value) {
-        return;
+    document.getElementById('projectForm').addEventListener('submit', function(event) {
+      const coverImageUrl = document.getElementById('coverImageUrl').value;
+      if (!coverImageUrl) {
+        event.preventDefault();
+        Swal.fire({
+          icon: 'error',
+          title: 'Cover image not uploaded',
+          text: 'Please upload a cover image before submitting the form'
+        });
       }
-      event.preventDefault();
     });
   </script>
 </body>
