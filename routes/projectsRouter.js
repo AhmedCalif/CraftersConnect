@@ -53,12 +53,32 @@ router.post('/:projectId/upload-coverImage', ensureAuthenticated, upload.single(
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
 
+    console.log('File received:', req.file);
+
     const coverImage = req.file.path;
     if (!coverImage) {
       return res.status(400).json({ success: false, message: 'Image not uploaded' });
     }
 
-    await Image.update({ link: coverImage }, { where: { projectId: projectId } });
+    const loggedInUser = await User.findOne({ where: { username: req.session.username } });
+    const isCreator = project.CreatorId === loggedInUser.userId;
+    const isCollaborator = await Collaborator.findOne({
+      where: { projectId: projectId, userId: loggedInUser.userId }
+    });
+
+    if (!isCreator && !isCollaborator) {
+      return res.status(403).json({ success: false, message: 'You are not authorized to update this cover image.' });
+    }
+
+    console.log('Updating image in the database');
+
+    
+    const [updated] = await Image.update({ link: coverImage }, { where: { projectId: projectId } });
+    if (updated === 0) {
+      await Image.create({ link: coverImage, projectId });
+    }
+
+    console.log('Image updated successfully:', coverImage);
 
     res.status(200).json({ success: true, imageUrl: coverImage });
   } catch (error) {
