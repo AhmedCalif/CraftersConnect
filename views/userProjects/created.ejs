@@ -24,31 +24,19 @@
     </nav>
     <div class="row" id="projects">
       <% createdProjects.forEach(project => { %>
-        <div class="col-md-6 mb-4">
+        <div class="col-md-4 mb-4" id="project-<%= project.projectId %>">
           <div class="card">
-            <img src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="card-img-top cover-pic" />
-            <div class="card-body">
+            <img src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="project-img" />
+            <div class="card-content">
               <h5 class="card-title"><%= project.title %></h5>
-              <p class="card-text"><strong>Created by:</strong> <%= project.Creator ? project.Creator.username : 'Unknown' %></p>
-              <p class="card-text"><strong>Description:</strong> <%= project.description %></p>
-              <p class="card-text"><strong>Date:</strong> <%= new Date(project.date).toDateString() %></p>
-              <% if (project.Collaborators && project.Collaborators.length > 0) { %>
-                <p class="card-text"><strong>Collaborators:</strong> 
-                  <% project.Collaborators.forEach(collaborator => { %>
-                    <%= collaborator.username %>, 
-                  <% }); %>
-                </p>
-              <% } else { %>
-                <p class="card-text">No collaborators found.</p>
-              <% } %>
-              <% if (project.Creator && project.Creator.username === loggedInUsername) { %>
-                <div class="d-flex justify-content-between mt-2">
-                  <a href="/projects/<%= project.projectId %>/update" class="btn btn-outline-primary">Edit Project</a>
-                  <a href="/projects/<%= project.projectId %>/delete" class="btn btn-outline-danger">Delete Project</a>
-                </div>
-              <% } %>
-              <a href="/projects/<%= project.projectId %>" class="btn btn-link mt-2">View More</a>
+              <p class="card-text"><%= project.description %></p>
+              <div class="card-progress">
+                <div class="card-progress-bar" style="width:50px"></div>
+              </div>
             </div>
+            <a href="/projects/<%= project.projectId %>">
+              <button class="card-button">Check &rarr;</button>
+            </a>
           </div>
         </div>
       <% }); %>

@@ -45,6 +45,29 @@ router.post('/upload-coverImage', upload.single('coverImage'), async (req, res) 
   }
 });
 
+router.post('/:projectId/upload-coverImage', ensureAuthenticated, upload.single('coverImage'), async (req, res) => {
+  const projectId = req.params.projectId;
+  try {
+    const project = await Project.findByPk(projectId);
+    if (!project) {
+      return res.status(404).json({ success: false, message: 'Project not found' });
+    }
+
+    const coverImage = req.file.path;
+    if (!coverImage) {
+      return res.status(400).json({ success: false, message: 'Image not uploaded' });
+    }
+
+    await Image.update({ link: coverImage }, { where: { projectId: projectId } });
+
+    res.status(200).json({ success: true, imageUrl: coverImage });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+});
+
+
 
 // View all projects
 router.get("/", ensureAuthenticated, async (req, res) => {
@@ -319,7 +342,7 @@ router.post('/:projectId/leave', ensureAuthenticated, async (req, res) => {
       console.log(`Collaborator removed: ${user.username} from project ${projectId}`);
     }
 
-    res.redirect(`/projects/${projectId}`);
+    res.status(200).json({ message: 'Left project successfully' });
   } catch (err) {
     console.error('Error leaving project:', err);
     res.status(500).send('Failed to leave project.');

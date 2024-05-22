@@ -13,23 +13,39 @@
   <div class="container mt-4">
     <div class="card p-3 shadow-sm">
       <div class="d-flex justify-content-between align-items-center">
-        <a href="javascript:history.back()" class="btn btn-outline-secondary back-btn">
+        <a href="/my-projects/all" class="btn btn-outline-secondary back-btn">
           <i class="fas fa-arrow-left"></i>
         </a>
-        <div>
-          <% if (project.Creator && project.Creator.username === loggedInUsername) { %>
-            <a href="/projects/<%= project.projectId %>/update" class="btn btn-outline-primary">
+        <div class="icon-buttons">
+          <% const isCreator = project.Creator && project.Creator.username === loggedInUsername; %>
+          <% const isCollaborator = project.Collaborators && project.Collaborators.map(c => c.username).includes(loggedInUsername); %>
+
+          <% if (isCreator || isCollaborator) { %>
+            <a href="/projects/<%= project.projectId %>/update" class="btn btn-outline-primary mx-1">
               <i class="fas fa-edit"></i>
             </a>
-            <div class="project" id="project-<%= project.projectId %>">
-           
-            </div>
-            <button onclick="deleteProject('<%= project.projectId %>')" class="btn btn-outline-danger">
+          <% } %>
+          <% if (isCreator) { %>
+            <button onclick="deleteProject('<%= project.projectId %>')" class="btn btn-outline-danger mx-1">
               <i class="fas fa-trash"></i>
             </button>
           <% } %>
+          <% if (isCollaborator) { %>
+            <button onclick="confirmLeaveProject('<%= project.projectId %>')" class="btn btn-outline-danger mx-1">
+              <i class="fas fa-door-open"></i>
+            </button>
+          <% } %>
+          <% if (!isCreator && !isCollaborator) { %>
+            <form action="/projects/<%= project.projectId %>/join" method="POST" class="d-inline">
+              <button type="submit" class="btn btn-outline-primary mx-1">
+                <i class="fas fa-door-closed"></i>
+              </button>
+            </form>
+          <% } %>
         </div>
       </div>
+      <img id="projectImage" src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="project-img"/>
+      <input type="file" id="imageUpload" class="d-none" accept="image/*">
       <div class="text-center mt-3">
         <h2 class="project-title"><%= project.title %></h2>
       </div>
@@ -53,16 +69,9 @@
             <li>No steps available</li>
           <% } %>
         </ol>
-        <% if (project.Collaborators && project.Collaborators.map(c => c.username).includes(loggedInUsername)) { %>
-          <div class="action-buttons mt-3 text-center">
-            <a href="/projects/<%= project.projectId %>/update" class="btn btn-outline-primary">
-              <i class="fas fa-edit"></i> Edit Project
-            </a>
-          </div>
-        <% } %>
       </div>
       <!-- Chat Section -->
-      <% if (project.Creator.username === loggedInUsername || project.Collaborators.map(c => c.username).includes(loggedInUsername)) { %>
+      <% if (isCreator || isCollaborator) { %>
       <div class="chat-section mt-4">
         <h4 class="section-title">Chat</h4>
         <div class="chat-box card">
@@ -100,7 +109,7 @@
     // Fetch chat messages
     async function fetchChats(projectId) {
       try {
-        chatContent.innerHTML = ''; // Clear current chat content
+        chatContent.innerHTML = '';
         const response = await fetch(`/chats/${projectId}`);
         const chats = await response.json();
         chats.forEach(chat => {
@@ -225,69 +234,156 @@
         });
       }
     }
-  </script>
-  <script>
-   async function deleteProject(projectId) {
-  const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#F5E2C2',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
-  });
-  
-  if (result.isConfirmed) {
-    try {
-      console.log('Deleting project with ID:', projectId);
-      const response = await fetch(`/projects/${projectId}/delete`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
 
-      if (!response.ok) {
-        const data = await response.json();
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: data.message || 'Failed to delete the project, please try again later.'
-        });
-        throw new Error(data.message || 'Server responded with an error.');
+    document.getElementById('projectImage').addEventListener('click', function() {
+      document.getElementById('imageUpload').click();
+    });
+
+    document.getElementById('imageUpload').addEventListener('change', async function() {
+      const file = this.files[0];
+      if (file) {
+        let formData = new FormData();
+        formData.append('coverImage', file);
+
+        try {
+          const response = await fetch(`/projects/${projectId}/upload-coverImage`, {
+            method: 'POST',
+            body: formData
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            document.getElementById('projectImage').src = data.imageUrl;
+            Swal.fire({
+              icon: 'success',
+              title: 'Cover image updated successfully!',
+              showConfirmButton: false,
+              timer: 1500
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Failed to update cover image',
+              text: 'Please try again later'
+            });
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed to update cover image',
+            text: error.message
+          });
+        }
       }
+    });
 
-      const data = await response.json();
-      console.log('Project deleted:', data);
-
-      const projectElement = document.getElementById(`project-${projectId}`);
-      if (projectElement) {
-        projectElement.remove();
-        Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: data.message || 'Project has been successfully deleted.'
-        }).then(() => {
-          window.location.href = '/my-projects/all'; 
-        });
-      } else {
-        console.error('Failed to find the project element:', `project-${projectId}`);
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Failed to find the project element on the page.'
-        });
-      }
-    } catch (error) {
-      console.error('Error deleting the project:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: 'There was an issue deleting your project.'
+    async function deleteProject(projectId) {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#F5E2C2',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
       });
+      
+      if (result.isConfirmed) {
+        try {
+          console.log('Deleting project with ID:', projectId);
+          const response = await fetch(`/projects/${projectId}/delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: data.message || 'Failed to delete the project, please try again later.'
+            });
+            throw new Error(data.message || 'Server responded with an error.');
+          }
+
+          const data = await response.json();
+          console.log('Project deleted:', data);
+
+          const projectElement = document.getElementById(`project-${projectId}`);
+          if (projectElement) {
+            projectElement.remove();
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: data.message || 'Project has been successfully deleted.'
+            }).then(() => {
+              window.location.href = '/my-projects/all'; 
+            });
+          } else {
+            console.error('Failed to find the project element:', `project-${projectId}`);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Failed to find the project element on the page.'
+            });
+          }
+        } catch (error) {
+          console.error('Error deleting the project:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'There was an issue deleting your project.'
+          });
+        }
+      }
     }
-  }
-}
 
+    async function confirmLeaveProject(projectId) {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#F5E2C2',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, leave it!'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(`/projects/${projectId}/leave`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: data.message || 'Failed to leave the project, please try again later.'
+            });
+            throw new Error(data.message || 'Server responded with an error.');
+          }
+
+          const data = await response.json();
+          Swal.fire({
+            icon: 'success',
+            title: 'Left Project!',
+            text: data.message || 'You have successfully left the project.'
+          }).then(() => {
+            window.location.href = '/my-projects/all'; 
+          });
+        } catch (error) {
+          console.error('Error leaving the project:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'There was an issue leaving the project.'
+          });
+        }
+      }
+    }
   </script>
 </body>
 </html>

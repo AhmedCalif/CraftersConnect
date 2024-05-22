@@ -64,10 +64,14 @@ router.get('/dashboard', async (req, res) => {
         where: { userId: user.userId }
     });
 
-    // Fetch new projects
+   
     const newProjects = await Project.findAll({
-        limit: 5, // You can adjust this number based on how many new projects you want to show
-        order: [['createdAt', 'DESC']]
+        limit: 5, 
+        order: [['createdAt', 'DESC']],
+        include: [
+            { model: User, as: 'Creator', include: Avatar },
+            { model: Image }
+        ]
     });
 
     res.render('home/dashboard', {
