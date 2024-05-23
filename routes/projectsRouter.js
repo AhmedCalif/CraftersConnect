@@ -235,6 +235,7 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
 
 
     if (project) {
+      const isCollaborator = project.Creator.username === loggedInUsername;
       const collaborators = project.Collaborators.map(collaborator => ({
         userId: collaborator.userId,
         username: collaborator.username,
@@ -390,6 +391,38 @@ router.post('/steps/:stepId/complete', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to update step completion status' });
   }
 });
+
+router.post('/:projectId/collaborator/:collaboratorId/remove', ensureAuthenticated, async (req, res) => {
+  const { projectId, collaboratorId } = req.params;
+  const loggedInUserId = req.session.userId; // Assuming userId is stored in session
+
+  try {
+    // Fetch the project
+    const project = await Project.findOne({
+      where: { projectId },
+      include: [{ model: User, as: 'Creator' }]
+    });
+
+    // Check if the logged-in user is the creator of the project
+    if (project.Creator.userId !== loggedInUserId) {
+      return res.status(403).json({ message: "Only the project creator can remove collaborators" });
+    }
+
+    // Remove the collaborator
+    await Collaborator.destroy({
+      where: {
+        projectId,
+        userId: collaboratorId
+      }
+    });
+
+    res.json({ success: true, message: "Collaborator removed successfully" });
+  } catch (err) {
+    console.error("Error removing collaborator:", err);
+    res.status(500).json({ message: "Server error while removing collaborator" });
+  }
+});
+
 
 
 module.exports = router;

@@ -112,6 +112,17 @@
             <% } %>
           </ol>
         </div>
+        <!-- Remove Collaborators -->
+        <% if (isCreator) { %>
+          <% collaborators.forEach(collaborator => { %>
+            <div>
+              <span><%= collaborator.username %></span>
+              <form action="/projects/<%= project.projectId %>/collaborator/<%= collaborator.userId %>/remove" method="POST" style="display:inline;">
+                <button type="submit">Remove Collaborator</button>
+              </form>
+            </div>
+          <% }) %>
+        <% } %>
         <!-- Chat Section -->
         <% if (isCreator || isCollaborator) { %>
         <div class="chat-section mt-4">
@@ -488,5 +499,28 @@
         }
       }
     </script>
+    <script>
+      function removeCollaborator(projectId, collaboratorId) {
+        fetch(`/project/${projectId}/collaborator/${collaboratorId}/remove`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('Collaborator removed successfully');
+            location.reload();
+          } else {
+            alert('Failed to remove collaborator: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while removing the collaborator');
+        });
+      }
+      </script>
   </body>
 </html>
