@@ -85,6 +85,9 @@
           <br>
           <h5 class="section-subtitle">Collaborators</h5>
                   <!-- Remove Collaborators -->
+                  <% if (collaborators.length < 1)  { %>
+                    <p> No collaborators found.</p>
+                    <% } %>
                   <% collaborators.forEach(collaborator => { %>
                     <div>
                       <span><%= collaborator.username %></span>
@@ -95,8 +98,6 @@
               </form>
             </div>
           <% }) %>
-
-          <br>
           <h5 class="section-subtitle">Progress</h5>
           <% let completedSteps = 0; if (project.Steps && project.Steps.length >
           0) { completedSteps = project.Steps.filter(step =>
