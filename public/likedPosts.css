@@ -2,12 +2,12 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
 
 body, html {
-    height: 100vh; 
+    height: 100vh;
     margin: 0;
     padding: 0;
     display: flex;
-    justify-content: center; 
-    align-items: center;  
+    justify-content: center;
+    align-items: center;
     font-family: 'Mada', sans-serif;
     background: #E5DCD5;
 }
@@ -15,7 +15,7 @@ body, html {
 .sidebar {
     width: 250px;
     position: fixed;
-    left: -250px; 
+    left: -250px;
     top: 0;
     bottom: 0;
     background-color: #fff;
@@ -25,7 +25,7 @@ body, html {
 }
 
 .sidebar.open {
-    left: 0; 
+    left: 0;
 }
 
 .main-content {
@@ -45,19 +45,19 @@ body, html {
     display: flex;
     position: fixed;
     top: 20px;
-    left: 40px;  
-    z-index: 1001; 
+    left: 40px;
+    z-index: 1001;
     cursor: pointer;
 }
 
 .menu-icon a {
-    color: inherit; 
+    color: inherit;
     display: inline-block;
     text-decoration: none;
 }
 
 .menu-icon i {
-    font-size: 24px; 
+    font-size: 24px;
 }
 
 .menu-items {
@@ -82,38 +82,38 @@ body, html {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px; 
-    margin-top: 50px;  
+    padding: 40px;
+    margin-top: 50px;
     background-color: #fff;
-    border-radius: 15px;  
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); 
-    width: 100%;  
-    max-width: 700px;  
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 700px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .avatar-large {
-    width: 90px;  
+    width: 90px;
     height: 90px;
     border-radius: 50%;
-    margin: 20px auto;  
+    margin: 20px auto;
     display: block;
 }
 
 .user-info h1 {
-    font-size: 28px;  
+    font-size: 28px;
     color: #333;
-    margin-bottom: 10px;  
+    margin-bottom: 10px;
 }
 
 .user-info p {
-    font-size: 20px;  
+    font-size: 20px;
     color: #666;
 }
 
 .user-details h1, .user-details p {
-    text-align: center; 
+    text-align: center;
 }
 
 button {
@@ -189,14 +189,15 @@ button:active {
     padding: 20px;
     width: 100%;
     margin-top: 60px;
+    padding-bottom: 80px; /* Add space for the fixed navbar */
 }
 
 .container, .header {
-    transition: margin-left 0.3s ease; 
+    transition: margin-left 0.3s ease;
 }
 
 .container.open, .header.open {
-    margin-left: 250px; 
+    margin-left: 250px;
 }
 
 .card {
@@ -207,12 +208,12 @@ button:active {
     padding: 15px;
     box-sizing: border-box;
     width: 300px;
-    height: 300px; 
+    height: 300px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    justify-content: center; 
+    justify-content: center;
 }
 
 .card h2 {
@@ -220,7 +221,7 @@ button:active {
 }
 
 .card p {
-    font-size: 18px; 
+    font-size: 18px;
 }
 
 .card strong {
@@ -234,22 +235,41 @@ button:active {
 @media (max-width: 768px) {
     .sidebar {
         width: 100%;
-        left: -100%; 
+        left: -100%;
     }
     .sidebar.open {
-        left: 0; 
+        left: 0;
     }
     .main-content {
-        padding-left: 0; 
+        padding-left: 0;
     }
     .profile-container {
-        width: 90%; 
-        padding: 20px; 
+        width: 90%;
+        padding: 20px;
         margin-top: 20px;
     }
     .card {
         width: 90%;
-        padding: 20px; 
-        height: auto; 
+        padding: 20px;
+        height: auto;
     }
+}
+
+
+.fixed-bottom {
+    background-color: #f8f9fa;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+    height: 60px; 
+}
+
+.navbar-nav .nav-link {
+    font-size: 0.75rem;
+}
+
+.navbar-nav .nav-link i {
+    font-size: 1rem;
+}
+
+.navbar {
+    height: 60px;
 }

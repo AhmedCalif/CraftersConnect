@@ -8,17 +8,23 @@
     <link rel="stylesheet" href="/likedPosts.css">
 </head>
 <body>
-    <div class="container">
-        <% likedPosts.forEach(post => { %>
-            <% if (post) { %>
-                <div class="card" id="post-<%= post.postId %>">
-                    <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="Post Creator Avatar" class="avatar-large">
-                    <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
-                    <h2><%= post.title %></h2>
-                    <p><%= post.description %></p>
-                </div>
-            <% } %>
-        <% }) %>        
+    <div class="container liked-posts-container">
+        <div class="row">
+            <% likedPosts.forEach(post => { %>
+                <% if (post) { %>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card mb-4" id="post-<%= post.postId %>">
+                            <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="Post Creator Avatar" class="avatar-large card-img-top">
+                            <div class="card-body text-center">
+                                <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
+                                <h2 class="card-title"><%= post.title %></h2>
+                                <p class="card-text"><%= post.description %></p>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            <% }) %>  
+        </div>      
     </div>
     <nav class="navbar navbar-expand navbar-light bg-light fixed-bottom">
         <ul class="navbar-nav nav-justified w-100">
@@ -49,7 +55,6 @@
             </li>
         </ul>
     </nav> 
-    <script defer src="/sidebar.js"></script>
     <script defer src='/script.js'></script>
 </body>
 </html>

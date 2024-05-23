@@ -8,7 +8,7 @@ body {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding-bottom: 80px;
+  padding-bottom: 80px; /* Add space for the fixed navbar */
 }
 
 .card {
@@ -92,9 +92,41 @@ body {
   background-color: #222;
 }
 
+/* Fixed bottom navbar styling */
 .fixed-bottom {
   background-color: #f8f9fa;
   box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+  height: 60px; /* Set the height of the navbar */
+}
+
+.navbar-nav .nav-link {
+  text-align: center;
+  font-size: 0.875rem;
+  font-family: 'Mada', sans-serif;
+}
+
+.navbar-nav .nav-link i {
+  font-size: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .navbar-nav .nav-link {
+    font-size: 0.75rem;
+  }
+
+  .navbar-nav .nav-link i {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-nav .nav-link {
+    font-size: 0.625rem;
+  }
+
+  .navbar-nav .nav-link i {
+    font-size: 0.875rem;
+  }
 }
 
 .custom-nav-tabs .nav-item {

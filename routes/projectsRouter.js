@@ -48,7 +48,10 @@ router.post('/upload-coverImage', upload.single('coverImage'), async (req, res) 
 router.post('/:projectId/upload-coverImage', ensureAuthenticated, upload.single('coverImage'), async (req, res) => {
   const projectId = req.params.projectId;
   try {
-    const project = await Project.findByPk(projectId);
+    const project = await Project.findByPk(projectId, {
+      include: [{ model: User, as: 'Creator' }]
+    });
+
     if (!project) {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
@@ -61,18 +64,22 @@ router.post('/:projectId/upload-coverImage', ensureAuthenticated, upload.single(
     }
 
     const loggedInUser = await User.findOne({ where: { username: req.session.username } });
-    const isCreator = project.CreatorId === loggedInUser.userId;
-    const isCollaborator = await Collaborator.findOne({
-      where: { projectId: projectId, userId: loggedInUser.userId }
-    });
+    if (!loggedInUser) {
+      return res.status(403).json({ success: false, message: 'User not found' });
+    }
 
-    if (!isCreator && !isCollaborator) {
+    console.log('Logged in user ID:', loggedInUser.userId);
+    console.log('Project Creator ID:', project.Creator.userId);
+
+    const isCreator = project.Creator.userId === loggedInUser.userId;
+    console.log('Is user the creator?', isCreator);
+
+    if (!isCreator) {
       return res.status(403).json({ success: false, message: 'You are not authorized to update this cover image.' });
     }
 
     console.log('Updating image in the database');
 
-    
     const [updated] = await Image.update({ link: coverImage }, { where: { projectId: projectId } });
     if (updated === 0) {
       await Image.create({ link: coverImage, projectId });
@@ -86,7 +93,6 @@ router.post('/:projectId/upload-coverImage', ensureAuthenticated, upload.single(
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 });
-
 
 
 // View all projects

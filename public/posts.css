@@ -44,6 +44,7 @@ h1 {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
+    padding-bottom: 80px; /* Add space for the fixed navbar */
     display: flex;
     flex-direction: column;
     align-items: center; /* Center the cards horizontally */
@@ -236,4 +237,64 @@ h1 {
     .navbar-nav .nav-link i {
         font-size: 0.875rem;
     }
+}
+
+/* Fixed bottom navbar styling */
+.fixed-bottom {
+    background-color: #f8f9fa;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+    height: 60px; /* Set the height of the navbar */
+}
+
+.navbar-nav .nav-link {
+    text-align: center;
+    font-size: 0.875rem;
+    font-family: 'Mada', sans-serif;
+}
+
+.navbar-nav .nav-link i {
+    font-size: 1.25rem;
+}
+
+@media (max-width: 768px) {
+    .navbar-nav .nav-link {
+        font-size: 0.75rem;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-nav .nav-link {
+        font-size: 0.625rem;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 0.875rem;
+    }
+}
+
+.custom-nav-tabs .nav-item {
+    margin-right: 10px;
+}
+
+.custom-nav-tabs .custom-tab {
+    background-color: #A0E4FC;
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: #000;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.custom-nav-tabs .custom-tab.active {
+    background-color: #ED960A;
+    color: #FFF;
+}
+
+.custom-nav-tabs .custom-tab:hover {
+    background-color: #DB8500;
+    color: #FFF;
 }

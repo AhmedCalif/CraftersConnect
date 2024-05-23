@@ -304,56 +304,53 @@
         }
       }
 
-      document
-        .getElementById("projectImage")
-        .addEventListener("click", function () {
-          document.getElementById("imageUpload").click();
+      document.getElementById("projectImage").addEventListener("click", function () {
+  document.getElementById("imageUpload").click();
+});
+
+document.getElementById("projectImage").addEventListener("click", function () {
+  document.getElementById("imageUpload").click();
+});
+
+document.getElementById("imageUpload").addEventListener("change", async function () {
+  const file = this.files[0];
+  if (file) {
+    let formData = new FormData();
+    formData.append("coverImage", file);
+
+    try {
+      const response = await fetch(`/projects/${projectId}/upload-coverImage`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      console.log("Response from server:", data);
+
+      if (data.success) {
+        document.getElementById("projectImage").src = data.imageUrl;
+        Swal.fire({
+          icon: "success",
+          title: "Cover image updated successfully!",
+          showConfirmButton: false,
+          timer: 1500,
         });
-
-      document
-        .getElementById("imageUpload")
-        .addEventListener("change", async function () {
-          const file = this.files[0];
-          if (file) {
-            let formData = new FormData();
-            formData.append("coverImage", file);
-
-            try {
-              const response = await fetch(
-                `/projects/${projectId}/upload-coverImage`,
-                {
-                  method: "POST",
-                  body: formData,
-                }
-              );
-
-              const data = await response.json();
-              console.log("Response from server:", data);
-
-              if (data.success) {
-                document.getElementById("projectImage").src = data.imageUrl;
-                Swal.fire({
-                  icon: "success",
-                  title: "Cover image updated successfully!",
-                  showConfirmButton: false,
-                  timer: 1500,
-                });
-              } else {
-                Swal.fire({
-                  icon: "error",
-                  title: "Failed to update cover image",
-                  text: "Please try again later",
-                });
-              }
-            } catch (error) {
-              Swal.fire({
-                icon: "error",
-                title: "Failed to update cover image",
-                text: error.message,
-              });
-            }
-          }
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed to update cover image",
+          text: data.message,
         });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to update cover image",
+        text: error.message,
+      });
+    }
+  }
+});
 
       async function deleteProject(projectId) {
         const result = await Swal.fire({

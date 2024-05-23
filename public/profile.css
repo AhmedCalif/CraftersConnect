@@ -104,6 +104,13 @@ button:active {
     transform: translateY(1px);
 }
 
+/* Fixed bottom navbar styling */
+.fixed-bottom {
+    background-color: #f8f9fa;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+    height: 60px; /* Set the height of the navbar */
+}
+
 .navbar-nav .nav-link {
     font-size: 0.75rem;
 }
@@ -131,4 +138,8 @@ button:active {
         padding: 10px;
         width: calc(100% - 20px);
     }
+}
+
+.navbar {
+    height: 60px;
 }
