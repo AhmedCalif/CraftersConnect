@@ -17,9 +17,9 @@
     </div>
     <nav>
       <div class="nav nav-tabs mb-3 custom-nav-tabs">
-        <a href="/my-projects/all" class="nav-item nav-link active custom-tab">All Projects</a>
+        <a href="/my-projects/all" class="nav-item nav-link custom-tab">All Projects</a>
         <a href="/my-projects/collaborated" class="nav-item nav-link custom-tab">Collaborated Projects</a>
-        <a href="/my-projects/created" class="nav-item nav-link custom-tab">Created Projects</a>
+        <a href="/my-projects/created" class="nav-item nav-link active custom-tab">Created Projects</a>
       </div>
     </nav>
     <div class="row" id="projects">
@@ -29,9 +29,14 @@
             <img src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="project-img" />
             <div class="card-content">
               <h5 class="card-title"><%= project.title %></h5>
+              <% let completedSteps = 0; if (project.Steps && project.Steps.length >
+              0) { completedSteps = project.Steps.filter(step =>
+              step.completed).length; } const progressPercentage = project.Steps &&
+              project.Steps.length > 0 ? (completedSteps / project.Steps.length) *
+              100 : 0; %>
               <p class="card-text"><%= project.description %></p>
-              <div class="card-progress">
-                <div class="card-progress-bar" style="width:50px"></div>
+              <div class="card-progress mb-3" style="width: 100px;">
+                <div class="card-progress-bar" style="width: <%= progressPercentage %>%"></div>
               </div>
             </div>
             <a href="/projects/<%= project.projectId %>">

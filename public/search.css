@@ -57,6 +57,7 @@ body {
   border-radius: 3.75pt;
   overflow: hidden;
   margin-top: 8pt;
+  margin: auto;
 }
 
 .card-progress-bar {

@@ -82,7 +82,22 @@
         </div>
         <div class="project-info">
           <h4 class="section-title">Project Info</h4>
-          <h5 class="section-subtitle">Process</h5>
+          <br>
+          <h5 class="section-subtitle">Collaborators</h5>
+                  <!-- Remove Collaborators -->
+                  <% collaborators.forEach(collaborator => { %>
+                    <div>
+                      <span><%= collaborator.username %></span>
+                      <% if (isCreator) { %>
+              <form action="/projects/<%= project.projectId %>/collaborator/<%= collaborator.userId %>/remove" method="POST" style="display:inline;">
+                <button type="submit">Remove Collaborator</button>
+                <% } %>
+              </form>
+            </div>
+          <% }) %>
+
+          <br>
+          <h5 class="section-subtitle">Progress</h5>
           <% let completedSteps = 0; if (project.Steps && project.Steps.length >
           0) { completedSteps = project.Steps.filter(step =>
           step.completed).length; } const progressPercentage = project.Steps &&
@@ -90,12 +105,13 @@
           100 : 0; %>
           <div class="card-progress mb-3">
             <div
+              id="progress-bar"
               class="card-progress-bar"
               style="width: <%= progressPercentage %>%"
             ></div>
           </div>
           <p class="card-text">
-            <%= completedSteps %> of <%= project.Steps.length %> steps completed
+            <span id="completed-steps"><%= completedSteps %></span> of <span id="total-steps"><%= project.Steps.length %></span> steps completed
           </p>
           <ol class="pl-3">
             <% if (project.Steps && project.Steps.length > 0) { %> <%
@@ -112,17 +128,7 @@
             <% } %>
           </ol>
         </div>
-        <!-- Remove Collaborators -->
-        <% if (isCreator) { %>
-          <% collaborators.forEach(collaborator => { %>
-            <div>
-              <span><%= collaborator.username %></span>
-              <form action="/projects/<%= project.projectId %>/collaborator/<%= collaborator.userId %>/remove" method="POST" style="display:inline;">
-                <button type="submit">Remove Collaborator</button>
-              </form>
-            </div>
-          <% }) %>
-        <% } %>
+
         <!-- Chat Section -->
         <% if (isCreator || isCollaborator) { %>
         <div class="chat-section mt-4">
@@ -486,7 +492,11 @@
             icon: "success",
             title: "Success!",
             text: "Step completion status updated.",
-          });
+        }).then(() => {
+            location.reload();
+        });
+
+
         } catch (error) {
           console.error("Error updating step completion status:", error);
           Swal.fire({
@@ -500,27 +510,44 @@
       }
     </script>
     <script>
-      function removeCollaborator(projectId, collaboratorId) {
-        fetch(`/project/${projectId}/collaborator/${collaboratorId}/remove`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            alert('Collaborator removed successfully');
-            location.reload();
-          } else {
-            alert('Failed to remove collaborator: ' + data.message);
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('An error occurred while removing the collaborator');
+    async function removeCollaborator(projectId, collaboratorId) {
+    try {
+        const response = await fetch(`/projects/${projectId}/collaborator/${collaboratorId}/remove`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
-      }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: data.message || 'Failed to remove collaborator, please try again later.',
+            });
+            throw new Error(data.message || 'Failed to remove collaborator.');
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Collaborator removed successfully.',
+        }).then(() => {
+            location.reload();
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'An error occurred while removing the collaborator.',
+        });
+    }
+}
+
       </script>
+      
   </body>
 </html>
