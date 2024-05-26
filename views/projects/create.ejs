@@ -37,7 +37,7 @@
           <div id="stepsContainer" class="form-group">
             <label>Process</label>
             <div class="input-group mb-3">
-              <input type="text" name="steps[]" class="form-control" placeholder="Step one" required> 
+              <input type="text" name="steps[]" class="form-control" placeholder="Step 1" required> 
               <div class="input-group-append">
                 <button type="button" class="btn btn-danger deleteStepBtn">Delete</button>
               </div>
@@ -60,7 +60,7 @@
       var stepsContainer = document.getElementById("stepsContainer");
       var newStepDiv = document.createElement("div");
       newStepDiv.classList.add("input-group", "mb-3");
-      var stepNumber = stepsContainer.children.length + 1;
+      var stepNumber = stepsContainer.getElementsByClassName("input-group").length + 1;
       newStepDiv.innerHTML = `
         <input type="text" name="steps[]" class="form-control" placeholder="Step ${stepNumber}" required>
         <div class="input-group-append">
@@ -76,8 +76,9 @@
 
     function updateStepNumbers() {
       var stepsContainer = document.getElementById("stepsContainer");
-      for (var i = 0; i < stepsContainer.children.length; i++) {
-        var input = stepsContainer.children[i].querySelector("input");
+      var stepInputs = stepsContainer.getElementsByClassName("input-group");
+      for (var i = 0; i < stepInputs.length; i++) {
+        var input = stepInputs[i].querySelector("input");
         input.placeholder = `Step ${i + 1}`;
       }
     }
