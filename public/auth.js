@@ -34,7 +34,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         Swal.fire({
             icon: 'error',
             title: 'Login Error',
-            text: 'Please check your credentials and try again!'
+            text: response.message
         });
     });
 });
