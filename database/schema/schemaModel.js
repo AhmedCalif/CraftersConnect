@@ -243,8 +243,33 @@ const Chat = sequelize.define('Chat', {
   timestamps: true
 });
 
+const MoodImage = sequelize.define('MoodImage', {
+  imageId: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  link: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  projectId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Project,
+      key: 'projectId'
+    }
+  }
+}, {
+  timestamps: true
+});
+
+
+
+
+
 // Associations
-// Associations
+
 User.hasMany(Post, { as: 'Posts', foreignKey: 'createdBy' });
 User.hasMany(Like, { foreignKey: 'userId' });
 
@@ -278,7 +303,12 @@ Chat.belongsTo(User, { foreignKey: 'userId', as: 'Sender' });
 Project.hasMany(Chat, { as: 'ProjectChats', foreignKey: 'projectId' });
 Chat.belongsTo(Project, { foreignKey: 'projectId', as: 'Project' });
 
-module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message, Chat };
+Project.hasMany(MoodImage, { foreignKey: 'projectId' });
+MoodImage.belongsTo(Project, { foreignKey: 'projectId' });
+
+
+
+module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message, Chat, MoodImage };
 
 // Sync database
 sequelize.sync({ force: false }).then(() => {

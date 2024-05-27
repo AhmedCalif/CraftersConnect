@@ -3,7 +3,7 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 const path = require('path');
-const { User, Project, Step, Image, Avatar, Collaborator } = require('../database/schema/schemaModel');
+const { User, Project, Step, Image, Avatar, Collaborator, MoodImage } = require('../database/schema/schemaModel');
 const { ensureAuthenticated } = require('../middleware/middleware');
 const Sequelize = require('sequelize');
 const { image } = require('../cloudinaryConfig');
@@ -32,19 +32,6 @@ const storage = new CloudinaryStorage({
 });
 
 const upload = multer({ storage: storage });
-
-router.post('/upload-coverImage', upload.single('coverImage'), async (req, res) => {
-  try {
-    const coverImage = req.file.path;
-    if (!coverImage) {
-      return res.status(400).json({ success: false, message: 'Image not uploaded' });
-    }
-    return res.status(200).json({ success: true, imageUrl: coverImage });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Server Error' });
-  }
-});
 
 router.post('/:projectId/upload-coverImage', ensureAuthenticated, upload.single('coverImage'), async (req, res) => {
   const projectId = req.params.projectId;
@@ -410,12 +397,10 @@ router.post('/:projectId/collaborator/:collaboratorId/remove', ensureAuthenticat
       include: [{ model: User, as: 'Creator' }]
     });
 
-    // Check if the logged-in user is the creator of the project
     if (project.Creator.userId !== loggedInUserId) {
       return res.status(403).json({ message: "Only the project creator can remove collaborators" });
     }
 
-    // Remove the collaborator
     await Collaborator.destroy({
       where: {
         projectId,
@@ -432,17 +417,17 @@ router.post('/:projectId/collaborator/:collaboratorId/remove', ensureAuthenticat
 
 
 router.post('/image-link', async (req, res) => {
-  const imageLink = req.body.imageLink; 
+  const { imageLink, projectId } = req.body;
 
-  if (!imageLink) {
-    console.error("Image Not Found");
-    return res.status(400).send("Image link is required");
+  if (!imageLink || !projectId) {
+    console.error("Image link or Project ID not found");
+    return res.status(400).send("Image link and project ID are required");
   }
 
   try {
-    const newImage = await Image.create({
+    const newImage = await MoodImage.create({
       link: imageLink,
-      projectId: Project.projectId 
+      projectId: projectId
     });
     res.status(201).json(newImage);
   } catch (error) {
@@ -453,13 +438,13 @@ router.post('/image-link', async (req, res) => {
 
 router.delete('/image-link', async (req, res) => {
   try {
-    const { imageLink, projectId } = req.body; 
+    const { imageLink, projectId } = req.body;
 
     if (!imageLink || !projectId) {
       return res.status(400).json({ message: "Image link and project ID are required" });
     }
 
-    const deleteImage = await Image.destroy({
+    const deleteImage = await MoodImage.destroy({
       where: {
         link: imageLink,
         projectId: projectId
@@ -471,8 +456,6 @@ router.delete('/image-link', async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
-
 
 
 
