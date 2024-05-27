@@ -81,8 +81,18 @@
           </form>
         </div>
         <div id="mood-board" class="mt-3">
-          <!-- Dynamically added image cards will appear here -->
+          <% project.MoodImages.forEach((image) => { %>
+            <div class="card mt-2" data-link="<%= image.link %>">
+              <div class="card-body">
+                <img src="<%= image.link %>" alt="Mood Board Image" class="img-fluid rounded" style="max-width: 200px;">
+                <% if (loggedInUsername === image.uploadedBy) { %>
+                  <button class="btn btn-danger mt-2" onclick="deleteImageLink('<%= image.link %>', '<%= project.projectId %>')">Delete</button>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
         </div>
+        
         <br>
         <h5 class="section-subtitle">Collaborators</h5>
         <% if (collaborators.length < 1) { %>
@@ -156,7 +166,6 @@
     const loggedInUsername = "<%= loggedInUsername %>";
     const projectId = "<%= project.projectId %>";
 
-    // Ensure only one event listener is added
     document.getElementById("image-link-form").addEventListener("submit", async function (e) {
       e.preventDefault();
       const imageLinkInput = document.getElementById("imageLink");
@@ -216,7 +225,7 @@
       const moodBoard = document.getElementById("mood-board");
       const imageCard = document.createElement("div");
       imageCard.className = "card mt-2";
-      imageCard.dataset.link = image.link; // Add data attribute to identify the card
+      imageCard.dataset.link = image.link;
       imageCard.innerHTML = `
         <div class="card-body">
           <img src="${image.link}" alt="Mood Board Image" class="img-fluid rounded" style="max-width: 200px;">
@@ -248,7 +257,6 @@
             text: "The image link has been removed from the project."
           });
 
-          // Remove the image card from the mood board
           const imageCard = document.querySelector(`[data-link="${imageLink}"]`);
           if (imageCard) {
             imageCard.remove();

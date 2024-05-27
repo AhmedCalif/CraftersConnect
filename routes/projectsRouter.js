@@ -208,6 +208,7 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
       include: [
         { model: Step, as: 'Steps' },
         { model: Image },
+        { model: MoodImage }, 
         {
           model: User,
           as: 'Creator',
@@ -226,8 +227,6 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
       ]
     });
     
-
-
     if (project) {
       const isCollaborator = project.Creator.username === loggedInUsername;
       const collaborators = project.Collaborators.map(collaborator => ({
@@ -247,6 +246,8 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
     res.status(500).send("Server Error while fetching project details.");
   }
 });
+
+
 
 // Update project
 router.get('/:id/update', ensureAuthenticated, async (req, res) => {
@@ -416,8 +417,9 @@ router.post('/:projectId/collaborator/:collaboratorId/remove', ensureAuthenticat
 });
 
 
-router.post('/image-link', async (req, res) => {
+router.post('/image-link', ensureAuthenticated, async (req, res) => {
   const { imageLink, projectId } = req.body;
+  const loggedInUsername = req.session.username;
 
   if (!imageLink || !projectId) {
     console.error("Image link or Project ID not found");
@@ -427,7 +429,8 @@ router.post('/image-link', async (req, res) => {
   try {
     const newImage = await MoodImage.create({
       link: imageLink,
-      projectId: projectId
+      projectId: projectId,
+      uploadedBy: loggedInUsername  
     });
     res.status(201).json(newImage);
   } catch (error) {

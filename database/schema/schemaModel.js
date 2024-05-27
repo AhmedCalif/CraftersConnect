@@ -244,21 +244,34 @@ const Chat = sequelize.define('Chat', {
 });
 
 const MoodImage = sequelize.define('MoodImage', {
-  imageId: {
+  id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
   },
   link: {
-    type: DataTypes.TEXT,
+    type: DataTypes.STRING,
     allowNull: false
   },
   projectId: {
     type: DataTypes.INTEGER,
+    allowNull: false,
     references: {
-      model: Project,
+      model: 'Projects',
       key: 'projectId'
     }
+  },
+  uploadedBy: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.NOW
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.NOW
   }
 }, {
   timestamps: true
