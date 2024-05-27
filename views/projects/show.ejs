@@ -71,28 +71,28 @@
       </div>
       <div class="project-info">
         <h4 class="section-title">Project Info</h4>
-        <br>
-        <h4>Mood Board</h4>
-        <div class='card'>
-          <form id="image-link-form">
-            <input type="text" id="imageLink" name="imageLink" placeholder="Enter image link" required>
-            <button type="submit">Upload link</button>
-            <button type="button" id="cancelButton" class="btn btn-secondary">Cancel</button>
-          </form>
-        </div>
-        <div id="mood-board" class="mt-3">
-          <% project.MoodImages.forEach((image) => { %>
-            <div class="card mt-2" data-link="<%= image.link %>">
-              <div class="card-body">
-                <img src="<%= image.link %>" alt="Mood Board Image" class="img-fluid rounded" style="max-width: 200px;">
-                <% if (loggedInUsername === image.uploadedBy) { %>
-                  <button class="btn btn-danger mt-2" onclick="deleteImageLink('<%= image.link %>', '<%= project.projectId %>')">Delete</button>
-                <% } %>
+        <% if (isCreator || isCollaborator) { %>
+          <h4>Mood Board</h4>
+          <div class='card'>
+            <form id="image-link-form">
+              <input type="text" id="imageLink" name="imageLink" placeholder="Enter image link" required>
+              <button type="submit">Upload link</button>
+              <button type="button" id="cancelButton" class="btn btn-secondary">Cancel</button>
+            </form>
+          </div>
+          <div id="mood-board" class="mt-3">
+            <% project.MoodImages.forEach((image) => { %>
+              <div class="card mt-2" data-link="<%= image.link %>">
+                <div class="card-body">
+                  <img src="<%= image.link %>" alt="Mood Board Image" class="img-fluid rounded" style="max-width: 200px;">
+                  <% if (loggedInUsername === image.uploadedBy) { %>
+                    <button class="btn btn-danger mt-2" onclick="deleteImageLink('<%= image.link %>', '<%= project.projectId %>')">Delete</button>
+                  <% } %>
+                </div>
               </div>
-            </div>
-          <% }) %>
-        </div>
-        
+            <% }) %>
+          </div>
+          <% } %>
         <br>
         <h5 class="section-subtitle">Collaborators</h5>
         <% if (collaborators.length < 1) { %>

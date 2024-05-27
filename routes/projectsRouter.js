@@ -389,7 +389,7 @@ router.post('/steps/:stepId/complete', async (req, res) => {
 
 router.post('/:projectId/collaborator/:collaboratorId/remove', ensureAuthenticated, async (req, res) => {
   const { projectId, collaboratorId } = req.params;
-  const loggedInUserId = req.session.userId; // Assuming userId is stored in session
+  const loggedInUserId = req.session.userId; 
 
   try {
     // Fetch the project
