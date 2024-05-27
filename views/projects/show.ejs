@@ -81,7 +81,19 @@
           <% } %>
         </div>
         <div class="project-info">
-          <h4 class="section-title">Project Info</h4>
+      <h4 class="section-title">Project Info</h4>
+        <br>
+      <h4>Mood Board</h4>
+      <div class='card'>
+      <form id="image-link-form">
+      <input type="text" id="imageLink" name="imageLink" placeholder="Enter image link" required>
+      <button type="submit">Upload link</button>
+      </form>
+    </div>
+  <div id="mood-board" class="mt-3">
+    </div>
+    <br>
+    </div>
           <br>
           <h5 class="section-subtitle">Collaborators</h5>
                   <!-- Remove Collaborators -->
@@ -549,6 +561,118 @@ document.getElementById("imageUpload").addEventListener("change", async function
     });
   }
 }
+document.getElementById("image-link-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const imageLinkInput = document.getElementById("imageLink");
+  const imageLink = imageLinkInput.value;
+
+  if (imageLink) {
+    try {
+      const response = await fetch('/projects/image-link', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ imageLink, projectId })
+      });
+
+      const data = await response.json();
+      console.log("Response data:", data);
+
+      if (response.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Image link uploaded successfully!",
+          text: "The image link has been added to the project."
+        });
+
+        // Clear the form
+        imageLinkInput.value = "";
+
+        // Add the new image card to the mood board
+        addImageCard(data);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed to upload image link",
+          text: data.message || "An error occurred while uploading the image link."
+        });
+      }
+    } catch (error) {
+      console.error("Error uploading image link:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message || "An error occurred while uploading the image link."
+      });
+    }
+  }
+});
+
+function addImageCard(image) {
+  console.log("Adding image card:", image);
+  
+  if (!image || !image.link) {
+    console.error("Invalid image object:", image);
+    return;
+  }
+
+  const moodBoard = document.getElementById("mood-board");
+  const imageCard = document.createElement("div");
+  imageCard.className = "card mt-2";
+  imageCard.dataset.link = image.link; // Add data attribute to identify the card
+  imageCard.innerHTML = `
+    <div class="card-body">
+      <img src="${image.link}" alt="Mood Board Image" class="img-fluid rounded">
+      <button class="btn btn-danger mt-2" onclick="deleteImageLink('${image.link}', '${projectId}')">Delete</button>
+    </div>
+  `;
+  moodBoard.appendChild(imageCard);
+}
+
+async function deleteImageLink(imageLink, projectId) {
+  try {
+    const response = await fetch('/projects/image-link', {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ imageLink, projectId })
+    });
+
+    const data = await response.json();
+    console.log("Delete response:", data);
+
+    if (response.ok) {
+      Swal.fire({
+        icon: "success",
+        title: "Image deleted successfully!",
+        text: "The image link has been removed from the project."
+      });
+
+      // Remove the image card from the mood board
+      const imageCard = document.querySelector(`[data-link="${imageLink}"]`);
+      if (imageCard) {
+        imageCard.remove();
+      }
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to delete image",
+        text: data.message || "An error occurred while deleting the image link."
+      });
+    }
+  } catch (error) {
+    console.error("Error deleting image link:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error!",
+      text: error.message || "An error occurred while deleting the image link."
+    });
+  }
+}
+
+
 
  </script>    
   </body>

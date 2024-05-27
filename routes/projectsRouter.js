@@ -6,6 +6,7 @@ const path = require('path');
 const { User, Project, Step, Image, Avatar, Collaborator } = require('../database/schema/schemaModel');
 const { ensureAuthenticated } = require('../middleware/middleware');
 const Sequelize = require('sequelize');
+const { image } = require('../cloudinaryConfig');
 const router = express.Router();
 
 // Configure Cloudinary
@@ -428,6 +429,50 @@ router.post('/:projectId/collaborator/:collaboratorId/remove', ensureAuthenticat
     res.status(500).json({ message: "Server error while removing collaborator" });
   }
 });
+
+
+router.post('/image-link', async (req, res) => {
+  const imageLink = req.body.imageLink; 
+
+  if (!imageLink) {
+    console.error("Image Not Found");
+    return res.status(400).send("Image link is required");
+  }
+
+  try {
+    const newImage = await Image.create({
+      link: imageLink,
+      projectId: Project.projectId 
+    });
+    res.status(201).json(newImage);
+  } catch (error) {
+    console.error("Error creating image:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+router.delete('/image-link', async (req, res) => {
+  try {
+    const { imageLink, projectId } = req.body; 
+
+    if (!imageLink || !projectId) {
+      return res.status(400).json({ message: "Image link and project ID are required" });
+    }
+
+    const deleteImage = await Image.destroy({
+      where: {
+        link: imageLink,
+        projectId: projectId
+      }
+    });
+    res.status(200).json({ message: "Image deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting image link:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+
 
 
 
