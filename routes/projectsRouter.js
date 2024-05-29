@@ -33,6 +33,19 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
+router.post('/upload-coverImage', upload.single('coverImage'), async (req, res) => {
+  try {
+    const coverImage = req.file.path;
+    if (!coverImage) {
+      return res.status(400).json({ success: false, message: 'Image not uploaded' });
+    }
+    return res.status(200).json({ success: true, imageUrl: coverImage });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+});
+
 router.post('/:projectId/upload-coverImage', ensureAuthenticated, upload.single('coverImage'), async (req, res) => {
   const projectId = req.params.projectId;
   try {

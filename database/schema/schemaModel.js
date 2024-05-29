@@ -283,6 +283,7 @@ const MoodImage = sequelize.define('MoodImage', {
 
 // Associations
 
+// Associations with cascading delete
 User.hasMany(Post, { as: 'Posts', foreignKey: 'createdBy' });
 User.hasMany(Like, { foreignKey: 'userId' });
 
@@ -296,10 +297,10 @@ Project.belongsTo(User, { foreignKey: 'userId', as: 'Creator' });
 User.hasOne(Avatar, { foreignKey: 'userId' });
 Avatar.belongsTo(User, { as: 'User', foreignKey: 'userId' });
 
-Project.hasOne(Image, { foreignKey: 'projectId' });
+Project.hasOne(Image, { foreignKey: 'projectId', onDelete: 'CASCADE' });
 Image.belongsTo(Project, { foreignKey: 'projectId' });
 
-Project.hasMany(Step, { foreignKey: 'projectId', as: 'Steps' });
+Project.hasMany(Step, { foreignKey: 'projectId', as: 'Steps', onDelete: 'CASCADE' });
 Step.belongsTo(Project, { foreignKey: 'projectId' });
 
 User.belongsToMany(Project, { through: Collaborator, as: 'Collaborations', foreignKey: 'userId' });
@@ -313,10 +314,10 @@ Message.belongsTo(User, { as: 'Receiver', foreignKey: 'receiverId' });
 User.hasMany(Chat, { as: 'UserChats', foreignKey: 'userId' });
 Chat.belongsTo(User, { foreignKey: 'userId', as: 'Sender' });
 
-Project.hasMany(Chat, { as: 'ProjectChats', foreignKey: 'projectId' });
+Project.hasMany(Chat, { as: 'ProjectChats', foreignKey: 'projectId', onDelete: 'CASCADE' });
 Chat.belongsTo(Project, { foreignKey: 'projectId', as: 'Project' });
 
-Project.hasMany(MoodImage, { foreignKey: 'projectId' });
+Project.hasMany(MoodImage, { foreignKey: 'projectId', onDelete: 'CASCADE' });
 MoodImage.belongsTo(Project, { foreignKey: 'projectId' });
 
 
