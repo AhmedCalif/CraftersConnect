@@ -39,22 +39,81 @@
           </form>
           <% } %>
         </div>
-      </div>
-      <img id="projectImage" src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="project-img" />
-      <input type="file" id="imageUpload" class="d-none" accept="image/*" />
-      <div class="text-center mt-3">
-        <h2 class="project-title"><%= project.title %></h2>
-      </div>
-      <div class="text-center mb-3">
-        <% if (project.Images && project.Images.length > 0) { %>
-        <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
-          <div class="carousel-inner">
-            <% project.Images.forEach((image, index) => { %>
-            <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-              <img src="<%= image.link %>" class="d-block w-100" alt="Project Image">
-              <% if (isCreator) { %>
-              <button class="btn btn-danger mt-2" onclick="deleteImageLink('<%= image.link %>', '<%= project.projectId %>')">Delete</button>
-              <% } %>
+        <div class="project-info">
+          <h4 class="section-title">Project Info</h4>
+          <br>
+          <h5 class="section-subtitle">Collaborators</h5>
+                  <!-- Remove Collaborators -->
+                  <% if (collaborators.length < 1)  { %>
+                    <p> No collaborators found.</p>
+                    <% } %>
+                  <% collaborators.forEach(collaborator => { %>
+                    <div>
+                      <span><%= collaborator.username %></span>
+                      <% if (isCreator) { %>
+              <form action="/projects/<%= project.projectId %>/collaborator/<%= collaborator.userId %>/remove" method="POST" style="display:inline;">
+                <button type="button" onclick="removeCollaborator('<%= project.projectId %>', '<%= collaborator.userId %>')" class="btn btn-outline-danger mx-1">
+      Remove Collaborator
+    </button>
+                <% } %>
+              </form>
+            </div>
+          <% }) %>
+          <% if (isCreator || isCollaborator) { %>
+          <h5 class="section-subtitle">Progress</h5>
+          <% let completedSteps = 0; if (project.Steps && project.Steps.length >
+          0) { completedSteps = project.Steps.filter(step =>
+          step.completed).length; } const progressPercentage = project.Steps &&
+          project.Steps.length > 0 ? (completedSteps / project.Steps.length) *
+          100 : 0; %>
+          <div class="card-progress mb-3">
+            <div
+              id="progress-bar"
+              class="card-progress-bar"
+                style="width: <%= progressPercentage %>%"
+            ></div>
+          </div>
+          <p class="card-text">
+            <span id="completed-steps"><%= completedSteps %></span> of <span id="total-steps"><%= project.Steps.length %></span> steps completed - <%= Math.ceil(progressPercentage) %>%
+          </p>
+          <ol class="pl-3">
+            <% if (project.Steps && project.Steps.length > 0) { %> <%
+            project.Steps.forEach((step, index) => { %>
+            <li class="mb-2">
+              <strong>Step <%= index + 1 %>:</strong>
+              <p class="step-description"><%= step.description %></p>
+              <input type="checkbox" <%= step.completed ? 'checked' : '' %>
+              onclick="toggleStepCompletion( '<%= step.stepId %>',
+              this.checked)"> Completed 
+            </li>
+            <% }); %> <% } else { %>
+            <li>No steps available</li>
+            <% } %>
+          </ol>
+        </div>
+          <% } %>
+        <!-- Chat Section -->
+        <% if (isCreator || isCollaborator) { %>
+        <div class="chat-section mt-4">
+          <h4 class="section-title">Chat</h4>
+          <div class="chat-box card">
+            <div class="card-body chat-content" id="chat-content">
+              <!-- Chat messages will appear here -->
+            </div>
+            <div class="card-footer">
+              <form id="chat-form">
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="chat-message"
+                    class="form-control"
+                    placeholder="Type a message..."
+                  />
+                  <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">Send</button>
+                  </div>
+                </div>
+              </form>
             </div>
             <% }) %>
           </div>
@@ -364,17 +423,11 @@
             heartIcon.classList.remove("fas");
             heartIcon.classList.add("far");
           }
-          Swal.fire({
-            icon: "success",
-            title: "Success!",
-            text: result.liked ? "You liked this chat." : "You unliked this chat.",
-          });
         }
       } catch (error) {
         Swal.fire({
           icon: "error",
           title: "Oops...",
-          text: "Failed to like the chat, please try again later.",
         });
       }
     }
@@ -407,6 +460,7 @@
         });
       }
     }
+
 
     document.getElementById("projectImage").addEventListener("click", function () {
       document.getElementById("imageUpload").click();
