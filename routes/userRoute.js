@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
         }
         req.session.username = user.username;
         req.session.userId = user.userId;
-        res.redirect('/home/dashboard');
+        res.json({ message: 'Login successful' });
     } catch (error) {
         console.error('Error logging in:', error);
         res.status(500).json({ message: 'Error logging in' });

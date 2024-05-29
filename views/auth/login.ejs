@@ -41,32 +41,24 @@
                     },
                     body: JSON.stringify({ username, password })
                 })
-                .then(response => {
+                .then(response => response.json().then(data => {
                     if (!response.ok) {
-                        throw new Error('Failed to login');
+                        throw data;
                     }
-                    return response.text();
-                })
-                .then(result => {
-                    if (result.startsWith('Error')) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: result
-                        });
-                    } else {
-                        window.location.href = '/home/dashboard';
-                    }
+                    return data;
+                }))
+                .then(() => {
+                    window.location.href = '/home/dashboard';
                 })
                 .catch(error => {
                     Swal.fire({
                         icon: 'error',
                         title: 'Login Error',
-                        text: 'Please check your credentials and try again!'
+                        text: error.message || 'Please check your credentials and try again!'
                     });
                 });
             });
         });
-        </script>
+    </script>
 </body>
 </html>
