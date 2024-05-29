@@ -37,7 +37,6 @@
               step.completed).length; } const progressPercentage = project.Steps &&
               project.Steps.length > 0 ? (completedSteps / project.Steps.length) *
               100 : 0; %>
-              <p class="card-text"><%= project.description %></p>
               <div class="card-progress mb-3" style="width: 150px;">
                 <div class="card-progress-bar" style="width: <%= progressPercentage %>%"></div>
               </div>

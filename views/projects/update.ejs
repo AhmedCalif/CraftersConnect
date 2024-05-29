@@ -10,7 +10,7 @@
 <body>
 <div class="container mt-5">
     <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h1>Update Project</h1>
         </div>
         <div class="card-body">
@@ -56,11 +56,13 @@
                         <% } %>
                     </div>
                 </div>
-                <div class="action-buttons">
-                    <button type="button" class="btn btn-secondary mb-3" id="addStepBtn">Add Step</button>
-                    <button type="submit" class="btn btn-success mb-3">Update Project</button>
-                    <a href="/my-projects/all" class="btn btn-warning mb-3">Go Back</a>
-                </div>
+                <div class="d-flex justify-content-between">
+                    <button type="button" id="addStepBtn" class="btn btn-success">Add step</button>
+                    <div>
+                      <button type="submit" class="btn btn-primary">Update</button>
+                      <a href="/projects/<%= project.projectId %>" class="btn btn-secondary">Go Back</a>
+                    </div>
+                  </div>
             </form>
         </div>
     </div>

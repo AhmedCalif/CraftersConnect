@@ -41,7 +41,7 @@
               <% } else { %>
               <p class="card-text"><strong>Created by:</strong> Unknown</p>
               <% } %>
-              <p class="card-text"><strong>Description:</strong> <%= project.description %></p>
+              <p class="card-text"><strong>Description:</strong> <%= project.description.slice(0, 80) %></p>
               <p class="card-text"><strong>Date:</strong> <%= project.date.toDateString() %></p>
               <% if (project.Collaborators && project.Collaborators.length > 0) { %>
               <p class="card-text"><strong>Collaborators:</strong> <%= project.Collaborators.map(collaborator => collaborator.username).join(', ') %></p>
