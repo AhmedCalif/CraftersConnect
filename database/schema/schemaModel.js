@@ -275,7 +275,7 @@ Message.belongsTo(User, { as: 'Receiver', foreignKey: 'receiverId' });
 User.hasMany(Chat, { as: 'UserChats', foreignKey: 'userId' });
 Chat.belongsTo(User, { foreignKey: 'userId', as: 'Sender' });
 
-Project.hasMany(Chat, { as: 'ProjectChats', foreignKey: 'projectId' });
+Project.hasMany(Chat, { as: 'ProjectChats', foreignKey: 'projectId', onDelete: 'CASCADE' });
 Chat.belongsTo(Project, { foreignKey: 'projectId', as: 'Project' });
 
 module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message, Chat };
