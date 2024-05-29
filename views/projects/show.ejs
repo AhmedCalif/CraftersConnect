@@ -64,34 +64,32 @@
           <% }) %>
         <% } %>
 
-        <% if (isCreator || isCollaborator) { %>
-          <h5 class="section-subtitle">Progress</h5>
-          <% let completedSteps = 0;
-          if (project.Steps && project.Steps.length > 0) {
-            completedSteps = project.Steps.filter(step => step.completed).length;
-          }
-          const progressPercentage = project.Steps && project.Steps.length > 0 ? (completedSteps / project.Steps.length) * 100 : 0;
-          %>
-          <div class="card-progress mb-3">
-            <div id="progress-bar" class="card-progress-bar" style="width: <%= progressPercentage %>%;"></div>
-          </div>
-          <p class="card-text">
-            <span id="completed-steps"><%= completedSteps %></span> of <span id="total-steps"><%= project.Steps.length %></span> steps completed - <%= Math.ceil(progressPercentage) %>%
-          </p>
-          <ol class="pl-3">
-            <% if (project.Steps && project.Steps.length > 0) { %>
-              <% project.Steps.forEach((step, index) => { %>
-                <li class="mb-2">
-                  <strong>Step <%= index + 1 %>:</strong>
-                  <p class="step-description"><%= step.description %></p>
-                  <input type="checkbox" <%= step.completed ? 'checked' : '' %> onclick="toggleStepCompletion('<%= step.stepId %>', this.checked)"> Completed
-                </li>
-              <% }) %>
-            <% } else { %>
-              <li>No steps available</li>
-            <% } %>
-          </ol>
-        <% } %>
+        <h5 class="section-subtitle">Progress</h5>
+        <% let completedSteps = 0;
+        if (project.Steps && project.Steps.length > 0) {
+          completedSteps = project.Steps.filter(step => step.completed).length;
+        }
+        const progressPercentage = project.Steps && project.Steps.length > 0 ? (completedSteps / project.Steps.length) * 100 : 0;
+        %>
+        <div class="card-progress mb-3">
+          <div id="progress-bar" class="card-progress-bar" style="width: <%= progressPercentage %>%;"></div>
+        </div>
+        <p class="card-text">
+          <span id="completed-steps"><%= completedSteps %></span> of <span id="total-steps"><%= project.Steps.length %></span> steps completed - <%= Math.ceil(progressPercentage) %>%
+        </p>
+        <ol class="pl-3">
+          <% if (project.Steps && project.Steps.length > 0) { %>
+            <% project.Steps.forEach((step, index) => { %>
+              <li class="mb-2">
+                <strong>Step <%= index + 1 %>:</strong>
+                <p class="step-description"><%= step.description %></p>
+                <input type="checkbox" <%= step.completed ? 'checked' : '' %> onclick="toggleStepCompletion('<%= step.stepId %>', this.checked)" <%= (isCreator || isCollaborator) ? '' : 'disabled' %>> Completed
+              </li>
+            <% }) %>
+          <% } else { %>
+            <li>No steps available</li>
+          <% } %>
+        </ol>
 
         <% if (isCreator || isCollaborator) { %>
           <div class="chat-section mt-4">
