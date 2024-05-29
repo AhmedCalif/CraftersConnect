@@ -100,6 +100,7 @@
               </form>
             </div>
           <% }) %>
+          <% if (isCreator || isCollaborator) { %>
           <h5 class="section-subtitle">Progress</h5>
           <% let completedSteps = 0; if (project.Steps && project.Steps.length >
           0) { completedSteps = project.Steps.filter(step =>
@@ -114,7 +115,7 @@
             ></div>
           </div>
           <p class="card-text">
-            <span id="completed-steps"><%= completedSteps %></span> of <span id="total-steps"><%= project.Steps.length %></span> steps completed
+            <span id="completed-steps"><%= completedSteps %></span> of <span id="total-steps"><%= project.Steps.length %></span> steps completed - <%= Math.ceil(progressPercentage) %>%
           </p>
           <ol class="pl-3">
             <% if (project.Steps && project.Steps.length > 0) { %> <%
@@ -124,14 +125,14 @@
               <p class="step-description"><%= step.description %></p>
               <input type="checkbox" <%= step.completed ? 'checked' : '' %>
               onclick="toggleStepCompletion( '<%= step.stepId %>',
-              this.checked)"> Completed
+              this.checked)"> Completed 
             </li>
             <% }); %> <% } else { %>
             <li>No steps available</li>
             <% } %>
           </ol>
         </div>
-
+          <% } %>
         <!-- Chat Section -->
         <% if (isCreator || isCollaborator) { %>
         <div class="chat-section mt-4">
@@ -487,14 +488,9 @@ document.getElementById("imageUpload").addEventListener("change", async function
           if (!response.ok) {
             throw new Error("Failed to update step completion status");
           }
-          const data = await response.json();
-          Swal.fire({
-            icon: "success",
-            title: "Success!",
-            text: "Step completion status updated.",
-        }).then(() => {
+          const data = await response.json().then(() => {
             location.reload();
-        });
+          })
 
 
         } catch (error) {
