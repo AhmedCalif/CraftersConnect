@@ -44,6 +44,12 @@
         </div>
       </div>
       <div class="project-info">
+        <img
+        id="projectImage"
+        src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>"
+        alt="<%= project.title %> cover image"
+        class="project-img"
+      />
         <h4 class="section-title" style="text-align: center"><%= project.title %></h4>
         <h5 class="section-subtitle" style="text-align: center">by: <%= project.Creator.username %> </h5>
 

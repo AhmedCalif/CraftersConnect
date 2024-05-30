@@ -32,6 +32,7 @@
             <img src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>" alt="<%= project.title %> cover image" class="project-img" />
             <div class="card-content">
               <h5 class="card-title"><%= project.title %></h5>
+              
               <% let completedSteps = 0; if (project.Steps && project.Steps.length >
               0) { completedSteps = project.Steps.filter(step =>
               step.completed).length; } const progressPercentage = project.Steps &&
