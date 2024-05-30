@@ -84,6 +84,7 @@
                 <strong>Step <%= index + 1 %>:</strong>
                 <p class="step-description"><%= step.description %></p>
                 <input type="checkbox" <%= step.completed ? 'checked' : '' %> onclick="toggleStepCompletion('<%= step.stepId %>', this.checked)" <%= (isCreator || isCollaborator) ? '' : 'disabled' %>> Completed
+                <input type="hidden" name="steps[<%= index %>][completed]" value="<%= step.completed ? 'true' : 'false' %>">
               </li>
             <% }) %>
           <% } else { %>

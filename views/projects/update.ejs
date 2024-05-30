@@ -34,6 +34,8 @@
                             <% project.Steps.forEach((step, index) => { %>
                                 <div class="input-group mb-3">
                                     <input type="hidden" name="steps[<%= index %>][id]" value="<%= step.stepId %>">
+                                    <input type="hidden" name="steps[<%= index %>][completed]" value="<%= step.completed ? 'true' : 'false' %>">
+
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">Step <%= index + 1 %>:</span>
                                     </div>
@@ -98,6 +100,11 @@
         newIdInput.name = `steps[${stepCount}][id]`;
         newIdInput.value = newStepId; // Set the new ID
 
+        let newCompletedInput = document.createElement("input");
+    newCompletedInput.type = "hidden";
+    newCompletedInput.name = `steps[${stepCount}][completed]`;
+    newCompletedInput.value = "false"; // Default to not completed
+
         const newDescInput = document.createElement("input");
         newDescInput.type = "text";
         newDescInput.className = "form-control";
@@ -114,6 +121,7 @@
 
         newStepDiv.appendChild(newLabel);
         newStepDiv.appendChild(newIdInput);
+        newStepDiv.appendChild(newCompletedInput);
         newStepDiv.appendChild(newDescInput);
         newStepDiv.appendChild(newDeleteBtn);
         stepsContainer.appendChild(newStepDiv);
@@ -127,6 +135,7 @@
             let stepDiv = stepsContainer.children[i];
             stepDiv.querySelector(".input-group-text").textContent = "Step " + (i + 1) + ":";
             stepDiv.querySelector("input[type='hidden']").name = "steps[" + i + "][id]";
+            stepDiv.querySelector("input[type='hidden'][name^='steps'][name$='[completed]']").name = "steps[" + i + "][completed]";
             stepDiv.querySelector("input[type='text']").name = "steps[" + i + "][description]";
         }
     }

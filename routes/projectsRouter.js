@@ -286,6 +286,44 @@ router.get('/:id/update', ensureAuthenticated, async (req, res) => {
   }
 });
 
+// router.post('/:id/update', ensureAuthenticated, async (req, res) => {
+//   const id = parseInt(req.params.id);
+//   if (isNaN(id)) {
+//     return res.status(400).json({ message: "Invalid project ID" });
+//   }
+
+//   const updatedAt = new Date();
+//   const { title, description, date, steps } = req.body;
+
+//   try {
+//     const project = await Project.findOne({
+//       where: { projectId: id },
+//       include: [{ model: Step, as: 'Steps' }]
+//     });
+
+//     if (!project) {
+//       return res.status(404).send("Project not found");
+//     }
+
+//     await project.update({ title, description, updatedAt });
+
+//     await Step.destroy({ where: { projectId: id } });
+
+//     if (steps && steps.length) {
+//       const stepRecords = steps.map(step => ({
+//         description: step.description,
+//         projectId: id
+//       }));
+//       await Step.bulkCreate(stepRecords);
+//     }
+
+//     res.redirect(`/projects/${id}`);
+//   } catch (err) {
+//     console.error("Error updating project:", err);
+//     res.status(500).send("Failed to update project. Please try again.");
+//   }
+// });
+
 router.post('/:id/update', ensureAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) {
@@ -305,16 +343,44 @@ router.post('/:id/update', ensureAuthenticated, async (req, res) => {
       return res.status(404).send("Project not found");
     }
 
+    // Update project details
     await project.update({ title, description, updatedAt });
 
-    await Step.destroy({ where: { projectId: id } });
+    // Update existing steps and add new steps
+    const existingStepIds = project.Steps.map(step => step.stepId);
+    const stepsToUpdate = [];
+    const newSteps = [];
 
-    if (steps && steps.length) {
-      const stepRecords = steps.map(step => ({
-        description: step.description,
-        projectId: id
-      }));
-      await Step.bulkCreate(stepRecords);
+    steps.forEach(step => {
+      if (step.id && existingStepIds.includes(parseInt(step.id))) {
+        stepsToUpdate.push(step);
+      } else {
+        newSteps.push({
+          description: step.description,
+          completed: step.completed === 'true',
+          projectId: id
+        });
+      }
+    });
+
+    // Update existing steps
+    for (let step of stepsToUpdate) {
+      await Step.update(
+        { description: step.description, completed: step.completed === 'true' },
+        { where: { stepId: step.id } }
+      );
+    }
+
+    // Add new steps
+    if (newSteps.length) {
+      await Step.bulkCreate(newSteps);
+    }
+
+    // Remove steps that were deleted
+    const submittedStepIds = steps.map(step => parseInt(step.id)).filter(id => !isNaN(id));
+    const stepsToRemove = existingStepIds.filter(id => !submittedStepIds.includes(id));
+    if (stepsToRemove.length) {
+      await Step.destroy({ where: { stepId: stepsToRemove } });
     }
 
     res.redirect(`/projects/${id}`);
@@ -323,7 +389,6 @@ router.post('/:id/update', ensureAuthenticated, async (req, res) => {
     res.status(500).send("Failed to update project. Please try again.");
   }
 });
-
 // Delete project
 router.get("/:id/delete", ensureAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id);
