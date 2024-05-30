@@ -150,7 +150,8 @@ const Like = sequelize.define('Like', {
     type: DataTypes.INTEGER,
     references: {
       model: Post,
-      key: 'postId'
+      key: 'postId',
+      onDelete: 'CASCADE'  
     }
   }
 }, {
@@ -168,7 +169,8 @@ const Avatar = sequelize.define('Avatar', {
     allowNull: false,
     references: {
       model: User,
-      key: 'userId'
+      key: 'userId',
+      onDelete: 'CASCADE'  // Cascade delete Avatar when a User is deleted
     }
   },
   imageUrl: {
@@ -294,7 +296,7 @@ Post.hasMany(Like, { foreignKey: 'postId', onDelete: 'CASCADE' });
 User.hasMany(Project, { foreignKey: 'userId' });
 Project.belongsTo(User, { foreignKey: 'userId', as: 'Creator' });
 
-User.hasOne(Avatar, { foreignKey: 'userId' });
+User.hasOne(Avatar, { foreignKey: 'userId', onDelete: 'CASCADE' });
 Avatar.belongsTo(User, { as: 'User', foreignKey: 'userId' });
 
 Project.hasOne(Image, { foreignKey: 'projectId', onDelete: 'CASCADE' });
@@ -320,12 +322,9 @@ Chat.belongsTo(Project, { foreignKey: 'projectId', as: 'Project' });
 Project.hasMany(MoodImage, { foreignKey: 'projectId', onDelete: 'CASCADE' });
 MoodImage.belongsTo(Project, { foreignKey: 'projectId' });
 
-
-
 module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message, Chat, MoodImage };
 
 // Sync database
 sequelize.sync({ force: false }).then(() => {
     console.log("Tables have been created");
 }).catch(error => console.error('Unable to create tables', error));
-
