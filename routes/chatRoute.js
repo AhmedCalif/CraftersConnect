@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { Chat, User, Project } = require('../database/schema/schemaModel');
 const { ensureAuthenticated } = require('../middleware/middleware');
+const { JSDOM } = require('jsdom');
+const createDOMPurify = require('dompurify');
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
 
 // Route to get all chat messages for a specific project
 router.get('/:projectId', ensureAuthenticated, async (req, res) => {
@@ -33,7 +37,10 @@ router.post('/', ensureAuthenticated, async (req, res) => {
       return res.status(400).json({ error: 'Message, projectId, and userId are required' });
     }
 
-    const newChat = await Chat.create({ message, projectId, userId });
+    // Sanitize the message
+    const sanitizedMessage = DOMPurify.sanitize(message);
+
+    const newChat = await Chat.create({ message: sanitizedMessage, projectId, userId });
 
     const chatWithUser = await Chat.findOne({
       where: { chatId: newChat.chatId },

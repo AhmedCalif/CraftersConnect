@@ -7,6 +7,7 @@
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.8/purify.min.js"></script>
   <link rel="stylesheet" href="/showProjects.css" />
 </head>
 <body>
@@ -287,27 +288,40 @@
         console.error("Error fetching chats:", error);
       }
     }
-
     function displayMessage(chat) {
-      const isLiked = chat.likedBy && chat.likedBy.includes(loggedInUsername);
-      const heartClass = isLiked ? "fas" : "far";
+  const isLiked = chat.likedBy && chat.likedBy.includes(loggedInUsername);
+  const heartClass = isLiked ? "fas" : "far";
 
-      const messageElement = document.createElement("div");
-      messageElement.id = `chat-${chat.chatId}`;
-      messageElement.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <strong>${chat.Sender.username}:</strong> ${chat.message}
-          </div>
-          <div>
-            <i class="${heartClass} fa-heart text-danger" onclick="likeChat(${chat.chatId})"></i>
-            <i class="fas fa-trash text-danger" onclick="deleteChat(${chat.chatId})"></i>
-          </div>
-        </div>
-      `;
-      chatContent.appendChild(messageElement);
-      chatContent.scrollTop = chatContent.scrollHeight;
-    }
+  const messageElement = document.createElement("div");
+  messageElement.id = `chat-${chat.chatId}`;
+  messageElement.className = "d-flex justify-content-between align-items-center";
+
+  const messageContent = document.createElement("div");
+  const senderElement = document.createElement("strong");
+  senderElement.textContent = `${chat.Sender.username}: `;
+  const messageText = document.createTextNode(chat.message);
+  messageContent.appendChild(senderElement);
+  messageContent.appendChild(messageText);
+
+  const iconContainer = document.createElement("div");
+  const likeIcon = document.createElement("i");
+  likeIcon.className = `${heartClass} fa-heart text-danger`;
+  likeIcon.onclick = () => likeChat(chat.chatId);
+
+  const deleteIcon = document.createElement("i");
+  deleteIcon.className = "fas fa-trash text-danger";
+  deleteIcon.onclick = () => deleteChat(chat.chatId);
+
+  iconContainer.appendChild(likeIcon);
+  iconContainer.appendChild(deleteIcon);
+
+  messageElement.appendChild(messageContent);
+  messageElement.appendChild(iconContainer);
+
+  chatContent.appendChild(messageElement);
+  chatContent.scrollTop = chatContent.scrollHeight;
+}
+
 
     socket.on("chat message", function (msg) {
       if (msg.projectId === projectId) {
@@ -316,25 +330,28 @@
     });
 
     chatForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      if (chatMessage.value) {
-        const message = chatMessage.value;
-        chatMessage.value = "";
-        try {
-          const response = await fetch("/chats", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ message, projectId }),
-          });
-          const chat = await response.json();
-          socket.emit("chat message", { ...chat, projectId });
-        } catch (error) {
-          console.error("Error sending message:", error);
-        }
-      }
-    });
+  e.preventDefault();
+  if (chatMessage.value) {
+    // Sanitize the input
+    const sanitizedMessage = DOMPurify.sanitize(chatMessage.value);
+
+    chatMessage.value = "";
+    try {
+      const response = await fetch("/chats", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: sanitizedMessage, projectId }),
+      });
+      const chat = await response.json();
+      socket.emit("chat message", { ...chat, projectId });
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  }
+});
+
 
     fetchChats(projectId);
 
