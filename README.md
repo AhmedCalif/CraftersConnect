@@ -40,11 +40,13 @@ Ensure you have the following installed:
 - Showcase completed projects to the world
 
 ### Challenges & Wins
-Challenges
-Integrating real-time updates with WebSockets.
+
+#### Challenges
+- Integrating real-time updates with WebSockets.
 - Ensuring seamless collaboration between multiple users.
 - Handling large volumes of user-generated content.
-Wins
+
+ #### Wins
 - Successfully implemented a real-time update system.
 - Built a strong community platform that encourages collaboration.
 - Gained valuable experience in scaling web applications.
