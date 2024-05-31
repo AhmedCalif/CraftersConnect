@@ -6,13 +6,14 @@
     <title>Liked Posts</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="/likedPosts.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
     <div class="container liked-posts-container">
-        <div class="row">
+        <div class="row justify-content-center">
             <% likedPosts.forEach(post => { %>
                 <% if (post) { %>
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-md-4 col-sm-6 d-flex justify-content-center">
                         <div class="card mb-4" id="post-<%= post.postId %>">
                             <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="Post Creator Avatar" class="avatar-large card-img-top">
                             <div class="card-body text-center">
