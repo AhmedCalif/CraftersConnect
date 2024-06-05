@@ -49,6 +49,12 @@ const Post = sequelize.define('Post', {
   timestamps: true
 });
 
+Post.prototype.isLikedBy = async function(userId) {
+  const like = await Like.findOne({ where: { postId: this.postId, userId } });
+  return !!like;
+}
+
+
 const Project = sequelize.define('Project', {
   projectId: {
     type: DataTypes.INTEGER,
@@ -282,8 +288,6 @@ const MoodImage = sequelize.define('MoodImage', {
 
 
 
-
-// Associations
 
 // Associations with cascading delete
 User.hasMany(Post, { as: 'Posts', foreignKey: 'createdBy' });

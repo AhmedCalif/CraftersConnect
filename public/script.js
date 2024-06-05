@@ -1,28 +1,4 @@
 
-// Like posts
-async function likePost(id) {
-    try {
-        console.log('Liking post:', id);
-        const response = await fetch(`/posts/like/${id}`, { method: 'POST' });
-        if (!response.ok) {
-            if (response.status === 409) {
-                alert("You have already liked this post.");
-            } else {
-                throw new Error('Network response was not ok');
-            }
-        }
-        const data = await response.json();
-        const likesCountElement = document.getElementById(`likes-count-${id}`);
-        if (likesCountElement && typeof data.likes === 'number') {
-            likesCountElement.innerText = data.likes;
-        } else {
-            console.error('Invalid likes count received:', data.likes);
-        }
-    } catch (error) {
-        console.error('Error liking the post:', error);
-    }
-}
-
 // Update post count decrement
 function updatePostCount() {
     const countElement = document.getElementById('post-count');
@@ -98,5 +74,56 @@ async function deletePost(postId) {
             text: 'Go Back to the Post Page!',
             timer: 3000
         });
+    }
+}
+
+async function toggleLike(id) {
+    const heartIcon = document.querySelector(`#post-${id} .fa-heart`);
+    if (heartIcon.classList.contains('liked')) {
+        await unlikePost(id);
+        heartIcon.classList.remove('liked');
+    } else {
+        await likePost(id);
+        heartIcon.classList.add('liked');
+    }
+}
+
+async function likePost(id) {
+    try {
+        const response = await fetch(`/posts/like/${id}`, { method: 'POST' });
+        if (!response.ok) {
+            if (response.status === 409) {
+                alert("You have already liked this post.");
+                return;
+            } else {
+                throw new Error('Network response was not ok');
+            }
+        }
+        const data = await response.json();
+        updateLikesCount(id, data.likes);
+    } catch (error) {
+        console.error('Error liking the post:', error);
+    }
+}
+
+async function unlikePost(id) {
+    try {
+        const response = await fetch(`/posts/unlike/${id}`, { method: 'POST' });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        updateLikesCount(id, data.likes);
+    } catch (error) {
+        console.error('Error unliking the post:', error);
+    }
+}
+
+function updateLikesCount(id, likes) {
+    const likesCountElement = document.getElementById(`likes-count-${id}`);
+    if (likesCountElement && typeof likes === 'number') {
+        likesCountElement.innerText = likes;
+    } else {
+        console.error('Invalid likes count received:', likes);
     }
 }
