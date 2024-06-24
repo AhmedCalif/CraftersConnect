@@ -46,14 +46,13 @@
       </div>
       <div class="project-info">
         <img
-        id="projectImage"
-        src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>"
-        alt="<%= project.title %> cover image"
-        class="project-img"
-      />
+          id="projectImage"
+          src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>"
+          alt="<%= project.title %> cover image"
+          class="project-img"
+        />
         <h4 class="section-title" style="text-align: center"><%= project.title %></h4>
         <h5 class="section-subtitle" style="text-align: center">by: <%= project.Creator.username %> </h5>
-
         <br>
         <h5 class="section-subtitle">Collaborators</h5>
         <% if (collaborators.length < 1) { %>
@@ -288,40 +287,41 @@
         console.error("Error fetching chats:", error);
       }
     }
+
     function displayMessage(chat) {
-  const isLiked = chat.likedBy && chat.likedBy.includes(loggedInUsername);
-  const heartClass = isLiked ? "fas" : "far";
+      const isLiked = chat.likedBy && chat.likedBy.includes(loggedInUsername);
+      const heartClass = isLiked ? "fas" : "far";
 
-  const messageElement = document.createElement("div");
-  messageElement.id = `chat-${chat.chatId}`;
-  messageElement.className = "d-flex justify-content-between align-items-center";
+      const messageElement = document.createElement("div");
+      messageElement.id = `chat-${chat.chatId}`;
+      messageElement.className = "d-flex justify-content-between align-items-center";
 
-  const messageContent = document.createElement("div");
-  const senderElement = document.createElement("strong");
-  senderElement.textContent = `${chat.Sender.username}: `;
-  const messageText = document.createTextNode(chat.message);
-  messageContent.appendChild(senderElement);
-  messageContent.appendChild(messageText);
+      const messageContent = document.createElement("div");
+      const senderElement = document.createElement("strong");
+      senderElement.textContent = `${chat.Sender.username}: `;
+      const messageText = document.createTextNode(chat.message);
+      messageContent.appendChild(senderElement);
+      messageContent.appendChild(messageText);
 
-  const iconContainer = document.createElement("div");
-  const likeIcon = document.createElement("i");
-  likeIcon.className = `${heartClass} fa-heart text-danger`;
-  likeIcon.onclick = () => likeChat(chat.chatId);
+      const iconContainer = document.createElement("div");
+      const likeIcon = document.createElement("i");
+      likeIcon.className = `${heartClass} fa-heart`;
+      likeIcon.style.color = isLiked ? "red" : "white";
+      likeIcon.onclick = () => isLiked ? unlikeChat(chat.chatId) : likeChat(chat.chatId);
 
-  const deleteIcon = document.createElement("i");
-  deleteIcon.className = "fas fa-trash text-danger";
-  deleteIcon.onclick = () => deleteChat(chat.chatId);
+      const deleteIcon = document.createElement("i");
+      deleteIcon.className = "fas fa-trash text-danger";
+      deleteIcon.onclick = () => deleteChat(chat.chatId);
 
-  iconContainer.appendChild(likeIcon);
-  iconContainer.appendChild(deleteIcon);
+      iconContainer.appendChild(likeIcon);
+      iconContainer.appendChild(deleteIcon);
 
-  messageElement.appendChild(messageContent);
-  messageElement.appendChild(iconContainer);
+      messageElement.appendChild(messageContent);
+      messageElement.appendChild(iconContainer);
 
-  chatContent.appendChild(messageElement);
-  chatContent.scrollTop = chatContent.scrollHeight;
-}
-
+      chatContent.appendChild(messageElement);
+      chatContent.scrollTop = chatContent.scrollHeight;
+    }
 
     socket.on("chat message", function (msg) {
       if (msg.projectId === projectId) {
@@ -330,28 +330,27 @@
     });
 
     chatForm.addEventListener("submit", async function (e) {
-  e.preventDefault();
-  if (chatMessage.value) {
-    // Sanitize the input
-    const sanitizedMessage = DOMPurify.sanitize(chatMessage.value);
+      e.preventDefault();
+      if (chatMessage.value) {
+        // Sanitize the input
+        const sanitizedMessage = DOMPurify.sanitize(chatMessage.value);
 
-    chatMessage.value = "";
-    try {
-      const response = await fetch("/chats", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: sanitizedMessage, projectId }),
-      });
-      const chat = await response.json();
-      socket.emit("chat message", { ...chat, projectId });
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  }
-});
-
+        chatMessage.value = "";
+        try {
+          const response = await fetch("/chats", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message: sanitizedMessage, projectId }),
+          });
+          const chat = await response.json();
+          socket.emit("chat message", { ...chat, projectId });
+        } catch (error) {
+          console.error("Error sending message:", error);
+        }
+      }
+    });
 
     fetchChats(projectId);
 
@@ -367,18 +366,42 @@
         if (response.ok) {
           const chatElement = document.getElementById(`chat-${chatId}`);
           const heartIcon = chatElement.querySelector(".fa-heart");
-          if (result.liked) {
-            heartIcon.classList.remove("far");
-            heartIcon.classList.add("fas");
-          } else {
-            heartIcon.classList.remove("fas");
-            heartIcon.classList.add("far");
-          }
+          heartIcon.classList.remove("far");
+          heartIcon.classList.add("fas");
+          heartIcon.style.color = "red";
+          heartIcon.setAttribute("onclick", `unlikeChat(${chatId})`);
         }
       } catch (error) {
         Swal.fire({
           icon: "error",
           title: "Oops...",
+          text: "Failed to like the chat message.",
+        });
+      }
+    }
+
+    async function unlikeChat(chatId) {
+      try {
+        const response = await fetch(`/chats/${chatId}/unlike`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const result = await response.json();
+        if (response.ok) {
+          const chatElement = document.getElementById(`chat-${chatId}`);
+          const heartIcon = chatElement.querySelector(".fa-heart");
+          heartIcon.classList.remove("fas");
+          heartIcon.classList.add("far");
+          heartIcon.style.color = "white";
+          heartIcon.setAttribute("onclick", `likeChat(${chatId})`);
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Failed to unlike the chat message.",
         });
       }
     }
@@ -412,50 +435,6 @@
       }
     }
 
-
-    document.getElementById("projectImage").addEventListener("click", function () {
-      document.getElementById("imageUpload").click();
-    });
-
-    document.getElementById("imageUpload").addEventListener("change", async function () {
-      const file = this.files[0];
-      if (file) {
-        let formData = new FormData();
-        formData.append("coverImage", file);
-
-        try {
-          const response = await fetch(`/projects/${projectId}/upload-coverImage`, {
-            method: "POST",
-            body: formData,
-          });
-
-          const data = await response.json();
-          console.log("Response from server:", data);
-
-          if (data.success) {
-            document.getElementById("projectImage").src = data.imageUrl;
-            Swal.fire({
-              icon: "success",
-              title: "Cover image updated successfully!",
-              showConfirmButton: false,
-              timer: 1500,
-            });
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Failed to update cover image",
-              text: data.message,
-            });
-          }
-        } catch (error) {
-          Swal.fire({
-            icon: "error",
-            title: "Failed to update cover image",
-            text: error.message,
-          });
-        }
-      }
-    });
 
     async function deleteProject(projectId) {
       const result = await Swal.fire({

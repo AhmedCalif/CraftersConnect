@@ -286,10 +286,41 @@ const MoodImage = sequelize.define('MoodImage', {
 });
 
 
+const LikeChat = sequelize.define('LikeChat', {
+  likeChatId: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  chatId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Chat,
+      key: 'chatId',
+      onDelete: 'CASCADE'
+    }
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'userId',
+      onDelete: 'CASCADE'
+    }
+  }
+}, {
+  timestamps: true
+});
+
+Chat.hasMany(LikeChat, { foreignKey: 'chatId', onDelete: 'CASCADE' });
+LikeChat.belongsTo(Chat, { foreignKey: 'chatId' });
+
+User.hasMany(LikeChat, { foreignKey: 'userId', onDelete: 'CASCADE' });
+LikeChat.belongsTo(User, { foreignKey: 'userId' });
 
 
-
-// Associations with cascading delete
 User.hasMany(Post, { as: 'Posts', foreignKey: 'createdBy' });
 User.hasMany(Like, { foreignKey: 'userId' });
 
@@ -326,7 +357,7 @@ Chat.belongsTo(Project, { foreignKey: 'projectId', as: 'Project' });
 Project.hasMany(MoodImage, { foreignKey: 'projectId', onDelete: 'CASCADE' });
 MoodImage.belongsTo(Project, { foreignKey: 'projectId' });
 
-module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message, Chat, MoodImage };
+module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message, Chat, MoodImage, LikeChat };
 
 // Sync database
 sequelize.sync({ force: false }).then(() => {
