@@ -189,7 +189,7 @@ button:active {
     padding: 20px;
     width: 100%;
     margin-top: 60px;
-    padding-bottom: 80px; /* Add space for the fixed navbar */
+    padding-bottom: 80px; 
 }
 
 .container, .header {
@@ -202,13 +202,13 @@ button:active {
 
 .card {
     background-color: #F5E2C2;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
     margin: 10px;
     padding: 15px;
     box-sizing: border-box;
     width: 300px;
-    height: auto; /* Adjust height to auto for flexibility */
+    height: auto; 
     display: flex;
     flex-direction: column;
     align-items: center;

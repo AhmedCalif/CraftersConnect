@@ -1,61 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liked Posts</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/likedPosts.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liked Posts</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/likedPosts.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
-    <div class="container liked-posts-container">
-        <div class="row justify-content-center">
-            <% likedPosts.forEach(post => { %>
-                <% if (post) { %>
-                    <div class="col-md-4 col-sm-6 d-flex justify-content-center">
-                        <div class="card mb-4" id="post-<%= post.postId %>">
-                            <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="Post Creator Avatar" class="avatar-large card-img-top">
-                            <div class="card-body text-center">
-                                <div><strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong></div>
-                                <h2 class="card-title"><%= post.title %></h2>
-                                <p class="card-text"><%= post.description %></p>
-                            </div>
-                        </div>
-                    </div>
-                <% } %>
-            <% }) %>  
-        </div>      
+  <div class="container liked-posts-container">
+    <div class="row justify-content-center">
+      <% likedPosts.forEach(post => { %>
+        <% if (post) { %>
+          <div class="card mb-4" id="post-<%= post.postId %>">
+            <div class="card-body d-flex flex-column align-items-center">
+              <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>"
+                   alt="Post Creator Avatar" class="avatar-large rounded-circle" style="aspect-ratio: 1;">
+              <div>
+                <strong>By <%= post.creator ? post.creator.username : 'Unknown User' %></strong>
+              </div>
+              <h2 class="card-title"><%= post.title %></h2>
+              <p class="card-text"><%= post.description %></p>
+            </div>
+          </div>
+        <% } %>
+      <% }) %>
     </div>
-    <nav class="navbar navbar-expand navbar-light bg-light fixed-bottom">
-        <ul class="navbar-nav nav-justified w-100">
-            <li class="nav-item">
-                <a class="nav-link" href="/home/dashboard">
-                    <i class="fas fa-home"></i><br>Home
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/my-projects/all">
-                    <i class="fas fa-briefcase"></i><br>Projects
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/posts">
-                    <i class="fas fa-newspaper"></i><br>Posts
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/profile">
-                    <i class="fas fa-user"></i><br>Profile
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/auth/logout">
-                    <i class="fas fa-sign-out-alt"></i><br>Logout
-                </a>
-            </li>
-        </ul>
-    </nav> 
-    <script defer src='/script.js'></script>
+  </div>
+  <nav class="navbar navbar-expand navbar-light bg-light fixed-bottom">
+    <ul class="navbar-nav nav-justified w-100">
+      <li class="nav-item">
+        <a class="nav-link" href="/home/dashboard">
+          <i class="fas fa-home"></i><br>Home
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/my-projects/all">
+          <i class="fas fa-briefcase"></i><br>Projects
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/posts">
+          <i class="fas fa-newspaper"></i><br>Posts
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/profile">
+          <i class="fas fa-user"></i><br>Profile
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/auth/logout">
+          <i class="fas fa-sign-out-alt"></i><br>Logout
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <script defer src='/script.js'></script>
 </body>
 </html>
