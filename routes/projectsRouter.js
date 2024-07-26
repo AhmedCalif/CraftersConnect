@@ -3,10 +3,10 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 const path = require('path');
-const { User, Project, Step, Image, Avatar, Collaborator, MoodImage } = require('../database/schema/schemaModel');
+const { User, Project, Step, Image, Avatar, Collaborator, MoodImage, Invite } = require('../database/schema/schemaModel');
 const { ensureAuthenticated } = require('../middleware/middleware');
 const Sequelize = require('sequelize');
-const { image } = require('../cloudinaryConfig');
+const crypto = require('crypto');
 const router = express.Router();
 
 // Configure Cloudinary
@@ -94,7 +94,6 @@ router.post('/:projectId/upload-coverImage', ensureAuthenticated, upload.single(
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 });
-
 
 // View all projects
 router.get("/", ensureAuthenticated, async (req, res) => {
@@ -206,10 +205,10 @@ router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (
   }
 });
 
-
 // View project details
 router.get("/:id", ensureAuthenticated, async (req, res) => {
   const loggedInUsername = req.session.username;
+  const loggedInUserId = req.session.userId;
   const id = parseInt(req.params.id);
   if (isNaN(id)) {
     return res.status(400).json({ message: "Invalid project ID" });
@@ -241,7 +240,6 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
     });
     
     if (project) {
-      const isCollaborator = project.Creator.username === loggedInUsername;
       const collaborators = project.Collaborators.map(collaborator => ({
         userId: collaborator.userId,
         username: collaborator.username,
@@ -250,7 +248,7 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
 
       const avatarUrl = project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
 
-      res.render('projects/show', { project, loggedInUsername, avatar: avatarUrl, collaborators });
+      res.render('projects/show', { project, loggedInUsername, loggedInUserId, avatar: avatarUrl, collaborators });
     } else {
       res.status(404).json({ message: "Project not found" });
     }
@@ -259,8 +257,6 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
     res.status(500).send("Server Error while fetching project details.");
   }
 });
-
-
 
 // Update project
 router.get('/:id/update', ensureAuthenticated, async (req, res) => {
@@ -285,44 +281,6 @@ router.get('/:id/update', ensureAuthenticated, async (req, res) => {
     res.status(500).send("Server Error while fetching project details.");
   }
 });
-
-// router.post('/:id/update', ensureAuthenticated, async (req, res) => {
-//   const id = parseInt(req.params.id);
-//   if (isNaN(id)) {
-//     return res.status(400).json({ message: "Invalid project ID" });
-//   }
-
-//   const updatedAt = new Date();
-//   const { title, description, date, steps } = req.body;
-
-//   try {
-//     const project = await Project.findOne({
-//       where: { projectId: id },
-//       include: [{ model: Step, as: 'Steps' }]
-//     });
-
-//     if (!project) {
-//       return res.status(404).send("Project not found");
-//     }
-
-//     await project.update({ title, description, updatedAt });
-
-//     await Step.destroy({ where: { projectId: id } });
-
-//     if (steps && steps.length) {
-//       const stepRecords = steps.map(step => ({
-//         description: step.description,
-//         projectId: id
-//       }));
-//       await Step.bulkCreate(stepRecords);
-//     }
-
-//     res.redirect(`/projects/${id}`);
-//   } catch (err) {
-//     console.error("Error updating project:", err);
-//     res.status(500).send("Failed to update project. Please try again.");
-//   }
-// });
 
 router.post('/:id/update', ensureAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id);
@@ -389,6 +347,7 @@ router.post('/:id/update', ensureAuthenticated, async (req, res) => {
     res.status(500).send("Failed to update project. Please try again.");
   }
 });
+
 // Delete project
 router.get("/:id/delete", ensureAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id);
@@ -445,8 +404,7 @@ router.post('/:projectId/leave', ensureAuthenticated, async (req, res) => {
   }
 });
 
-
-//toggle completion for steps
+// Toggle completion for steps
 router.post('/steps/:stepId/complete', async (req, res) => {
   const { stepId } = req.params;
   const { completed } = req.body;
@@ -467,7 +425,7 @@ router.post('/steps/:stepId/complete', async (req, res) => {
 
 router.post('/:projectId/collaborator/:collaboratorId/remove', ensureAuthenticated, async (req, res) => {
   const { projectId, collaboratorId } = req.params;
-  const loggedInUserId = req.session.userId; 
+  const loggedInUserId = req.session.userId;
 
   try {
     // Fetch the project
@@ -494,7 +452,6 @@ router.post('/:projectId/collaborator/:collaboratorId/remove', ensureAuthenticat
   }
 });
 
-
 router.post('/image-link', ensureAuthenticated, async (req, res) => {
   const { imageLink, projectId } = req.body;
   const loggedInUsername = req.session.username;
@@ -508,7 +465,7 @@ router.post('/image-link', ensureAuthenticated, async (req, res) => {
     const newImage = await MoodImage.create({
       link: imageLink,
       projectId: projectId,
-      uploadedBy: loggedInUsername  
+      uploadedBy: loggedInUsername
     });
     res.status(201).json(newImage);
   } catch (error) {
@@ -538,6 +495,56 @@ router.delete('/image-link', async (req, res) => {
   }
 });
 
+router.post('/invite', async (req, res) => {
+  const { email, invitedBy, projectId } = req.body;
 
+  // Check if the project exists
+  const project = await Project.findByPk(projectId);
+  if (!project) {
+    return res.status(404).json({ message: 'Project not found' });
+  }
+  console.log(`project id:`, project.projectId);
+
+  // Generate a unique token
+  const token = crypto.randomBytes(20).toString('hex');
+
+  // Save the invite to the database
+  const invite = await Invite.create({
+    email,
+    token,
+    projectId,
+    invitedBy,
+  });
+
+  res.json({ message: 'Invite created successfully', token });
+});
+
+// Endpoint to accept an invite
+router.post('/invite/:token', async (req, res) => {
+  const { token } = req.params;
+  const { userId } = req.body;
+
+  // Find the invite
+  const invite = await Invite.findOne({ where: { token, status: 'pending' } });
+
+  if (!invite) {
+    return res.status(400).json({ message: 'Invalid or expired invite token' });
+  }
+
+  // Add the user as a collaborator to the project
+  await Collaborator.create({
+    projectId: invite.projectId,
+    userId,
+  });
+
+  // Update the invite status
+  invite.status = 'accepted';
+  await invite.save();
+
+  res.json({ message: 'Project invite accepted', projectId: invite.projectId });
+});
 
 module.exports = router;
+
+
+

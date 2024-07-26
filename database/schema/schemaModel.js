@@ -176,7 +176,7 @@ const Avatar = sequelize.define('Avatar', {
     references: {
       model: User,
       key: 'userId',
-      onDelete: 'CASCADE'  // Cascade delete Avatar when a User is deleted
+      onDelete: 'CASCADE'  
     }
   },
   imageUrl: {
@@ -314,6 +314,47 @@ const LikeChat = sequelize.define('LikeChat', {
   timestamps: true
 });
 
+
+const Invite = sequelize.define('Invite', {
+  inviteId: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: false,
+  },
+  token: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  status: {
+    type: DataTypes.STRING,
+    defaultValue: 'pending', 
+  },
+  projectId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Project,
+      key: 'projectId',
+    },
+  },
+  invitedBy: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'userId',
+    },
+  },
+}, {
+  timestamps: true,
+});
+
 Chat.hasMany(LikeChat, { foreignKey: 'chatId', onDelete: 'CASCADE' });
 LikeChat.belongsTo(Chat, { foreignKey: 'chatId' });
 
@@ -357,7 +398,7 @@ Chat.belongsTo(Project, { foreignKey: 'projectId', as: 'Project' });
 Project.hasMany(MoodImage, { foreignKey: 'projectId', onDelete: 'CASCADE' });
 MoodImage.belongsTo(Project, { foreignKey: 'projectId' });
 
-module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message, Chat, MoodImage, LikeChat };
+module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message, Chat, MoodImage, LikeChat, Invite};
 
 // Sync database
 sequelize.sync({ force: false }).then(() => {
