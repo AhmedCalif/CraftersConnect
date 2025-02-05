@@ -5,6 +5,7 @@ const { posts, users, likes, avatars } = require('../database/schema/schemaModel
 
 const router = express.Router();
 
+
 router.get('/', async (req, res) => {
     console.log("Session Username:", req.session.username);
     try {
@@ -14,7 +15,11 @@ router.get('/', async (req, res) => {
 
         // Find user with avatar
         const [user] = await db
-            .select()
+            .select({
+                userId: users.userId,
+                username: users.username,
+                avatarUrl: avatars.imageUrl
+            })
             .from(users)
             .where(eq(users.username, req.session.username))
             .leftJoin(avatars, eq(users.userId, avatars.userId))
@@ -25,54 +30,154 @@ router.get('/', async (req, res) => {
         }
 
         // Get all posts with creators and their avatars
-        const postsData = await db
-            .select()
-            .from(posts)
-            .leftJoin(users, eq(posts.createdBy, users.userId))
-            .leftJoin(avatars, eq(users.userId, avatars.userId));
+        let postsData = [];
+        try {
+            postsData = await db
+                .select({
+                    postId: posts.postId,
+                    title: posts.title,
+                    description: posts.description,
+                    currentLikes: posts.currentLikes,
+                    createdAt: posts.createdAt,
+                    creatorId: users.userId,
+                    creatorName: users.username,
+                    creatorAvatar: avatars.imageUrl
+                })
+                .from(posts)
+                .leftJoin(users, eq(posts.createdBy, users.userId))
+                .leftJoin(avatars, eq(users.userId, avatars.userId));
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+            // Continue with empty posts array instead of failing
+            postsData = [];
+        }
 
-        // Get user's likes
-        const userLikes = await db
-            .select()
-            .from(likes)
-            .where(eq(likes.userId, user.userId));
-
-        const likedPostIds = new Set(userLikes.map(like => like.postId));
-
-        // Process posts
-        const avatarUrl = user.avatars?.imageUrl ?? 'https://i.pravatar.cc/150?img=3';
-        const uniquePosts = [];
-        const postIds = new Set();
-
-        for (const post of postsData) {
-            if (!postIds.has(post.posts.postId)) {
-                uniquePosts.push({
-                    ...post.posts,
-                    creator: {
-                        userId: post.users.userId,
-                        username: post.users.username,
-                        avatar: {
-                            imageUrl: post.avatars?.imageUrl
-                        }
-                    },
-                    isLiked: likedPostIds.has(post.posts.postId)
-                });
-                postIds.add(post.posts.postId);
+        // Get user's likes if there are posts
+        let likedPostIds = new Set();
+        if (postsData.length > 0) {
+            try {
+                const userLikes = await db
+                    .select({
+                        postId: likes.postId
+                    })
+                    .from(likes)
+                    .where(eq(likes.userId, user.userId));
+                
+                likedPostIds = new Set(userLikes.map(like => like.postId));
+            } catch (error) {
+                console.error('Error fetching likes:', error);
+                // Continue with empty likes set
             }
         }
 
+        // Process posts
+        const processedPosts = postsData.map(post => ({
+            postId: post.postId,
+            title: post.title,
+            description: post.description,
+            currentLikes: post.currentLikes,
+            createdAt: post.createdAt,
+            creator: {
+                userId: post.creatorId,
+                username: post.creatorName,
+                avatar: {
+                    imageUrl: post.creatorAvatar || 'https://i.pravatar.cc/150?img=3'
+                }
+            },
+            isLiked: likedPostIds.has(post.postId)
+        }));
+
+        // Always render the page, even with empty posts
         res.render('posts/posts', {
-            posts: uniquePosts,
-            avatarUrl,
-            username: user.users.username,
-            currentUser: { userId: user.users.userId }
+            posts: processedPosts,
+            avatarUrl: user.avatarUrl || 'https://i.pravatar.cc/150?img=3',
+            username: user.username,
+            currentUser: { userId: user.userId }
         });
 
     } catch (error) {
         console.error('Failed to fetch posts:', error);
-        res.status(500).send("Error fetching posts");
+        // Render the page with empty data instead of sending error
+        res.render('posts/posts', {
+            posts: [],
+            avatarUrl: 'https://i.pravatar.cc/150?img=3',
+            username: req.session.username,
+            currentUser: { userId: req.session.userId }
+        });
+    }
+});;
+
+router.post("/create", async (req, res) => {
+    try {
+        const { title, description } = req.body;
+        
+        // Validate user is logged in
+        if (!req.session.userId) {
+            return res.status(403).json({ 
+                success: false, 
+                message: "You must be logged in to create a post" 
+            });
+        }
+
+        // Validate required fields
+        if (!title?.trim() || !description?.trim()) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Title and description are required" 
+            });
+        }
+
+        // Add some basic validation for field lengths
+        if (title.length > 200) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Title must be less than 200 characters" 
+            });
+        }
+
+        if (description.length > 2000) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Description must be less than 2000 characters" 
+            });
+        }
+
+    
+        const [newPost] = await db
+            .insert(posts)
+            .values({
+                title: title.trim(),
+                description: description.trim(),
+                currentLikes: 0,
+                createdAt: new Date(),
+                createdBy: req.session.userId  
+            })
+            .returning({
+                postId: posts.postId,
+                title: posts.title,
+                description: posts.description,
+                createdAt: posts.createdAt
+            });
+
+        res.status(201).json({
+            success: true,
+            message: "Post created successfully",
+            post: newPost
+        });
+
+    } catch (error) {
+        console.error("Error creating post:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Failed to create post",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 });
+
+router.get("/create", (req, res) => {
+    res.render("posts/create")
+})
 
 router.post('/like/:id', async (req, res) => {
     const id = parseInt(req.params.id, 10);

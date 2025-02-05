@@ -23,7 +23,6 @@ router.get('/dashboard', async (req, res) => {
             return res.status(404).send("User not found");
         }
 
-        // Get posts with creators and their avatars
         const postsData = await db.select()
             .from(posts)
             .leftJoin(users, eq(posts.createdBy, users.userId))
