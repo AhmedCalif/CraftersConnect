@@ -1,12 +1,15 @@
-
+// userRoute.js
 const express = require('express');
-const { User } = require('../database/schema/schemaModel');
+const { db } = require('../database/databaseConnection.js');
+const { users } = require('../database/schema/schemaModel.js');
+const { eq } = require('drizzle-orm');
 const bcrypt = require('bcryptjs');
+
 const router = express.Router();
 
 router.get('/login', (req, res) => {
     if (req.session.username) {
-        res.redirect('/home/dashboard');  
+        res.redirect('/home/dashboard');
     } else {
         res.render('auth/login');
     }
@@ -16,9 +19,11 @@ router.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         
-        const user = await User.findOne({ 
-            where: { username }
-        });
+        // Find user by username
+        const user = await db.select()
+            .from(users)
+            .where(eq(users.username, username))
+            .get();
 
         if (!user) {
             console.log('No user found with that username');
@@ -53,9 +58,11 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        const existingUser = await User.findOne({
-            where: { username }
-        });
+        // Check for existing user
+        const existingUser = await db.select()
+            .from(users)
+            .where(eq(users.username, username))
+            .get();
 
         if (existingUser) {
             return res.status(400).json({
@@ -64,11 +71,15 @@ router.post('/register', async (req, res) => {
         }
 
         const hashedPassword = bcrypt.hashSync(password, 10);
-        const newUser = await User.create({
-            username,
-            password: hashedPassword,
-            email
-        });
+        
+        // Create new user
+        const [newUser] = await db.insert(users)
+            .values({
+                username,
+                password: hashedPassword,
+                email
+            })
+            .returning({ userId: users.userId });
 
         res.status(201).json({ 
             message: 'User registered successfully',

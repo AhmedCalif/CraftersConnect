@@ -20,9 +20,8 @@
     "cookie-session": "^2.1.0",
     "dompurify": "^3.1.4",
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.30.10",
     "ejs": "^3.1.10",
-    "express": "^4.19.2",
+    "express": "^4.21.2",
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.18.0",
     "http": "^0.0.1-security",
@@ -44,6 +43,7 @@
   "devDependencies": {
     "@planetscale/database": "^1.18.0",
     "@types/node": "^20.12.8",
-    "drizzle-kit": "^0.20.17"
+    "drizzle-kit": "^0.30.4",
+    "drizzle-orm": "^0.39.1"
   }
 }

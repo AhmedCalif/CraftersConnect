@@ -1,550 +1,420 @@
 const express = require('express');
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const { db } = require('../database/databaseConnection.js')
+const { eq, and, like, desc, or } = require('drizzle-orm');
+const { 
+    users, projects, steps, images, avatars, 
+    collaborators, moodImages, invites 
+} = require('../database/schema/schemaModel.js')
+const { ensureAuthenticated } = require('../middleware/middleware.js');
 const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../cloudinaryConfig.js');
 const path = require('path');
-const { User, Project, Step, Image, Avatar, Collaborator, MoodImage, Invite } = require('../database/schema/schemaModel');
-const { ensureAuthenticated } = require('../middleware/middleware');
-const Sequelize = require('sequelize');
 const crypto = require('crypto');
+const { JSDOM } = require('jsdom');
+const createDOMPurify = require('dompurify');
+
 const router = express.Router();
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
 
-// Configure Multer to use Cloudinary storage
+// Cloudinary storage setup
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: (req, file) => {
-    const fileExtension = path.extname(file.originalname).substring(1);
-    const publicId = `${req.session.userId}-${file.fieldname}-${Date.now()}`;
-    return {
-      folder: 'uploads',
-      public_id: publicId,
-      format: fileExtension,
-      overwrite: true,
-    };
-  },
+    cloudinary,
+    params: (req, file) => ({
+        folder: 'uploads',
+        public_id: `${req.session.userId}-${file.fieldname}-${Date.now()}`,
+        format: path.extname(file.originalname).substring(1),
+        overwrite: true,
+    }),
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
+// Cover Image Upload Routes
 router.post('/upload-coverImage', upload.single('coverImage'), async (req, res) => {
-  try {
-    const coverImage = req.file.path;
-    if (!coverImage) {
-      return res.status(400).json({ success: false, message: 'Image not uploaded' });
+    try {
+        if (!req.file?.path) {
+            return res.status(400).json({ success: false, message: 'Image not uploaded' });
+        }
+        return res.status(200).json({ success: true, imageUrl: req.file.path });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server Error' });
     }
-    return res.status(200).json({ success: true, imageUrl: coverImage });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Server Error' });
-  }
 });
 
 router.post('/:projectId/upload-coverImage', ensureAuthenticated, upload.single('coverImage'), async (req, res) => {
-  const projectId = req.params.projectId;
-  try {
-    const project = await Project.findByPk(projectId, {
-      include: [{ model: User, as: 'Creator' }]
-    });
+    try {
+        const { projectId } = req.params;
+        const project = await db.query.projects.findFirst({
+            where: eq(projects.projectId, parseInt(projectId)),
+            with: {
+                creator: true
+            }
+        });
 
-    if (!project) {
-      return res.status(404).json({ success: false, message: 'Project not found' });
-    }
-
-    console.log('File received:', req.file);
-
-    const coverImage = req.file.path;
-    if (!coverImage) {
-      return res.status(400).json({ success: false, message: 'Image not uploaded' });
-    }
-
-    const loggedInUser = await User.findOne({ where: { username: req.session.username } });
-    if (!loggedInUser) {
-      return res.status(403).json({ success: false, message: 'User not found' });
-    }
-
-    console.log('Logged in user ID:', loggedInUser.userId);
-    console.log('Project Creator ID:', project.Creator.userId);
-
-    const isCreator = project.Creator.userId === loggedInUser.userId;
-    console.log('Is user the creator?', isCreator);
-
-    if (!isCreator) {
-      return res.status(403).json({ success: false, message: 'You are not authorized to update this cover image.' });
-    }
-
-    console.log('Updating image in the database');
-
-    const [updated] = await Image.update({ link: coverImage }, { where: { projectId: projectId } });
-    if (updated === 0) {
-      await Image.create({ link: coverImage, projectId });
-    }
-
-    console.log('Image updated successfully:', coverImage);
-
-    res.status(200).json({ success: true, imageUrl: coverImage });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Server Error' });
-  }
-});
-
-// View all projects
-router.get("/", ensureAuthenticated, async (req, res) => {
-  try {
-    const user = await User.findOne({
-      where: { username: req.session.username },
-      include: Avatar
-    });
-    const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
-
-    const searchQuery = req.query.search || '';
-    const sortOption = req.query.sort || '';
-    let whereCondition = {};
-    let order = [];
-
-    if (searchQuery) {
-      whereCondition.title = { [Sequelize.Op.like]: `%${searchQuery}%` };
-    }
-
-    if (sortOption) {
-      const [sortBy, sortOrder] = sortOption.split('_');
-      order = [[sortBy, sortOrder]];
-    }
-
-    const projects = await Project.findAll({
-      where: whereCondition,
-      include: [
-        {
-          model: User,
-          as: 'Creator',
-          include: {
-            model: Avatar,
-            as: 'Avatar',
-            required: false
-          },
-        },
-        {
-          model: Image
-        },
-        {
-          model: User,
-          as: 'Collaborators',
-          through: { attributes: [] },
-          include: { model: Avatar, required: false }
+        if (!project) {
+            return res.status(404).json({ success: false, message: 'Project not found' });
         }
-      ],
-      order: order
-    });
 
-    res.render('projects/search', {
-      projects,
-      username: req.session.username,
-      avatar: avatarUrl,
-      searchQuery,
-      sortOption
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error while fetching projects list.");
-  }
+        if (!req.file?.path) {
+            return res.status(400).json({ success: false, message: 'Image not uploaded' });
+        }
+
+        const [existingImage] = await db.update(images)
+            .set({ link: req.file.path })
+            .where(eq(images.projectId, parseInt(projectId)))
+            .returning();
+
+        if (!existingImage) {
+            await db.insert(images)
+                .values({ link: req.file.path, projectId: parseInt(projectId) });
+        }
+
+        res.status(200).json({ success: true, imageUrl: req.file.path });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
 });
 
-// Route to add a new project
+// Project CRUD Routes
+router.get("/", ensureAuthenticated, async (req, res) => {
+    try {
+        const user = await db.query.users.findFirst({
+            where: eq(users.username, req.session.username),
+            with: {
+                avatar: true
+            }
+        });
+
+        const searchQuery = req.query.search || '';
+        const sortOption = req.query.sort || '';
+
+        let query = db.select()
+            .from(projects)
+            .leftJoin(users, eq(projects.userId, users.userId))
+            .leftJoin(avatars, eq(users.userId, avatars.userId))
+            .leftJoin(images, eq(projects.projectId, images.projectId));
+
+        if (searchQuery) {
+            query = query.where(like(projects.title, `%${searchQuery}%`));
+        }
+
+        if (sortOption) {
+            const [sortBy, sortOrder] = sortOption.split('_');
+            query = query.orderBy(sortOrder === 'desc' ? desc(projects[sortBy]) : projects[sortBy]);
+        }
+
+        const projectsData = await query;
+
+        res.render('projects/search', {
+            projects: projectsData,
+            username: req.session.username,
+            avatar: user?.avatar?.imageUrl || 'https://i.pravatar.cc/150?img=3',
+            searchQuery,
+            sortOption
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error while fetching projects list.");
+    }
+});
+
 router.get("/create", ensureAuthenticated, (req, res) => {
-  res.render("projects/create", { username: req.session.username });
+    res.render("projects/create", { username: req.session.username });
 });
 
 router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (req, res) => {
-  try {
-    const { title, description, steps, date, coverImageUrl } = req.body;
-    const user = await User.findOne({ where: { username: req.session.username }});
+    try {
+        const { title, description, steps, date } = req.body;
+        const user = await db.query.users.findFirst({
+            where: eq(users.username, req.session.username)
+        });
 
-    if (!user) {
-      console.error("User not found");
-      return res.status(400).send("User not found");
-    }
-
-    const newProject = await Project.create({
-      title,
-      description,
-      userId: user.userId,
-      date,
-      createdAt: date,
-      updatedAt: date
-    });
-
-    if (coverImageUrl) {
-      await Image.create({
-        link: coverImageUrl,
-        projectId: newProject.projectId
-      });
-    }
-
-    if (steps && steps.length) {
-      const stepRecords = steps.map(step => ({
-        description: step,
-        projectId: newProject.projectId
-      }));
-      await Step.bulkCreate(stepRecords);
-    }
-
-    res.redirect(`/projects/${newProject.projectId}`);
-  } catch (err) {
-    console.error("Error creating project:", err);
-    res.status(500).send("Failed to create project. Please try again.");
-  }
-});
-
-// View project details
-router.get("/:id", ensureAuthenticated, async (req, res) => {
-  const loggedInUsername = req.session.username;
-  const loggedInUserId = req.session.userId;
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) {
-    return res.status(400).json({ message: "Invalid project ID" });
-  }
-
-  try {
-    const project = await Project.findOne({
-      where: { projectId: id },
-      include: [
-        { model: Step, as: 'Steps' },
-        { model: Image },
-        { model: MoodImage }, 
-        {
-          model: User,
-          as: 'Creator',
-          include: {
-            model: Avatar,
-            as: 'Avatar',
-            required: false
-          },
-        },
-        {
-          model: User,
-          as: 'Collaborators',
-          through: { attributes: [] },
-          include: { model: Avatar, required: false }
+        if (!user) {
+            return res.status(400).send("User not found");
         }
-      ]
-    });
-    
-    if (project) {
-      const collaborators = project.Collaborators.map(collaborator => ({
-        userId: collaborator.userId,
-        username: collaborator.username,
-        avatarUrl: collaborator.Avatar ? collaborator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3'
-      }));
 
-      const avatarUrl = project.Creator.Avatar ? project.Creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
+        const [newProject] = await db.insert(projects)
+            .values({
+                title: DOMPurify.sanitize(title),
+                description: DOMPurify.sanitize(description),
+                userId: user.userId,
+                date: new Date(date),
+                createdAt: new Date(),
+                updatedAt: new Date()
+            })
+            .returning();
 
-      res.render('projects/show', { project, loggedInUsername, loggedInUserId, avatar: avatarUrl, collaborators });
-    } else {
-      res.status(404).json({ message: "Project not found" });
+        if (req.file?.path) {
+            await db.insert(images)
+                .values({
+                    link: req.file.path,
+                    projectId: newProject.projectId
+                });
+        }
+
+        if (steps?.length) {
+            await db.insert(steps)
+                .values(steps.map(step => ({
+                    description: DOMPurify.sanitize(step),
+                    projectId: newProject.projectId,
+                    completed: false
+                })));
+        }
+
+        res.redirect(`/projects/${newProject.projectId}`);
+    } catch (err) {
+        console.error("Error creating project:", err);
+        res.status(500).send("Failed to create project");
     }
-  } catch (err) {
-    console.error("Error fetching project:", err);
-    res.status(500).send("Server Error while fetching project details.");
-  }
 });
 
-// Update project
-router.get('/:id/update', ensureAuthenticated, async (req, res) => {
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) {
-    return res.status(400).json({ message: "Invalid project ID" });
-  }
+router.get("/:id", ensureAuthenticated, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const project = await db.query.projects.findFirst({
+            where: eq(projects.projectId, parseInt(id)),
+            with: {
+                steps: true,
+                image: true,
+                moodImages: true,
+                creator: {
+                    with: {
+                        avatar: true
+                    }
+                },
+                collaborators: {
+                    with: {
+                        user: {
+                            with: {
+                                avatar: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
-  try {
-    const project = await Project.findOne({
-      where: { projectId: id },
-      include: [{ model: Step, as: 'Steps' }]
-    });
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" });
+        }
 
-    if (project) {
-      res.render('projects/update', { project, username: req.session.username });
-    } else {
-      res.status(404).send("Project not found");
+        const collaborators = project.collaborators.map(collab => ({
+            userId: collab.user.userId,
+            username: collab.user.username,
+            avatarUrl: collab.user.avatar?.imageUrl || 'https://i.pravatar.cc/150?img=3'
+        }));
+
+        res.render('projects/show', {
+            project,
+            loggedInUsername: req.session.username,
+            loggedInUserId: req.session.userId,
+            avatar: project.creator.avatar?.imageUrl || 'https://i.pravatar.cc/150?img=3',
+            collaborators
+        });
+    } catch (err) {
+        console.error("Error fetching project:", err);
+        res.status(500).send("Server Error");
     }
-  } catch (err) {
-    console.error("Error fetching project:", err);
-    res.status(500).send("Server Error while fetching project details.");
-  }
+});
+
+// Project Update Routes
+router.get('/:id/update', ensureAuthenticated, async (req, res) => {
+    try {
+        const project = await db.query.projects.findFirst({
+            where: eq(projects.projectId, parseInt(req.params.id)),
+            with: { steps: true }
+        });
+
+        if (!project) {
+            return res.status(404).send("Project not found");
+        }
+
+        res.render('projects/update', { project, username: req.session.username });
+    } catch (err) {
+        console.error("Error fetching project:", err);
+        res.status(500).send("Server Error");
+    }
 });
 
 router.post('/:id/update', ensureAuthenticated, async (req, res) => {
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) {
-    return res.status(400).json({ message: "Invalid project ID" });
-  }
+    try {
+        const { id } = req.params;
+        const { title, description, steps } = req.body;
 
-  const updatedAt = new Date();
-  const { title, description, date, steps } = req.body;
+        await db.update(projects)
+            .set({
+                title: DOMPurify.sanitize(title),
+                description: DOMPurify.sanitize(description),
+                updatedAt: new Date()
+            })
+            .where(eq(projects.projectId, parseInt(id)));
 
-  try {
-    const project = await Project.findOne({
-      where: { projectId: id },
-      include: [{ model: Step, as: 'Steps' }]
-    });
+        // Handle steps updates
+        if (steps?.length) {
+            for (const step of steps) {
+                if (step.id) {
+                    await db.update(steps)
+                        .set({
+                            description: DOMPurify.sanitize(step.description),
+                            completed: step.completed === 'true'
+                        })
+                        .where(eq(steps.stepId, parseInt(step.id)));
+                } else {
+                    await db.insert(steps)
+                        .values({
+                            description: DOMPurify.sanitize(step.description),
+                            completed: step.completed === 'true',
+                            projectId: parseInt(id)
+                        });
+                }
+            }
+        }
 
-    if (!project) {
-      return res.status(404).send("Project not found");
+        res.redirect(`/projects/${id}`);
+    } catch (err) {
+        console.error("Error updating project:", err);
+        res.status(500).send("Failed to update project");
     }
-
-    // Update project details
-    await project.update({ title, description, updatedAt });
-
-    // Update existing steps and add new steps
-    const existingStepIds = project.Steps.map(step => step.stepId);
-    const stepsToUpdate = [];
-    const newSteps = [];
-
-    steps.forEach(step => {
-      if (step.id && existingStepIds.includes(parseInt(step.id))) {
-        stepsToUpdate.push(step);
-      } else {
-        newSteps.push({
-          description: step.description,
-          completed: step.completed === 'true',
-          projectId: id
-        });
-      }
-    });
-
-    // Update existing steps
-    for (let step of stepsToUpdate) {
-      await Step.update(
-        { description: step.description, completed: step.completed === 'true' },
-        { where: { stepId: step.id } }
-      );
-    }
-
-    // Add new steps
-    if (newSteps.length) {
-      await Step.bulkCreate(newSteps);
-    }
-
-    // Remove steps that were deleted
-    const submittedStepIds = steps.map(step => parseInt(step.id)).filter(id => !isNaN(id));
-    const stepsToRemove = existingStepIds.filter(id => !submittedStepIds.includes(id));
-    if (stepsToRemove.length) {
-      await Step.destroy({ where: { stepId: stepsToRemove } });
-    }
-
-    res.redirect(`/projects/${id}`);
-  } catch (err) {
-    console.error("Error updating project:", err);
-    res.status(500).send("Failed to update project. Please try again.");
-  }
 });
 
-// Delete project
-router.get("/:id/delete", ensureAuthenticated, async (req, res) => {
-  const id = parseInt(req.params.id);
-  const project = await Project.findOne({ where: { projectId: id } });
-  if (!project) {
-    res.status(404).send("Project not found");
-  }
-});
-
-router.post("/:id/delete", ensureAuthenticated, async (req, res) => {
-  const id = parseInt(req.params.id);
-  const success = await Project.destroy({ where: { projectId: id } });
-  if (success) {
-    res.status(200).json({ message: "Project deleted" });
-  } else {
-    res.status(404).json({ message: "Project not found" });
-  }
-});
-
-// Collaborators
-// Join project
+// Collaborator Management Routes
 router.post('/:projectId/join', ensureAuthenticated, async (req, res) => {
-  try {
-    const projectId = req.params.projectId;
-    const user = await User.findOne({ where: { username: req.session.username } });
+    try {
+        const { projectId } = req.params;
+        const user = await db.query.users.findFirst({
+            where: eq(users.username, req.session.username)
+        });
 
-    if (user) {
-      await Collaborator.create({ projectId, userId: user.userId });
-      console.log(`Collaborator added: ${user.username} to project ${projectId}`);
+        if (user) {
+            await db.insert(collaborators)
+                .values({
+                    projectId: parseInt(projectId),
+                    userId: user.userId
+                });
+        }
+
+        res.redirect(`/projects/${projectId}`);
+    } catch (err) {
+        console.error('Error joining project:', err);
+        res.status(500).send('Failed to join project');
     }
-
-    res.redirect(`/projects/${projectId}`);
-  } catch (err) {
-    console.error('Error joining project:', err);
-    res.status(500).send('Failed to join project.');
-  }
 });
 
-// Leave project
 router.post('/:projectId/leave', ensureAuthenticated, async (req, res) => {
-  try {
-    const projectId = req.params.projectId;
-    const user = await User.findOne({ where: { username: req.session.username } });
+    try {
+        const { projectId } = req.params;
+        const user = await db.query.users.findFirst({
+            where: eq(users.username, req.session.username)
+        });
 
-    if (user) {
-      await Collaborator.destroy({ where: { projectId, userId: user.userId } });
-      console.log(`Collaborator removed: ${user.username} from project ${projectId}`);
+        if (user) {
+            await db.delete(collaborators)
+                .where(and(
+                    eq(collaborators.projectId, parseInt(projectId)),
+                    eq(collaborators.userId, user.userId)
+                ));
+        }
+
+        res.status(200).json({ message: 'Left project successfully' });
+    } catch (err) {
+        console.error('Error leaving project:', err);
+        res.status(500).send('Failed to leave project');
     }
-
-    res.status(200).json({ message: 'Left project successfully' });
-  } catch (err) {
-    console.error('Error leaving project:', err);
-    res.status(500).send('Failed to leave project.');
-  }
 });
 
-// Toggle completion for steps
-router.post('/steps/:stepId/complete', async (req, res) => {
-  const { stepId } = req.params;
-  const { completed } = req.body;
-  try {
-    console.log(`Received request to update step ${stepId} to completed: ${completed}`);
-    const step = await Step.findByPk(stepId);
-    if (!step) {
-      return res.status(404).json({ success: false, message: 'Step not found' });
+// Invite System Routes
+router.post('/invite', async (req, res) => {
+    try {
+        const { email, invitedBy, projectId } = req.body;
+        const token = crypto.randomBytes(20).toString('hex');
+
+        const [invite] = await db.insert(invites)
+            .values({
+                email,
+                token,
+                projectId: parseInt(projectId),
+                invitedBy: parseInt(invitedBy),
+                status: 'pending'
+            })
+            .returning();
+
+        res.json({ message: 'Invite created successfully', token });
+    } catch (error) {
+        console.error('Error creating invite:', error);
+        res.status(500).json({ message: 'Failed to create invite' });
     }
-    step.completed = completed;
-    await step.save();
-    res.json({ success: true, step });
-  } catch (error) {
-    console.error('Error updating step completion:', error);
-    res.status(500).json({ success: false, message: 'Failed to update step completion status' });
-  }
 });
 
-router.post('/:projectId/collaborator/:collaboratorId/remove', ensureAuthenticated, async (req, res) => {
-  const { projectId, collaboratorId } = req.params;
-  const loggedInUserId = req.session.userId;
+router.post('/invite/:token', async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { userId } = req.body;
 
-  try {
-    // Fetch the project
-    const project = await Project.findOne({
-      where: { projectId },
-      include: [{ model: User, as: 'Creator' }]
-    });
+        const invite = await db.query.invites.findFirst({
+            where: and(
+                eq(invites.token, token),
+                eq(invites.status, 'pending')
+            )
+        });
 
-    if (project.Creator.userId !== loggedInUserId) {
-      return res.status(403).json({ message: "Only the project creator can remove collaborators" });
+        if (!invite) {
+            return res.status(400).json({ message: 'Invalid or expired invite token' });
+        }
+
+        await db.insert(collaborators)
+            .values({
+                projectId: invite.projectId,
+                userId: parseInt(userId)
+            });
+
+        await db.update(invites)
+            .set({ status: 'accepted' })
+            .where(eq(invites.token, token));
+
+        res.json({ message: 'Project invite accepted', projectId: invite.projectId });
+    } catch (error) {
+        console.error('Error accepting invite:', error);
+        res.status(500).json({ message: 'Failed to accept invite' });
     }
-
-    await Collaborator.destroy({
-      where: {
-        projectId,
-        userId: collaboratorId
-      }
-    });
-
-    res.json({ success: true, message: "Collaborator removed successfully" });
-  } catch (err) {
-    console.error("Error removing collaborator:", err);
-    res.status(500).json({ message: "Server error while removing collaborator" });
-  }
 });
 
+// Mood Board Routes
 router.post('/image-link', ensureAuthenticated, async (req, res) => {
-  const { imageLink, projectId } = req.body;
-  const loggedInUsername = req.session.username;
+    try {
+        const { imageLink, projectId } = req.body;
+        const [newImage] = await db.insert(moodImages)
+            .values({
+                link: DOMPurify.sanitize(imageLink),
+                projectId: parseInt(projectId),
+                uploadedBy: req.session.username
+            })
+            .returning();
 
-  if (!imageLink || !projectId) {
-    console.error("Image link or Project ID not found");
-    return res.status(400).send("Image link and project ID are required");
-  }
-
-  try {
-    const newImage = await MoodImage.create({
-      link: imageLink,
-      projectId: projectId,
-      uploadedBy: loggedInUsername
-    });
-    res.status(201).json(newImage);
-  } catch (error) {
-    console.error("Error creating image:", error);
-    res.status(500).send("Internal Server Error");
-  }
+        res.status(201).json(newImage);
+    } catch (error) {
+        console.error("Error creating image:", error);
+        res.status(500).send("Internal Server Error");
+    }
 });
 
 router.delete('/image-link', async (req, res) => {
-  try {
-    const { imageLink, projectId } = req.body;
+    try {
+        const { imageLink, projectId } = req.body;
+        await db.delete(moodImages)
+            .where(and(
+                eq(moodImages.link, imageLink),
+                eq(moodImages.projectId, parseInt(projectId))
+            ));
 
-    if (!imageLink || !projectId) {
-      return res.status(400).json({ message: "Image link and project ID are required" });
+        res.status(200).json({ message: "Image deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting image:", error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
-
-    const deleteImage = await MoodImage.destroy({
-      where: {
-        link: imageLink,
-        projectId: projectId
-      }
-    });
-    res.status(200).json({ message: "Image deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting image link:", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
 });
-
-router.post('/invite', async (req, res) => {
-  const { email, invitedBy, projectId } = req.body;
-
-  // Check if the project exists
-  const project = await Project.findByPk(projectId);
-  if (!project) {
-    return res.status(404).json({ message: 'Project not found' });
-  }
-  console.log(`project id:`, project.projectId);
-
-  // Generate a unique token
-  const token = crypto.randomBytes(20).toString('hex');
-
-  // Save the invite to the database
-  const invite = await Invite.create({
-    email,
-    token,
-    projectId,
-    invitedBy,
-  });
-
-  res.json({ message: 'Invite created successfully', token });
-});
-
-// Endpoint to accept an invite
-router.post('/invite/:token', async (req, res) => {
-  const { token } = req.params;
-  const { userId } = req.body;
-
-  // Find the invite
-  const invite = await Invite.findOne({ where: { token, status: 'pending' } });
-
-  if (!invite) {
-    return res.status(400).json({ message: 'Invalid or expired invite token' });
-  }
-
-  // Add the user as a collaborator to the project
-  await Collaborator.create({
-    projectId: invite.projectId,
-    userId,
-  });
-
-  // Update the invite status
-  invite.status = 'accepted';
-  await invite.save();
-
-  res.json({ message: 'Project invite accepted', projectId: invite.projectId });
-});
-
 module.exports = router;
-
-
-

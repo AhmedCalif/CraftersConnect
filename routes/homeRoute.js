@@ -1,102 +1,116 @@
-const router = require('express').Router();
-const { User, Post, Project, Avatar, Step, Image } = require('../database/schema/schemaModel');
-const { ensureAuthenticated } = require('../middleware/middleware');
+const express = require('express');
+const { db } = require('../database/databaseConnection.js')
+const { eq, and } = require('drizzle-orm');
+const { users, posts, projects, avatars, images, collaborators } = require('../database/schema/schemaModel.js')
+const { ensureAuthenticated } = require('../middleware/middleware.js');
+
+const router = express.Router();
 
 router.get('/dashboard', async (req, res) => {
     if (!req.session.username) {
         return res.redirect('/auth/login');
     }
-    const user = await User.findOne({ where: { username: req.session.username } });
-    if (!user) {
-        return res.status(404).send("User not found");
-    }
 
-    const posts = await Post.findAll({
-        include: [{
-            model: User,
-            as: 'creator',
-            attributes: ['username'],
-            include: [{
-                model: Avatar,
-                attributes: ['imageUrl']
-            }]
-        }]
-    });
-    const createdProjects = await Project.findAll({
-        where: { userId: user.userId },
-        include: [
-          { model: User, as: 'Creator', include: Avatar },
-          { model: Image }
-        ],
-        distinct: true
-      });
-  
-      const collaboratedProjects = await Project.findAll({
-        include: [
-          {
-            model: User,
-            as: 'Collaborators',
-            where: { userId: user.userId },
-            include: [{ model: Avatar }]
-          },
-          { model: User, as: 'Creator', include: Avatar },
-          { model: Image }
-        ]
-      });
-  
-    const allProjects = [...createdProjects, ...collaboratedProjects].filter((project, index, self) =>
-        index === self.findIndex((p) => p.projectId === project.projectId)
-      );
-  
-    
-    const uniquePosts = [];
-    const postIds = new Set();
-    posts.forEach(post => {
-        if (!postIds.has(post.postId)) {
-            uniquePosts.push(post);
-            postIds.add(post.postId);
+    try {
+
+        const user = await db.select()
+            .from(users)
+            .leftJoin(avatars, eq(users.userId, avatars.userId))
+            .where(eq(users.username, req.session.username))
+            .get();
+
+        if (!user) {
+            return res.status(404).send("User not found");
         }
-    });
 
-    const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
+        // Get posts with creators and their avatars
+        const postsData = await db.select()
+            .from(posts)
+            .leftJoin(users, eq(posts.createdBy, users.userId))
+            .leftJoin(avatars, eq(users.userId, avatars.userId));
 
-    const userProjects = await Project.findAll({
-        where: { userId: user.userId }
-    });
+        // Get created projects
+        const createdProjects = await db.select()
+            .from(projects)
+            .leftJoin(users, eq(projects.userId, users.userId))
+            .leftJoin(images, eq(projects.projectId, images.projectId))
+            .where(eq(projects.userId, user.users.userId));
 
-   
-    const newProjects = await Project.findAll({
-        limit: 5, 
-        order: [['createdAt', 'DESC']],
-        include: [
-            { model: User, as: 'Creator', include: Avatar },
-            { model: Image }
-        ]
-    });
+        // Get collaborated projects
+        const collaboratedProjects = await db.select()
+            .from(projects)
+            .leftJoin(collaborators, eq(projects.projectId, collaborators.projectId))
+            .leftJoin(users, eq(projects.userId, users.userId))
+            .leftJoin(avatars, eq(users.userId, avatars.userId))
+            .leftJoin(images, eq(projects.projectId, images.projectId))
+            .where(eq(collaborators.userId, user.users.userId));
 
-    res.render('home/dashboard', {
-        user: user,
-        posts: uniquePosts,
-        projects: userProjects,
-        newProjects: newProjects,
-        avatarUrl: avatarUrl,
-        allProjects
-    });
+        // Combine and deduplicate projects
+        const allProjects = [...createdProjects, ...collaboratedProjects]
+            .filter((project, index, self) => 
+                index === self.findIndex((p) => p.projects.projectId === project.projects.projectId)
+            );
+
+        // Deduplicate posts
+        const uniquePosts = [];
+        const postIds = new Set();
+        postsData.forEach(post => {
+            if (!postIds.has(post.posts.postId)) {
+                uniquePosts.push(post);
+                postIds.add(post.posts.postId);
+            }
+        });
+
+        // Get user's projects
+        const userProjects = await db.select()
+            .from(projects)
+            .where(eq(projects.userId, user.users.userId));
+
+        // Get new projects
+        const newProjects = await db.select()
+            .from(projects)
+            .leftJoin(users, eq(projects.userId, users.userId))
+            .leftJoin(avatars, eq(users.userId, avatars.userId))
+            .leftJoin(images, eq(projects.projectId, images.projectId))
+            .orderBy(projects.createdAt)
+            .limit(5);
+
+        const avatarUrl = user.avatars?.imageUrl || 'https://i.pravatar.cc/150?img=3';
+
+        res.render('home/dashboard', {
+            user: user.users,
+            posts: uniquePosts,
+            projects: userProjects,
+            newProjects,
+            avatarUrl,
+            allProjects
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send("Server Error");
+    }
 });
 
 router.post('/dashboard', async (req, res) => {
     const { title, description, steps } = req.body;
     try {
-        const newProject = await Project.create({
-            title,
-            description,
-            userId: req.session.userId 
-        });
-        const projectSteps = steps.map(stepDescription => ({
-            description: stepDescription,
-            projectId: newProject.projectId
-        }));
-        await Step.bulkCreate(projectSteps);
+        // Create new project
+        const [newProject] = await db.insert(projects)
+            .values({
+                title,
+                description,
+                userId: req.session.userId
+            })
+            .returning();
+
+        // Create steps
+        if (steps && steps.length) {
+            await db.insert(steps)
+                .values(steps.map(stepDescription => ({
+                    description: stepDescription,
+                    projectId: newProject.projectId
+                })));
+        }
 
         console.log(newProject);
         res.redirect('/dashboard');
@@ -105,61 +119,5 @@ router.post('/dashboard', async (req, res) => {
         res.status(500).send("Failed to create project");
     }
 });
-
-
-router.get("/all", ensureAuthenticated, async (req, res) => {
-    try {
-      const loggedInUsername = req.session.username;
-      const user = await User.findOne({
-        where: { username: req.session.username },
-        include: Avatar
-      });
-  
-      if (!user) {
-        return res.status(404).send("User not found");
-      }
-  
-      const createdProjects = await Project.findAll({
-        where: { userId: user.userId },
-        include: [
-          { model: User, as: 'Creator', include: Avatar },
-          { model: Image }
-        ],
-        distinct: true
-      });
-  
-      const collaboratedProjects = await Project.findAll({
-        include: [
-          {
-            model: User,
-            as: 'Collaborators',
-            where: { userId: user.userId },
-            include: [{ model: Avatar }]
-          },
-          { model: User, as: 'Creator', include: Avatar },
-          { model: Image }
-        ]
-      });
-  
-      const allProjects = [...createdProjects, ...collaboratedProjects].filter((project, index, self) =>
-        index === self.findIndex((p) => p.projectId === project.projectId)
-      );
-  
-      const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
-  
-      console.log("All Projects:", allProjects);
-      res.render('userProjects/all', {
-        allProjects,
-        createdProjects,
-        collaboratedProjects,
-        user,
-        avatarUrl,
-        loggedInUsername
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Server Error while fetching projects list.");
-    }
-  });
 
 module.exports = router;
