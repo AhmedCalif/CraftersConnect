@@ -12,7 +12,8 @@ const userProjectsRouter = require('./routes/userProjectsRouter');
 const chatRouter = require('./routes/chatRoute');
 const socket = require('socket.io');
 const http = require('http');
-
+const { migrateTables } = require('./database/migrationHelper');
+const {sequelize} = require("./database/databaseConnection")
 const app = express();
 const server = http.createServer(app);
 const io = socket(server);
@@ -39,6 +40,21 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24
     }
 }));
+
+async function setup() {
+  try {
+    if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN) {
+      throw new Error('Missing required environment variables TURSO_DATABASE_URL or TURSO_AUTH_TOKEN');
+    }
+    await sequelize.authenticate();
+    console.log('Database connection established successfully.');
+    await migrateTables();
+    console.log('Database setup completed');
+  } catch (error) {
+    console.error('Setup failed:', error);
+    process.exit(1); 
+  }
+}
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));

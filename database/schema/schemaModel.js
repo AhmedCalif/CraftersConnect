@@ -1,38 +1,55 @@
+// database/schema/models.js
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../databaseConnection.js');
+
+// Define default timestamp fields
+const defaultTimestamps = {
+  createdAt: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: () => Math.floor(Date.now() / 1000)
+  },
+  updatedAt: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: () => Math.floor(Date.now() / 1000)
+  }
+};
 
 const User = sequelize.define('User', {
   userId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   username: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
     unique: true
   },
   password: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false
   },
   email: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
     unique: true
   },
+  ...defaultTimestamps
 }, {
+  tableName: 'Users',
   timestamps: true
 });
 
 const Post = sequelize.define('Post', {
   postId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   description: DataTypes.TEXT,
-  title: DataTypes.STRING,
+  title: DataTypes.TEXT,
   currentLikes: {
     type: DataTypes.INTEGER,
     defaultValue: 0
@@ -44,28 +61,23 @@ const Post = sequelize.define('Post', {
       model: User,
       key: 'userId'
     }
-  }
+  },
+  ...defaultTimestamps
 }, {
   timestamps: true
 });
 
-Post.prototype.isLikedBy = async function(userId) {
-  const like = await Like.findOne({ where: { postId: this.postId, userId } });
-  return !!like;
-}
-
-
 const Project = sequelize.define('Project', {
   projectId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
-  title: DataTypes.STRING,
+  title: DataTypes.TEXT,
   description: DataTypes.TEXT,
   date: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+    type: DataTypes.INTEGER,
+    defaultValue: () => Math.floor(Date.now() / 1000)
   },
   userId: {
     type: DataTypes.INTEGER,
@@ -73,7 +85,8 @@ const Project = sequelize.define('Project', {
       model: User,
       key: 'userId'
     }
-  }
+  },
+  ...defaultTimestamps
 }, {
   timestamps: true
 });
@@ -81,8 +94,8 @@ const Project = sequelize.define('Project', {
 const Image = sequelize.define('Image', {
   imageId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   link: DataTypes.TEXT,
   projectId: {
@@ -91,7 +104,8 @@ const Image = sequelize.define('Image', {
       model: Project,
       key: 'projectId'
     }
-  }
+  },
+  ...defaultTimestamps
 }, {
   timestamps: true
 });
@@ -99,8 +113,8 @@ const Image = sequelize.define('Image', {
 const Collaborator = sequelize.define('Collaborator', {
   collaboratorId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   projectId: {
     type: DataTypes.INTEGER,
@@ -116,6 +130,7 @@ const Collaborator = sequelize.define('Collaborator', {
       key: 'userId'
     }
   },
+  ...defaultTimestamps
 }, {
   timestamps: true
 });
@@ -123,13 +138,13 @@ const Collaborator = sequelize.define('Collaborator', {
 const Step = sequelize.define('Step', {
   stepId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   description: DataTypes.TEXT,
   completed: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.INTEGER,
+    defaultValue: 0
   },
   projectId: {
     type: DataTypes.INTEGER,
@@ -137,7 +152,8 @@ const Step = sequelize.define('Step', {
       model: Project,
       key: 'projectId'
     }
-  }
+  },
+  ...defaultTimestamps
 }, {
   timestamps: true
 });
@@ -145,21 +161,21 @@ const Step = sequelize.define('Step', {
 const Like = sequelize.define('Like', {
   likeId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   likedBy: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false
   },
   postId: {
     type: DataTypes.INTEGER,
     references: {
       model: Post,
-      key: 'postId',
-      onDelete: 'CASCADE'  
+      key: 'postId'
     }
-  }
+  },
+  ...defaultTimestamps
 }, {
   timestamps: true
 });
@@ -167,26 +183,26 @@ const Like = sequelize.define('Like', {
 const Avatar = sequelize.define('Avatar', {
   avatarId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: User,
-      key: 'userId',
-      onDelete: 'CASCADE'  
+      key: 'userId'
     }
   },
   imageUrl: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false
   },
   uploadDate: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
-  }
+    type: DataTypes.INTEGER,
+    defaultValue: () => Math.floor(Date.now() / 1000)
+  },
+  ...defaultTimestamps
 }, {
   timestamps: true
 });
@@ -194,11 +210,11 @@ const Avatar = sequelize.define('Avatar', {
 const Message = sequelize.define('Message', {
   messageId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   message: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false
   },
   userId: {
@@ -216,7 +232,8 @@ const Message = sequelize.define('Message', {
       model: User,
       key: 'userId'
     }
-  }
+  },
+  ...defaultTimestamps
 }, {
   timestamps: true
 });
@@ -224,11 +241,11 @@ const Message = sequelize.define('Message', {
 const Chat = sequelize.define('Chat', {
   chatId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   message: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false
   },
   userId: {
@@ -246,7 +263,8 @@ const Chat = sequelize.define('Chat', {
       model: Project,
       key: 'projectId'
     }
-  }
+  },
+  ...defaultTimestamps
 }, {
   timestamps: true
 });
@@ -254,51 +272,42 @@ const Chat = sequelize.define('Chat', {
 const MoodImage = sequelize.define('MoodImage', {
   id: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   link: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false
   },
   projectId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Projects',
+      model: Project,
       key: 'projectId'
     }
   },
   uploadedBy: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false
   },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: Sequelize.NOW
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    defaultValue: Sequelize.NOW
-  }
+  ...defaultTimestamps
 }, {
   timestamps: true
 });
 
-
 const LikeChat = sequelize.define('LikeChat', {
   likeChatId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   chatId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: Chat,
-      key: 'chatId',
-      onDelete: 'CASCADE'
+      key: 'chatId'
     }
   },
   userId: {
@@ -306,79 +315,72 @@ const LikeChat = sequelize.define('LikeChat', {
     allowNull: false,
     references: {
       model: User,
-      key: 'userId',
-      onDelete: 'CASCADE'
+      key: 'userId'
     }
-  }
+  },
+  ...defaultTimestamps
 }, {
   timestamps: true
 });
 
-
 const Invite = sequelize.define('Invite', {
   inviteId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
     primaryKey: true,
+    autoIncrement: true
   },
   email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: false,
+    type: DataTypes.TEXT,
+    allowNull: false
   },
   token: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
-    unique: true,
+    unique: true
   },
   status: {
-    type: DataTypes.STRING,
-    defaultValue: 'pending', 
+    type: DataTypes.TEXT,
+    defaultValue: 'pending'
   },
   projectId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: Project,
-      key: 'projectId',
-    },
+      key: 'projectId'
+    }
   },
   invitedBy: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: User,
-      key: 'userId',
-    },
+      key: 'userId'
+    }
   },
+  ...defaultTimestamps
 }, {
-  timestamps: true,
+  timestamps: true
 });
 
-Chat.hasMany(LikeChat, { foreignKey: 'chatId', onDelete: 'CASCADE' });
-LikeChat.belongsTo(Chat, { foreignKey: 'chatId' });
-
-User.hasMany(LikeChat, { foreignKey: 'userId', onDelete: 'CASCADE' });
-LikeChat.belongsTo(User, { foreignKey: 'userId' });
-
-
+// Define all relationships
 User.hasMany(Post, { as: 'Posts', foreignKey: 'createdBy' });
-User.hasMany(Like, { foreignKey: 'userId' });
-
 Post.belongsTo(User, { as: 'creator', foreignKey: 'createdBy' });
+
+User.hasMany(Like, { foreignKey: 'userId' });
 Like.belongsTo(Post, { foreignKey: 'postId' });
-Post.hasMany(Like, { foreignKey: 'postId', onDelete: 'CASCADE' });
+Post.hasMany(Like, { foreignKey: 'postId' });
 
 User.hasMany(Project, { foreignKey: 'userId' });
 Project.belongsTo(User, { foreignKey: 'userId', as: 'Creator' });
 
-User.hasOne(Avatar, { foreignKey: 'userId', onDelete: 'CASCADE' });
+User.hasOne(Avatar, { foreignKey: 'userId' });
 Avatar.belongsTo(User, { as: 'User', foreignKey: 'userId' });
 
-Project.hasOne(Image, { foreignKey: 'projectId', onDelete: 'CASCADE' });
+Project.hasOne(Image, { foreignKey: 'projectId' });
 Image.belongsTo(Project, { foreignKey: 'projectId' });
 
-Project.hasMany(Step, { foreignKey: 'projectId', as: 'Steps', onDelete: 'CASCADE' });
+Project.hasMany(Step, { foreignKey: 'projectId', as: 'Steps' });
 Step.belongsTo(Project, { foreignKey: 'projectId' });
 
 User.belongsToMany(Project, { through: Collaborator, as: 'Collaborations', foreignKey: 'userId' });
@@ -392,15 +394,19 @@ Message.belongsTo(User, { as: 'Receiver', foreignKey: 'receiverId' });
 User.hasMany(Chat, { as: 'UserChats', foreignKey: 'userId' });
 Chat.belongsTo(User, { foreignKey: 'userId', as: 'Sender' });
 
-Project.hasMany(Chat, { as: 'ProjectChats', foreignKey: 'projectId', onDelete: 'CASCADE' });
+Project.hasMany(Chat, { as: 'ProjectChats', foreignKey: 'projectId' });
 Chat.belongsTo(Project, { foreignKey: 'projectId', as: 'Project' });
 
-Project.hasMany(MoodImage, { foreignKey: 'projectId', onDelete: 'CASCADE' });
+Project.hasMany(MoodImage, { foreignKey: 'projectId' });
 MoodImage.belongsTo(Project, { foreignKey: 'projectId' });
 
-module.exports = { User, Post, Project, Image, Collaborator, Step, Like, Avatar, Message, Chat, MoodImage, LikeChat, Invite};
+Chat.hasMany(LikeChat, { foreignKey: 'chatId' });
+LikeChat.belongsTo(Chat, { foreignKey: 'chatId' });
 
-// Sync database
-sequelize.sync({ force: false }).then(() => {
-    console.log("Tables have been created");
-}).catch(error => console.error('Unable to create tables', error));
+User.hasMany(LikeChat, { foreignKey: 'userId' });
+LikeChat.belongsTo(User, { foreignKey: 'userId' });
+
+module.exports = {
+  User, Post, Project, Image, Collaborator, Step,
+  Like, Avatar, Message, Chat, MoodImage, LikeChat, Invite
+};
