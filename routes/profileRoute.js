@@ -1,10 +1,9 @@
-// profileRoute.js
 const express = require('express');
 const { db } = require('../database/databaseConnection.js');
-const { eq, and } = require ('drizzle-orm');
-const { users, avatars, posts, likes }= require('../database/schema/schemaModel.js')
+const { eq } = require('drizzle-orm');
+const { users, avatars, posts, likes } = require('../database/schema/schemaModel.js');
 const { ensureAuthenticated } = require('../middleware/middleware.js');
-const multer = require ('multer');
+const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('../cloudinaryConfig.js');
 const path = require('path');
@@ -14,18 +13,12 @@ const router = express.Router();
 function uploadMiddleware(folderName) {
     const storage = new CloudinaryStorage({
         cloudinary,
-        params: (req, file) => {
-            const folderPath = `${folderName.trim()}`;
-            const fileExtension = path.extname(file.originalname).substring(1);
-            const publicId = `${req.session.userId}-${file.fieldname}`;
-
-            return {
-                folder: folderPath,
-                public_id: publicId,
-                format: fileExtension,
-                overwrite: true,
-            };
-        },
+        params: (req, file) => ({
+            folder: folderName.trim(),
+            public_id: `${req.session.userId}-${file.fieldname}`,
+            format: path.extname(file.originalname).substring(1),
+            overwrite: true,
+        }),
     });
     return multer({ storage });
 }
@@ -34,31 +27,46 @@ const uploadFile = uploadMiddleware("/uploads");
 
 router.get("/", ensureAuthenticated, async (req, res) => {
     try {
-        // Get user with avatar
-        const user = await db.select()
+        // Get user data
+        const userData = await db
+            .select()
             .from(users)
-            .leftJoin(avatars, eq(users.userId, avatars.userId))
-            .where(eq(users.username, req.session.username))
-            .get();
+            .where(eq(users.username, req.session.username));
+
+        if (!userData || userData.length === 0) {
+            return res.status(404).send("User not found");
+        }
+
+        const user = userData[0];
+
+        // Get avatar data
+        const avatarData = await db
+            .select()
+            .from(avatars)
+            .where(eq(avatars.userId, user.userId));
 
         // Get liked posts
-        const likedPosts = await db.select({
-            post: posts,
-            creator: users,
-            creatorAvatar: avatars
-        })
-        .from(posts)
-        .innerJoin(likes, eq(posts.postId, likes.postId))
-        .leftJoin(users, eq(posts.createdBy, users.userId))
-        .leftJoin(avatars, eq(users.userId, avatars.userId))
-        .where(eq(likes.userId, user.users.userId));
+        const likedPostsData = await db
+            .select({
+                likeId: likes.likeId,
+                postId: posts.postId,
+                title: posts.title,
+                description: posts.description,
+                currentLikes: posts.currentLikes,
+                likedBy: likes.likedBy,
+                createdAt: posts.createdAt,
+                createdBy: posts.createdBy
+            })
+            .from(likes)
+            .innerJoin(posts, eq(likes.postId, posts.postId))
+            .where(eq(likes.likedBy, user.username));
 
-        const avatarUrl = user.avatars?.imageUrl || 'https://i.pravatar.cc/150?img=3';
+        const avatarUrl = avatarData?.[0]?.imageUrl || 'https://i.pravatar.cc/150?img=3';
         
         res.render("profile/profile", {
-            user: user.users,
+            user,
             avatar: avatarUrl,
-            likedPosts
+            likedPosts: likedPostsData
         });
     } catch (error) {
         console.error("Error fetching user data:", error);
@@ -68,37 +76,30 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 
 router.post("/upload-avatar", ensureAuthenticated, uploadFile.single("avatar"), async (req, res) => {
     if (!req.file) {
-        console.log("No file uploaded.");
         return res.status(400).json({ error: "No file uploaded." });
     }
 
     try {
         const userId = req.session.userId;
-        const user = await db.select()
-            .from(users)
-            .where(eq(users.userId, userId))
-            .get();
-
-        if (!user) {
-            console.log("User not found.");
-            return res.status(404).json({ error: "User not found." });
-        }
-
         const avatarUrl = req.file.path;
-        const existingAvatar = await db.select()
-            .from(avatars)
-            .where(eq(avatars.userId, userId))
-            .get();
 
-        if (existingAvatar) {
-            await db.update(avatars)
+        // Check if avatar exists
+        const existingAvatar = await db
+            .select()
+            .from(avatars)
+            .where(eq(avatars.userId, userId));
+
+        if (existingAvatar && existingAvatar.length > 0) {
+            await db
+                .update(avatars)
                 .set({
                     imageUrl: avatarUrl,
                     uploadDate: new Date()
                 })
                 .where(eq(avatars.userId, userId));
         } else {
-            await db.insert(avatars)
+            await db
+                .insert(avatars)
                 .values({
                     userId,
                     imageUrl: avatarUrl,
@@ -108,43 +109,56 @@ router.post("/upload-avatar", ensureAuthenticated, uploadFile.single("avatar"), 
 
         res.redirect("back");
     } catch (error) {
-        console.error("Failed to upload avatar:", error.stack);
+        console.error("Failed to upload avatar:", error);
         return res.status(500).json({ error: "Failed to upload avatar." });
     }
 });
 
 router.get("/liked-posts", ensureAuthenticated, async (req, res) => {
     try {
-        const user = await db.select()
+        // Get user data
+        const userData = await db
+            .select()
             .from(users)
-            .leftJoin(avatars, eq(users.userId, avatars.userId))
-            .where(eq(users.username, req.session.username))
-            .get();
+            .where(eq(users.username, req.session.username));
 
-        if (!user) {
+        if (!userData || userData.length === 0) {
             return res.status(404).send("User not found");
         }
 
-        const avatarUrl = user.avatars?.imageUrl || 'https://i.pravatar.cc/150?img=3';
+        const user = userData[0];
 
-        const likedPosts = await db.select({
-            post: posts,
-            creator: users,
-            creatorAvatar: avatars
-        })
-        .from(posts)
-        .innerJoin(likes, eq(posts.postId, likes.postId))
-        .leftJoin(users, eq(posts.createdBy, users.userId))
-        .leftJoin(avatars, eq(users.userId, avatars.userId))
-        .where(eq(likes.userId, user.users.userId));
+        // Get avatar data
+        const avatarData = await db
+            .select()
+            .from(avatars)
+            .where(eq(avatars.userId, user.userId));
 
-        if (likedPosts.length === 0) {
+        // Get liked posts
+        const likedPostsData = await db
+            .select({
+                likeId: likes.likeId,
+                postId: posts.postId,
+                title: posts.title,
+                description: posts.description,
+                currentLikes: posts.currentLikes,
+                likedBy: likes.likedBy,
+                createdAt: posts.createdAt,
+                createdBy: posts.createdBy
+            })
+            .from(likes)
+            .innerJoin(posts, eq(likes.postId, posts.postId))
+            .where(eq(likes.likedBy, user.username));
+
+        const avatarUrl = avatarData?.[0]?.imageUrl || 'https://i.pravatar.cc/150?img=3';
+
+        if (likedPostsData.length === 0) {
             res.render("profile/errorMessage");
         } else {
             res.render("profile/likedPosts", {
-                user: user.users,
-                likedPosts,
-                avatar: avatarUrl,
+                user,
+                likedPosts: likedPostsData,
+                avatar: avatarUrl
             });
         }
     } catch (error) {
@@ -152,4 +166,5 @@ router.get("/liked-posts", ensureAuthenticated, async (req, res) => {
         res.status(500).send("Error retrieving liked posts");
     }
 });
+
 module.exports = router;
