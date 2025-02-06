@@ -23,19 +23,28 @@ router.get('/dashboard', async (req, res) => {
             return res.status(404).send("User not found");
         }
 
-        const postsData = await db.select()
-            .from(posts)
-            .leftJoin(users, eq(posts.createdBy, users.userId))
-            .leftJoin(avatars, eq(users.userId, avatars.userId));
+       const postsData = await db.select({
+            post: posts,
+            creator: {
+            username: users.username,
+            userId: users.userId,
+            Avatar: {
+            imageUrl: avatars.imageUrl
+        }
+        }
+        })
+        .from(posts)
+        .leftJoin(users, eq(posts.createdBy, users.userId))
+        .leftJoin(avatars, eq(users.userId, avatars.userId))
 
-        // Get created projects
+
+
         const createdProjects = await db.select()
             .from(projects)
             .leftJoin(users, eq(projects.userId, users.userId))
             .leftJoin(images, eq(projects.projectId, images.projectId))
             .where(eq(projects.userId, user.users.userId));
 
-        // Get collaborated projects
         const collaboratedProjects = await db.select()
             .from(projects)
             .leftJoin(collaborators, eq(projects.projectId, collaborators.projectId))
@@ -44,29 +53,27 @@ router.get('/dashboard', async (req, res) => {
             .leftJoin(images, eq(projects.projectId, images.projectId))
             .where(eq(collaborators.userId, user.users.userId));
 
-        // Combine and deduplicate projects
         const allProjects = [...createdProjects, ...collaboratedProjects]
             .filter((project, index, self) => 
                 index === self.findIndex((p) => p.projects.projectId === project.projects.projectId)
             );
 
-        // Deduplicate posts
-        const uniquePosts = [];
-        const postIds = new Set();
-        postsData.forEach(post => {
-            if (!postIds.has(post.posts.postId)) {
-                uniquePosts.push(post);
-                postIds.add(post.posts.postId);
-            }
-        });
-
-        // Get user's projects
+        const formattedPosts = postsData.map(post => ({
+    ...post.post,
+    creator: {
+        username: post.creator.username,
+        Avatar: {
+            imageUrl: post.creator.Avatar.imageUrl
+        }
+    }
+}));
         const userProjects = await db.select()
             .from(projects)
             .where(eq(projects.userId, user.users.userId));
-
-        // Get new projects
-        const newProjects = await db.select()
+        
+        
+        
+            const newProjects = await db.select()
             .from(projects)
             .leftJoin(users, eq(projects.userId, users.userId))
             .leftJoin(avatars, eq(users.userId, avatars.userId))
@@ -78,7 +85,7 @@ router.get('/dashboard', async (req, res) => {
 
         res.render('home/dashboard', {
             user: user.users,
-            posts: uniquePosts,
+            posts: formattedPosts,
             projects: userProjects,
             newProjects,
             avatarUrl,
@@ -93,7 +100,6 @@ router.get('/dashboard', async (req, res) => {
 router.post('/dashboard', async (req, res) => {
     const { title, description, steps } = req.body;
     try {
-        // Create new project
         const [newProject] = await db.insert(projects)
             .values({
                 title,
@@ -102,7 +108,6 @@ router.post('/dashboard', async (req, res) => {
             })
             .returning();
 
-        // Create steps
         if (steps && steps.length) {
             await db.insert(steps)
                 .values(steps.map(stepDescription => ({
