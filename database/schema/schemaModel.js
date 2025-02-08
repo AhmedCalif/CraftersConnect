@@ -56,7 +56,7 @@ const { sqliteTable, text, integer, primaryKey }= require('drizzle-orm/sqlite-co
 
  const likes = sqliteTable('likes', {
   likeId: integer('like_id').primaryKey({ autoIncrement: true }),
-  likedBy: text('liked_by').notNull(),
+  likedBy: integer('liked_by').references(() => users.userId).notNull(),
   postId: integer('post_id').references(() => posts.postId, { onDelete: 'cascade' }),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),

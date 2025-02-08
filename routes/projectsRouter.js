@@ -111,6 +111,8 @@ router.get("/", ensureAuthenticated, async (req, res) => {
             query = query.orderBy(sortOrder === 'desc' ? desc(schema.projects[sortBy]) : schema.projects[sortBy]);
         }
 
+        console.log("Image Link", schema.images.link)
+
         let projectsData = await query;
         const projectIds = projectsData.map(p => p.projectId);
 
@@ -122,21 +124,25 @@ router.get("/", ensureAuthenticated, async (req, res) => {
         .where(inArray(schema.collaborators.projectId, projectIds))
         .leftJoin(schema.users, eq(schema.collaborators.userId, schema.users.userId));
 
-        // Format the projects data to match the template expectations
-        const formattedProjects = projectsData.map(project => ({
-            projectId: project.projectId,
-            title: project.title,
-            description: project.description,
-            date: project.date,
-            Image: project.imageUrl ? { link: project.imageUrl } : null,
-            Creator: {
-                username: project.creatorUsername.username
-            },
-            Collaborators: collaboratorsData
-                .filter(c => c.projectId === project.projectId)
-                .map(c => ({ username: c.username }))
-        }));
-
+        
+        const formattedProjects = projectsData.map(project => {
+    console.log("Project image URL:", project.imageUrl); 
+    return {
+        projectId: project.projectId,
+        title: project.title,
+        description: project.description,
+        date: project.date,
+        Image: {
+            link: project.imageUrl || 'https://i.pravatar.cc/150?img=3'
+        },
+        Creator: {
+            username: project.creatorUsername.username
+        },
+        Collaborators: collaboratorsData
+            .filter(c => c.projectId === project.projectId)
+            .map(c => ({ username: c.username }))
+    };
+});
         res.render('projects/search', {
             projects: formattedProjects,
             username: req.session.username,
@@ -260,7 +266,7 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
             },
             Steps: projectSteps || [],
             MoodImages: projectMoodImages || [],
-            Image: projectData.imageUrl ? { link: projectData.imageUrl } : null
+            Image: projectData.imageUrl? { link: projectData.imageUrl } : null
         };
 
         const collaborators = projectCollaborators.map(c => ({

@@ -36,7 +36,7 @@
         <% posts.forEach(post => { %>
             <div class="card mb-4" id="post-<%= post.postId %>">
                 <div class="card-content">
-                    <img src="<%= post.creator && post.creator.Avatar ? post.creator.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" class="custom-img">
+                   <img src="<%= post.creator && post.creator.avatar ? post.creator.avatar.imageUrl : 'https://i.pravatar.cc/150?img=3' %>" alt="User Avatar" class="custom-img"> 
                     <div class="card-details">
                         <strong class="card-title"><%= post.creator ? post.creator.username : 'Unknown User' %></strong>
                         <p class="card-text"><%= post.title %></p>

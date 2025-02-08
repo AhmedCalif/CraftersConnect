@@ -27,7 +27,6 @@ const uploadFile = uploadMiddleware("/uploads");
 
 router.get("/", ensureAuthenticated, async (req, res) => {
     try {
-        // Get user data
         const userData = await db
             .select()
             .from(users)
@@ -39,13 +38,11 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 
         const user = userData[0];
 
-        // Get avatar data
         const avatarData = await db
             .select()
             .from(avatars)
             .where(eq(avatars.userId, user.userId));
 
-        // Get liked posts
         const likedPostsData = await db
             .select({
                 likeId: likes.likeId,
@@ -116,7 +113,6 @@ router.post("/upload-avatar", ensureAuthenticated, uploadFile.single("avatar"), 
 
 router.get("/liked-posts", ensureAuthenticated, async (req, res) => {
     try {
-        // Get user data
         const userData = await db
             .select()
             .from(users)
@@ -128,13 +124,11 @@ router.get("/liked-posts", ensureAuthenticated, async (req, res) => {
 
         const user = userData[0];
 
-        // Get avatar data
         const avatarData = await db
             .select()
             .from(avatars)
             .where(eq(avatars.userId, user.userId));
 
-        // Get liked posts
         const likedPostsData = await db
             .select({
                 likeId: likes.likeId,

@@ -1,7 +1,7 @@
 const express = require('express');
-const { db } = require('../database/databaseConnection.js')
-const { eq, and } = require('drizzle-orm');
-const { users, posts, projects, avatars, images, collaborators } = require('../database/schema/schemaModel.js')
+const { db } = require('../database/databaseConnection.js');
+const { eq } = require('drizzle-orm');
+const { users, posts, projects, avatars, images, collaborators } = require('../database/schema/schemaModel.js');
 const { ensureAuthenticated } = require('../middleware/middleware.js');
 
 const router = express.Router();
@@ -12,83 +12,144 @@ router.get('/dashboard', async (req, res) => {
     }
 
     try {
+        const userData = await db.select({
+            userId: users.userId,
+            username: users.username,
+            email: users.email,
+            avatarUrl: avatars.imageUrl
+        })
+        .from(users)
+        .leftJoin(avatars, eq(users.userId, avatars.userId))
+        .where(eq(users.username, req.session.username));
 
-        const user = await db.select()
-            .from(users)
-            .leftJoin(avatars, eq(users.userId, avatars.userId))
-            .where(eq(users.username, req.session.username))
-            .get();
+        const user = userData[0];
 
         if (!user) {
             return res.status(404).send("User not found");
         }
 
-       const postsData = await db.select({
-            post: posts,
-            creator: {
-            username: users.username,
-            userId: users.userId,
-            Avatar: {
-            imageUrl: avatars.imageUrl
-        }
-        }
+        const postsData = await db.select({
+            postId: posts.postId,
+            title: posts.title,
+            description: posts.description,
+            currentLikes: posts.currentLikes,
+            createdAt: posts.createdAt,
+            creatorUsername: users.username,
+            creatorAvatar: avatars.imageUrl
         })
         .from(posts)
         .leftJoin(users, eq(posts.createdBy, users.userId))
+        .leftJoin(avatars, eq(users.userId, avatars.userId));
+
+        // Get projects created by the user
+        const createdProjects = await db.select({
+            projectId: projects.projectId,
+            title: projects.title,
+            description: projects.description,
+            date: projects.date,
+            createdAt: projects.createdAt,
+            creatorUsername: users.username,
+            creatorAvatar: avatars.imageUrl,
+            imageLink: images.link
+        })
+        .from(projects)
+        .leftJoin(users, eq(projects.userId, users.userId))
         .leftJoin(avatars, eq(users.userId, avatars.userId))
+        .leftJoin(images, eq(projects.projectId, images.projectId))
+        .where(eq(projects.userId, user.userId));
 
+        // Get projects where user is a collaborator
+        const collaboratedProjects = await db.select({
+            projectId: projects.projectId,
+            title: projects.title,
+            description: projects.description,
+            date: projects.date,
+            createdAt: projects.createdAt,
+            creatorUsername: users.username,
+            creatorAvatar: avatars.imageUrl,
+            imageLink: images.link
+        })
+        .from(projects)
+        .leftJoin(collaborators, eq(projects.projectId, collaborators.projectId))
+        .leftJoin(users, eq(projects.userId, users.userId))
+        .leftJoin(avatars, eq(users.userId, avatars.userId))
+        .leftJoin(images, eq(projects.projectId, images.projectId))
+        .where(eq(collaborators.userId, user.userId));
 
-
-        const createdProjects = await db.select()
-            .from(projects)
-            .leftJoin(users, eq(projects.userId, users.userId))
-            .leftJoin(images, eq(projects.projectId, images.projectId))
-            .where(eq(projects.userId, user.users.userId));
-
-        const collaboratedProjects = await db.select()
-            .from(projects)
-            .leftJoin(collaborators, eq(projects.projectId, collaborators.projectId))
-            .leftJoin(users, eq(projects.userId, users.userId))
-            .leftJoin(avatars, eq(users.userId, avatars.userId))
-            .leftJoin(images, eq(projects.projectId, images.projectId))
-            .where(eq(collaborators.userId, user.users.userId));
-
+        // Combine and format all projects
         const allProjects = [...createdProjects, ...collaboratedProjects]
             .filter((project, index, self) => 
-                index === self.findIndex((p) => p.projects.projectId === project.projects.projectId)
-            );
+                index === self.findIndex((p) => p.projectId === project.projectId)
+            )
+            .map(project => ({
+                projectId: project.projectId,
+                title: project.title,
+                description: project.description,
+                date: project.date,
+                createdAt: project.createdAt,
+                creator: {
+                    username: project.creatorUsername
+                },
+                Image: {
+                    link: project.imageLink || 'https://i.pravatar.cc/150?img=3'
+                }
+            }));
 
+        // Format posts
         const formattedPosts = postsData.map(post => ({
-    ...post.post,
-    creator: {
-        username: post.creator.username,
-        Avatar: {
-            imageUrl: post.creator.Avatar.imageUrl
-        }
-    }
-}));
-        const userProjects = await db.select()
-            .from(projects)
-            .where(eq(projects.userId, user.users.userId));
-        
-        
-        
-            const newProjects = await db.select()
-            .from(projects)
-            .leftJoin(users, eq(projects.userId, users.userId))
-            .leftJoin(avatars, eq(users.userId, avatars.userId))
-            .leftJoin(images, eq(projects.projectId, images.projectId))
-            .orderBy(projects.createdAt)
-            .limit(5);
+            postId: post.postId,
+            title: post.title,
+            description: post.description,
+            currentLikes: post.currentLikes,
+            createdAt: post.createdAt,
+            creator: {
+                username: post.creatorUsername,
+                Avatar: {
+                    imageUrl: post.creatorAvatar || 'https://i.pravatar.cc/150?img=3'
+                }
+            }
+        }));
 
-        const avatarUrl = user.avatars?.imageUrl || 'https://i.pravatar.cc/150?img=3';
+        const newProjectsData = await db.select({
+            projectId: projects.projectId,
+            title: projects.title,
+            description: projects.description,
+            date: projects.date,
+            createdAt: projects.createdAt,
+            creatorUsername: users.username,
+            creatorAvatar: avatars.imageUrl,
+            imageLink: images.link
+        })
+        .from(projects)
+        .leftJoin(users, eq(projects.userId, users.userId))
+        .leftJoin(avatars, eq(users.userId, avatars.userId))
+        .leftJoin(images, eq(projects.projectId, images.projectId))
+        .orderBy(projects.createdAt)
+        .limit(5);
+
+        const newProjects = newProjectsData.map(project => ({
+            projectId: project.projectId,
+            title: project.title,
+            description: project.description,
+            date: project.date,
+            createdAt: project.createdAt,
+            creator: {
+                username: project.creatorUsername
+            },
+            Image: {
+                link: project.imageLink || 'https://i.pravatar.cc/150?img=3'
+            }
+        }));
 
         res.render('home/dashboard', {
-            user: user.users,
+            user: {
+                userId: user.userId,
+                username: user.username,
+                email: user.email
+            },
             posts: formattedPosts,
-            projects: userProjects,
+            projects: allProjects,
             newProjects,
-            avatarUrl,
             allProjects
         });
     } catch (error) {
@@ -116,7 +177,6 @@ router.post('/dashboard', async (req, res) => {
                 })));
         }
 
-        console.log(newProject);
         res.redirect('/dashboard');
     } catch (error) {
         console.error("Error creating project:", error);
