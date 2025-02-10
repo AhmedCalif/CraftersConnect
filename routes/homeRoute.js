@@ -41,7 +41,6 @@ router.get('/dashboard', async (req, res) => {
         .leftJoin(users, eq(posts.createdBy, users.userId))
         .leftJoin(avatars, eq(users.userId, avatars.userId));
 
-        // Get projects created by the user
         const createdProjects = await db.select({
             projectId: projects.projectId,
             title: projects.title,

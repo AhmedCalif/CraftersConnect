@@ -1,17 +1,21 @@
 // chatRoute.js
 const express = require('express');
 const { db } = require('../database/databaseConnection.js');
-const { chats, users, likeChats } = require('../database/schema/schemaModel.js')
+const { chats, users, likeChats } = require('../database/schema/schemaModel.js');
 const { eq, and } = require('drizzle-orm');
 const { ensureAuthenticated } = require('../middleware/middleware.js');
 const { JSDOM } = require('jsdom');
 const createDOMPurify = require('dompurify');
-
 const router = express.Router();
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
 
-// Get all chat messages for a specific project
+
+router.setSocketIO = function(socketIO) {
+    io = socketIO;
+};
+
+
 router.get('/:projectId', ensureAuthenticated, async (req, res) => {
     try {
         const { projectId } = req.params;
@@ -22,43 +26,51 @@ router.get('/:projectId', ensureAuthenticated, async (req, res) => {
             userId: chats.userId,
             projectId: chats.projectId,
             createdAt: chats.createdAt,
-            username: users.username
+            username: users.username,
         })
         .from(chats)
         .leftJoin(users, eq(chats.userId, users.userId))
         .where(eq(chats.projectId, projectId))
         .orderBy(chats.createdAt);
 
-        res.json(chatMessages);
+        const messagesWithLikes = await Promise.all(chatMessages.map(async (chat) => {
+            const likes = await db.select()
+                .from(likeChats)
+                .where(eq(likeChats.chatId, chat.chatId));
+            
+            return {
+                ...chat,
+                likes: likes.length,
+                isLiked: likes.some(like => like.userId === req.session.userId)
+            };
+        }));
+
+        res.json(messagesWithLikes);
     } catch (error) {
         console.error('Error fetching chat messages:', error);
-        res.status(500).send('Server Error');
+        res.status(500).json({ error: 'Server Error' });
     }
 });
 
-// Post a new chat message
 router.post('/', ensureAuthenticated, async (req, res) => {
     try {
         const { message, projectId } = req.body;
         const userId = req.session.userId;
 
-        if (!message || !projectId || !userId) {
+        if (!message?.trim() || !projectId || !userId) {
             return res.status(400).json({ error: 'Message, projectId, and userId are required' });
         }
 
-        // Sanitize the message
         const sanitizedMessage = DOMPurify.sanitize(message);
 
-        // Create new chat message
         const [newChat] = await db.insert(chats)
             .values({
                 message: sanitizedMessage,
-                projectId,
+                projectId: Number(projectId),
                 userId
             })
             .returning();
 
-        // Get chat with user details
         const chatWithUser = await db.select({
             chatId: chats.chatId,
             message: chats.message,
@@ -72,14 +84,20 @@ router.post('/', ensureAuthenticated, async (req, res) => {
         .where(eq(chats.chatId, newChat.chatId))
         .get();
 
+        
+
+        if (io) {
+            io.to(chats.projectId.toString()).emit('chat message', chatWithUser);
+        }
+
+
         res.json(chatWithUser);
     } catch (error) {
         console.error('Error saving chat message:', error);
-        res.status(500).send('Server Error');
+        res.status(500).json({ error: 'Server Error' });
     }
 });
 
-// Like a chat message
 router.post('/:chatId/like', ensureAuthenticated, async (req, res) => {
     const { chatId } = req.params;
     const userId = req.session.userId;
@@ -87,7 +105,7 @@ router.post('/:chatId/like', ensureAuthenticated, async (req, res) => {
     try {
         const chat = await db.select()
             .from(chats)
-            .where(eq(chats.chatId, chatId))
+            .where(eq(chats.chatId, Number(chatId)))
             .get();
 
         if (!chat) {
@@ -97,26 +115,25 @@ router.post('/:chatId/like', ensureAuthenticated, async (req, res) => {
         const existingLike = await db.select()
             .from(likeChats)
             .where(and(
-                eq(likeChats.chatId, chatId),
+                eq(likeChats.chatId, Number(chatId)),
                 eq(likeChats.userId, userId)
             ))
             .get();
 
         if (existingLike) {
-            return res.status(400).json({ error: 'Chat message already liked by user' });
+            return res.status(400).json({ error: 'Message already liked' });
         }
 
         await db.insert(likeChats)
-            .values({ chatId, userId });
+            .values({ chatId: Number(chatId), userId });
 
-        res.json({ chatId, liked: true });
+        res.json({ success: true, chatId, action: 'liked' });
     } catch (error) {
         console.error('Error liking chat message:', error);
-        res.status(500).send('Server Error');
+        res.status(500).json({ error: 'Server Error' });
     }
 });
 
-// Unlike a chat message
 router.post('/:chatId/unlike', ensureAuthenticated, async (req, res) => {
     const { chatId } = req.params;
     const userId = req.session.userId;
@@ -124,7 +141,7 @@ router.post('/:chatId/unlike', ensureAuthenticated, async (req, res) => {
     try {
         const chat = await db.select()
             .from(chats)
-            .where(eq(chats.chatId, chatId))
+            .where(eq(chats.chatId, Number(chatId)))
             .get();
 
         if (!chat) {
@@ -133,23 +150,22 @@ router.post('/:chatId/unlike', ensureAuthenticated, async (req, res) => {
 
         const result = await db.delete(likeChats)
             .where(and(
-                eq(likeChats.chatId, chatId),
+                eq(likeChats.chatId, Number(chatId)),
                 eq(likeChats.userId, userId)
             ))
             .run();
 
         if (result.changes === 0) {
-            return res.status(400).json({ error: 'Chat message not liked by user' });
+            return res.status(400).json({ error: 'Message not liked' });
         }
 
-        res.json({ chatId, unliked: true });
+        res.json({ success: true, chatId, action: 'unliked' });
     } catch (error) {
         console.error('Error unliking chat message:', error);
-        res.status(500).send('Server Error');
+        res.status(500).json({ error: 'Server Error' });
     }
 });
 
-// Delete a chat message
 router.delete('/:chatId/delete', ensureAuthenticated, async (req, res) => {
     const { chatId } = req.params;
     const userId = req.session.userId;
@@ -157,7 +173,7 @@ router.delete('/:chatId/delete', ensureAuthenticated, async (req, res) => {
     try {
         const chat = await db.select()
             .from(chats)
-            .where(eq(chats.chatId, chatId))
+            .where(eq(chats.chatId, Number(chatId)))
             .get();
 
         if (!chat) {
@@ -165,17 +181,21 @@ router.delete('/:chatId/delete', ensureAuthenticated, async (req, res) => {
         }
 
         if (chat.userId !== userId) {
-            return res.status(403).json({ error: 'Unauthorized to delete chat message' });
+            return res.status(403).json({ error: 'Not authorized to delete this message' });
         }
 
         await db.delete(chats)
-            .where(eq(chats.chatId, chatId))
+            .where(eq(chats.chatId, Number(chatId)))
             .run();
 
-        res.json({ message: 'Chat message deleted' });
+        if (io) {
+            io.to(chat.projectId.toString()).emit('chat deleted', chatId);
+        }
+
+        res.json({ success: true, message: 'Chat message deleted' });
     } catch (error) {
         console.error('Error deleting chat message:', error);
-        res.status(500).send('Server Error');
+        res.status(500).json({ error: 'Server Error' });
     }
 });
 

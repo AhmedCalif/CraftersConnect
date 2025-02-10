@@ -27,6 +27,7 @@ io.on('connection', (socket) => {
       console.log('user disconnected');
     });
   });
+chatRouter.setSocketIO(io);
   
 
 app.use(session({

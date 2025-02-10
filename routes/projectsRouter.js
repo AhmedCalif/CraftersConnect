@@ -15,7 +15,6 @@ const router = express.Router();
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
 
-// Cloudinary storage setup
 const storage = new CloudinaryStorage({
     cloudinary,
     params: (req, file) => ({
@@ -28,7 +27,6 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-// Cover Image Upload Routes
 router.post('/upload-coverImage', upload.single('coverImage'), async (req, res) => {
     try {
         if (!req.file?.path) {
@@ -74,7 +72,6 @@ router.post('/:projectId/upload-coverImage', ensureAuthenticated, upload.single(
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 });
-// Project CRUD Routes
 router.get("/", ensureAuthenticated, async (req, res) => {
     try {
         const [user] = await db.select()
@@ -162,6 +159,12 @@ router.get("/create", ensureAuthenticated, (req, res) => {
 
 router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (req, res) => {
     try {
+        console.log('File upload data:', {
+            file: req.file,
+            path: req.file?.path,
+            originalName: req.file?.originalname
+        });
+
         const { title, description, steps, date } = req.body;
         const [user] = await db.select()
             .from(schema.users)
@@ -183,21 +186,29 @@ router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (
             })
             .returning();
 
+        console.log('Created project:', newProject);
+
         if (req.file?.path) {
-            await db.insert(schema.images)
+            const [newImage] = await db.insert(schema.images)
                 .values({
                     link: req.file.path,
                     projectId: newProject.projectId
-                });
+                })
+                .returning();
+            
+            console.log('Created image record:', newImage);
         }
 
         if (steps?.length) {
-            await db.insert(schema.steps)
+            const newSteps = await db.insert(schema.steps)
                 .values(steps.map(step => ({
                     description: DOMPurify.sanitize(step),
                     projectId: newProject.projectId,
                     completed: false
-                })));
+                })))
+                .returning();
+            
+            console.log('Created steps:', newSteps);
         }
 
         res.redirect(`/projects/${newProject.projectId}`);
@@ -206,11 +217,16 @@ router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (
         res.status(500).send("Failed to create project");
     }
 });
+
 router.get("/:id", ensureAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.session.userId;
         
-        // First fetch project with basic joins
+        // Debug log
+        console.log(`Fetching project ${id} for user ${userId}`);
+        
+        // Get project data with all necessary fields
         const [projectData] = await db.select({
             projectId: schema.projects.projectId,
             title: schema.projects.title,
@@ -230,7 +246,7 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
             return res.status(404).json({ message: "Project not found" });
         }
 
-        // Fetch steps
+        // Get project steps
         const projectSteps = await db.select({
             stepId: schema.steps.stepId,
             description: schema.steps.description,
@@ -239,8 +255,8 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
         .from(schema.steps)
         .where(eq(schema.steps.projectId, parseInt(id)));
 
-        // Fetch collaborators
-        const projectCollaborators = await db.select({
+        // Get collaborators
+        const collaborators = await db.select({
             userId: schema.users.userId,
             username: schema.users.username,
             avatarUrl: schema.avatars.imageUrl
@@ -250,36 +266,45 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
         .leftJoin(schema.users, eq(schema.collaborators.userId, schema.users.userId))
         .leftJoin(schema.avatars, eq(schema.users.userId, schema.avatars.userId));
 
-        // Fetch mood images
-        const projectMoodImages = await db.select({
+        // Get mood board images
+        const moodImages = await db.select({
             link: schema.moodImages.link,
             uploadedBy: schema.moodImages.uploadedBy
         })
         .from(schema.moodImages)
         .where(eq(schema.moodImages.projectId, parseInt(id)));
 
-        // Construct the complete project object
+        // Structure the complete project object
         const project = {
             ...projectData,
             Creator: {
                 username: projectData.creatorUsername
             },
-            Steps: projectSteps || [],
-            MoodImages: projectMoodImages || [],
-            Image: projectData.imageUrl? { link: projectData.imageUrl } : null
+            Image: {
+                link: projectData.imageUrl || 'https://i.pravatar.cc/150?img=3'
+            },
+            Steps: projectSteps || [], // Ensure Steps is always an array
+            MoodImages: moodImages || []
         };
 
-        const collaborators = projectCollaborators.map(c => ({
-            userId: c.userId,
-            username: c.username,
-            avatarUrl: c.avatarUrl || 'https://i.pravatar.cc/150?img=3'
-        }));
+        // Debug logs
+        console.log('Project data:', {
+            id: project.projectId,
+            title: project.title,
+            imageUrl: project.Image.link,
+            stepsCount: project.Steps.length
+        });
+
+        const isCreator = projectData.userId === userId;
+        const isCollaborator = collaborators.some(c => c.userId === userId);
 
         res.render('projects/show', {
             project,
             loggedInUsername: req.session.username,
-            loggedInUserId: req.session.userId,
-            collaborators
+            loggedInUserId: userId,
+            collaborators,
+            isCreator,
+            isCollaborator,
         });
     } catch (err) {
         console.error("Error fetching project:", err);
@@ -287,7 +312,7 @@ router.get("/:id", ensureAuthenticated, async (req, res) => {
     }
 });
 
-// Project Update Routes
+
 router.get('/:id/update', ensureAuthenticated, async (req, res) => {
     try {
         const [project] = await db.select()
@@ -344,6 +369,48 @@ router.post('/:id/update', ensureAuthenticated, async (req, res) => {
     } catch (err) {
         console.error("Error updating project:", err);
         res.status(500).send("Failed to update project");
+    }
+});
+
+
+router.post('/:projectId/delete', ensureAuthenticated, async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        
+        const [project] = await db.select()
+            .from(schema.projects)
+            .where(eq(schema.projects.projectId, parseInt(projectId)))
+            .limit(1);
+
+        if (!project) {
+            return res.status(404).json({ message: 'Project not found' });
+        }
+
+        if (project.userId !== req.session.userId) {
+            return res.status(403).json({ message: 'Unauthorized to delete this project' });
+        }
+        await db.delete(schema.collaborators)
+            .where(eq(schema.collaborators.projectId, parseInt(projectId)));
+
+        await db.delete(schema.steps)
+            .where(eq(schema.steps.projectId, parseInt(projectId)));
+
+        await db.delete(schema.chats)
+        .where(eq(schema.chats.projectId, parseInt(projectId)))
+
+        await db.delete(schema.moodImages)
+            .where(eq(schema.moodImages.projectId, parseInt(projectId)));
+
+        await db.delete(schema.images)
+            .where(eq(schema.images.projectId, parseInt(projectId)));
+
+        await db.delete(schema.projects)
+            .where(eq(schema.projects.projectId, parseInt(projectId)));
+
+        res.status(200).json({ message: 'Project deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting project:', error);
+        res.status(500).json({ message: 'Failed to delete project' });
     }
 });
 
@@ -486,5 +553,30 @@ router.delete('/image-link', async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
+
+router.post('/steps/:stepId/toggle', ensureAuthenticated, async (req, res) => {
+    try {
+        const { stepId } = req.params;
+        const { completed } = req.body;
+
+        const [updatedStep] = await db.update(schema.steps)
+            .set({
+                completed: completed,
+                updatedAt: new Date()
+            })
+            .where(eq(schema.steps.stepId, parseInt(stepId)))
+            .returning();
+
+        if (!updatedStep) {
+            return res.status(404).json({ success: false, message: 'Step not found' });
+        }
+
+        res.json({ success: true, step: updatedStep });
+    } catch (error) {
+        console.error('Error toggling step completion:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
 
 module.exports = router;

@@ -102,6 +102,7 @@ router.post("/create", ensureAuthenticated, upload.single('coverImage'), async (
 });
 
 // Get created projects
+// Get created projects
 router.get("/created", ensureAuthenticated, async (req, res) => {
     try {
         const user = await db.select()
@@ -115,28 +116,38 @@ router.get("/created", ensureAuthenticated, async (req, res) => {
         }
 
         // Get created projects with all related data
-        const createdProjects = await db.select()
-            .from(projects)
-            .leftJoin(users, eq(projects.userId, users.userId))
-            .leftJoin(avatars, eq(users.userId, avatars.userId))
-            .leftJoin(steps, eq(projects.projectId, steps.projectId))
-            .leftJoin(images, eq(projects.projectId, images.projectId))
-            .where(eq(projects.userId, user.users.userId));
+        const createdProjects = await db.select({
+            project: projects,
+            user: users,
+            avatar: avatars,
+            step: steps,
+            image: {
+                link: images.link
+            }
+        })
+        .from(projects)
+        .leftJoin(users, eq(projects.userId, users.userId))
+        .leftJoin(avatars, eq(users.userId, avatars.userId))
+        .leftJoin(steps, eq(projects.projectId, steps.projectId))
+        .leftJoin(images, eq(projects.projectId, images.projectId))
+        .where(eq(projects.userId, user.users.userId));
 
         // Process projects to handle joins correctly
         const processedProjects = createdProjects.reduce((acc, row) => {
-            const projectId = row.projects.projectId;
+            const projectId = row.project.projectId;
             if (!acc[projectId]) {
                 acc[projectId] = {
-                    ...row.projects,
-                    creator: row.users,
-                    avatar: row.avatars,
+                    ...row.project,
+                    creator: row.user,
+                    avatar: row.avatar,
                     steps: [],
-                    image: row.images
+                    Image: {
+                        link: row.image?.link || 'https://i.pravatar.cc/150?img=3'
+                    }
                 };
             }
-            if (row.steps) {
-                acc[projectId].steps.push(row.steps);
+            if (row.step) {
+                acc[projectId].steps.push(row.step);
             }
             return acc;
         }, {});
@@ -169,29 +180,39 @@ router.get("/collaborated", ensureAuthenticated, async (req, res) => {
         }
 
         // Get projects where user is a collaborator
-        const collaboratedProjects = await db.select()
-            .from(projects)
-            .leftJoin(collaborators, eq(projects.projectId, collaborators.projectId))
-            .leftJoin(users, eq(projects.userId, users.userId))
-            .leftJoin(avatars, eq(users.userId, avatars.userId))
-            .leftJoin(steps, eq(projects.projectId, steps.projectId))
-            .leftJoin(images, eq(projects.projectId, images.projectId))
-            .where(eq(collaborators.userId, user.users.userId));
+        const collaboratedProjects = await db.select({
+            project: projects,
+            user: users,
+            avatar: avatars,
+            step: steps,
+            image: {
+                link: images.link
+            }
+        })
+        .from(projects)
+        .leftJoin(collaborators, eq(projects.projectId, collaborators.projectId))
+        .leftJoin(users, eq(projects.userId, users.userId))
+        .leftJoin(avatars, eq(users.userId, avatars.userId))
+        .leftJoin(steps, eq(projects.projectId, steps.projectId))
+        .leftJoin(images, eq(projects.projectId, images.projectId))
+        .where(eq(collaborators.userId, user.users.userId));
 
         // Process projects to handle joins correctly
         const processedProjects = collaboratedProjects.reduce((acc, row) => {
-            const projectId = row.projects.projectId;
+            const projectId = row.project.projectId;
             if (!acc[projectId]) {
                 acc[projectId] = {
-                    ...row.projects,
-                    creator: row.users,
-                    avatar: row.avatars,
+                    ...row.project,
+                    creator: row.user,
+                    avatar: row.avatar,
                     steps: [],
-                    image: row.images
+                    Image: {
+                        link: row.image?.link || 'https://i.pravatar.cc/150?img=3'
+                    }
                 };
             }
-            if (row.steps) {
-                acc[projectId].steps.push(row.steps);
+            if (row.step) {
+                acc[projectId].steps.push(row.step);
             }
             return acc;
         }, {});
@@ -210,7 +231,7 @@ router.get("/collaborated", ensureAuthenticated, async (req, res) => {
     }
 });
 
-// Get all user's projects (both created and collaborated)
+// Get all user's projects
 router.get("/all", ensureAuthenticated, async (req, res) => {
     try {
         const user = await db.select()
@@ -224,39 +245,57 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
         }
 
         // Get created projects
-        const createdProjects = await db.select()
-            .from(projects)
-            .leftJoin(users, eq(projects.userId, users.userId))
-            .leftJoin(avatars, eq(users.userId, avatars.userId))
-            .leftJoin(steps, eq(projects.projectId, steps.projectId))
-            .leftJoin(images, eq(projects.projectId, images.projectId))
-            .where(eq(projects.userId, user.users.userId));
+        const createdProjects = await db.select({
+            project: projects,
+            user: users,
+            avatar: avatars,
+            step: steps,
+            image: {
+                link: images.link
+            }
+        })
+        .from(projects)
+        .leftJoin(users, eq(projects.userId, users.userId))
+        .leftJoin(avatars, eq(users.userId, avatars.userId))
+        .leftJoin(steps, eq(projects.projectId, steps.projectId))
+        .leftJoin(images, eq(projects.projectId, images.projectId))
+        .where(eq(projects.userId, user.users.userId));
 
         // Get collaborated projects
-        const collaboratedProjects = await db.select()
-            .from(projects)
-            .leftJoin(collaborators, eq(projects.projectId, collaborators.projectId))
-            .leftJoin(users, eq(projects.userId, users.userId))
-            .leftJoin(avatars, eq(users.userId, avatars.userId))
-            .leftJoin(steps, eq(projects.projectId, steps.projectId))
-            .leftJoin(images, eq(projects.projectId, images.projectId))
-            .where(eq(collaborators.userId, user.users.userId));
+        const collaboratedProjects = await db.select({
+            project: projects,
+            user: users,
+            avatar: avatars,
+            step: steps,
+            image: {
+                link: images.link
+            }
+        })
+        .from(projects)
+        .leftJoin(collaborators, eq(projects.projectId, collaborators.projectId))
+        .leftJoin(users, eq(projects.userId, users.userId))
+        .leftJoin(avatars, eq(users.userId, avatars.userId))
+        .leftJoin(steps, eq(projects.projectId, steps.projectId))
+        .leftJoin(images, eq(projects.projectId, images.projectId))
+        .where(eq(collaborators.userId, user.users.userId));
 
-        // Process and combine projects
+        // Process projects function
         const processProjects = (projects) => {
             return projects.reduce((acc, row) => {
-                const projectId = row.projects.projectId;
+                const projectId = row.project.projectId;
                 if (!acc[projectId]) {
                     acc[projectId] = {
-                        ...row.projects,
-                        creator: row.users,
-                        avatar: row.avatars,
+                        ...row.project,
+                        creator: row.user,
+                        avatar: row.avatar,
                         steps: [],
-                        image: row.images
+                        Image: {
+                            link: row.image?.link || 'https://i.pravatar.cc/150?img=3'
+                        }
                     };
                 }
-                if (row.steps) {
-                    acc[projectId].steps.push(row.steps);
+                if (row.step) {
+                    acc[projectId].steps.push(row.step);
                 }
                 return acc;
             }, {});
@@ -265,7 +304,6 @@ router.get("/all", ensureAuthenticated, async (req, res) => {
         const processedCreated = processProjects(createdProjects);
         const processedCollaborated = processProjects(collaboratedProjects);
 
-        // Combine and deduplicate projects
         const allProjects = [...Object.values(processedCreated), ...Object.values(processedCollaborated)]
             .filter((project, index, self) => 
                 index === self.findIndex((p) => p.projectId === project.projectId)

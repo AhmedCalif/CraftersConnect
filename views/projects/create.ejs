@@ -11,134 +11,176 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>
 <body>
-  <div class="container mt-4">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h1>Create a New Project</h1>
-        <label for="coverImage" class="btn btn-outline-secondary">
-          <i class="fas fa-camera"></i> Add Image
-        </label>
-        <input type="file" id="coverImage" name="coverImage" accept="image/*" class="img-upload d-none">
-      </div>
-      <div class="card-body">
-        <img id="coverImagePreview" src="https://i.pravatar.cc/500?img=4" alt="Project Cover" class="custom-img img-fluid mb-3">
-        <form id="projectForm" action="/projects/create" method="POST" enctype="multipart/form-data">
-          <input type="hidden" name="username" value="<%= username %>" />
-          <input type="hidden" id="date" name="date">
-          <input type="hidden" id="coverImageUrl" name="coverImageUrl">
-          <div class="form-group">
-            <label for="title">Project Name</label>
-            <input type="text" name="title" class="form-control" placeholder="What do you want to do?" required />
-          </div>
-          <div class="form-group">
-            <label for="description">About the Project</label>
-            <textarea name="description" class="form-control" placeholder="What's it all about?" required></textarea>
-          </div>
-          <div id="stepsContainer" class="form-group">
-            <label>Process</label>
-            <div class="input-group mb-3">
-              <input type="text" name="steps[]" class="form-control" placeholder="Step 1" required> 
-              <div class="input-group-append">
-                <button type="button" class="btn btn-danger deleteStepBtn">Delete</button>
-              </div>
+<div class="container mt-4 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h1 class="mb-0">Create a New Project</h1>
+                <label for="coverImage" class="btn btn-outline-secondary mb-0">
+                    <i class="fas fa-camera"></i> Add Image
+                </label>
             </div>
-          </div>
-          <div class="d-flex justify-content-between">
-            <button type="button" id="addStepBtn" class="btn btn-success">Add step</button>
-            <div>
-              <button type="submit" class="btn btn-primary">Create</button>
-              <a href="/my-projects/all" class="btn btn-secondary">Go Back</a>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+            <div class="card-body">
+                <img id="coverImagePreview" src="https://i.pravatar.cc/500?img=4" alt="Project Cover" class="custom-img img-fluid mb-3">
+                <form id="projectForm" action="/projects/create" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="username" value="<%= username %>" />
+                    <input type="hidden" id="date" name="date">
+                    <input type="file" id="coverImage" name="coverImage" accept="image/*" class="d-none" required>
 
-  <script>
-    document.getElementById("addStepBtn").addEventListener("click", function () {
-      var stepsContainer = document.getElementById("stepsContainer");
-      var newStepDiv = document.createElement("div");
-      newStepDiv.classList.add("input-group", "mb-3");
-      var stepNumber = stepsContainer.getElementsByClassName("input-group").length + 1;
-      newStepDiv.innerHTML = `
-        <input type="text" name="steps[]" class="form-control" placeholder="Step ${stepNumber}" required>
-        <div class="input-group-append">
-          <button type="button" class="btn btn-danger deleteStepBtn">Delete</button>
+                    <div class="form-group">
+                        <label for="title" class="font-weight-bold">Project Name</label>
+                        <input type="text" 
+                               id="title" 
+                               name="title" 
+                               class="form-control" 
+                               placeholder="What do you want to do?" 
+                               required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" class="font-weight-bold">About the Project</label>
+                        <textarea id="description" 
+                                  name="description" 
+                                  class="form-control" 
+                                  placeholder="What's it all about? Describe your project in detail..." 
+                                  required></textarea>
+                    </div>
+
+                    <div id="stepsContainer" class="form-group">
+                        <label class="font-weight-bold">Process</label>
+                        <div class="input-group mb-3">
+                            <input type="text" 
+                                   name="steps[]" 
+                                   class="form-control" 
+                                   placeholder="Step 1" 
+                                   required>
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-danger deleteStepBtn">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="button" id="addStepBtn" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Add Step
+                        </button>
+                        <div>
+                            <a href="/my-projects/all" class="btn btn-secondary mr-2">
+                                <i class="fas fa-arrow-left"></i> Go Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Project
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
-      `;
-      newStepDiv.querySelector(".deleteStepBtn").addEventListener("click", function () {
-        stepsContainer.removeChild(newStepDiv);
-        updateStepNumbers();
-      });
-      stepsContainer.appendChild(newStepDiv);
+    </div> 
+
+ <script>
+    // Add step functionality
+    document.getElementById("addStepBtn").addEventListener("click", function () {
+        var stepsContainer = document.getElementById("stepsContainer");
+        var newStepDiv = document.createElement("div");
+        newStepDiv.classList.add("input-group", "mb-3");
+        var stepNumber = stepsContainer.getElementsByClassName("input-group").length + 1;
+        newStepDiv.innerHTML = `
+            <input type="text" name="steps[]" class="form-control" placeholder="Step ${stepNumber}" required>
+            <div class="input-group-append">
+                <button type="button" class="btn btn-danger deleteStepBtn">Delete</button>
+            </div>
+        `;
+        newStepDiv.querySelector(".deleteStepBtn").addEventListener("click", function () {
+            stepsContainer.removeChild(newStepDiv);
+            updateStepNumbers();
+        });
+        stepsContainer.appendChild(newStepDiv);
     });
 
+    // Update step numbers
     function updateStepNumbers() {
-      var stepsContainer = document.getElementById("stepsContainer");
-      var stepInputs = stepsContainer.getElementsByClassName("input-group");
-      for (var i = 0; i < stepInputs.length; i++) {
-        var input = stepInputs[i].querySelector("input");
-        input.placeholder = `Step ${i + 1}`;
-      }
+        var stepsContainer = document.getElementById("stepsContainer");
+        var stepInputs = stepsContainer.getElementsByClassName("input-group");
+        for (var i = 0; i < stepInputs.length; i++) {
+            var input = stepInputs[i].querySelector("input");
+            input.placeholder = `Step ${i + 1}`;
+        }
     }
 
-    document.querySelector("form").addEventListener("submit", function (event) {
-      const currentDate = new Date().toISOString();
-      document.querySelector('#date').value = currentDate;
-    });
-
-    document.getElementById('coverImage').addEventListener('change', async function() {
-      if (this.files && this.files[0]) {
-        let formData = new FormData();
-        formData.append('coverImage', this.files[0]);
-
-        try {
-          const response = await fetch('/projects/upload-coverImage', {
-            method: 'POST',
-            body: formData
-          });
-
-          const data = await response.json();
-          if (data.success) {
-            document.getElementById('coverImageUrl').value = data.imageUrl;
-            document.getElementById('coverImagePreview').src = URL.createObjectURL(this.files[0]);
-            document.getElementById('coverImagePreview').style.display = 'block';
-            Swal.fire({
-              icon: 'success',
-              title: 'Cover image uploaded successfully!',
-              showConfirmButton: false,
-              timer: 1500
-            });
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Failed to upload cover image',
-              text: 'Please try again later'
-            });
-            console.error('Error:', data.message);
-          }
-        } catch (error) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Failed to upload cover image',
-            text: error.message
-          });
+    // Image preview functionality
+    document.getElementById('coverImage').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('coverImagePreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(this.files[0]);
         }
-      }
     });
 
+    // Form submission
     document.getElementById('projectForm').addEventListener('submit', function(event) {
-      const coverImageUrl = document.getElementById('coverImageUrl').value;
-      if (!coverImageUrl) {
         event.preventDefault();
-        Swal.fire({
-          icon: 'error',
-          title: 'Cover image not uploaded',
-          text: 'Please upload a cover image before submitting the form'
-        });
-      }
+        
+        const coverImage = document.getElementById('coverImage');
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const steps = Array.from(document.querySelectorAll('[name="steps[]"]'))
+                          .map(input => input.value.trim());
+
+        // Validation
+        if (!coverImage.files || coverImage.files.length === 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Cover Image Required',
+                text: 'Please select a cover image for your project'
+            });
+            return;
+        }
+
+        if (title.length < 3) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Title',
+                text: 'Project title must be at least 3 characters long'
+            });
+            return;
+        }
+
+        if (description.length < 10) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Description',
+                text: 'Project description must be at least 10 characters long'
+            });
+            return;
+        }
+
+        if (steps.some(step => step.length < 3)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Steps',
+                text: 'Each step must be at least 3 characters long'
+            });
+            return;
+        }
+
+        // Set current date
+        document.getElementById('date').value = new Date().toISOString();
+
+        // If all validation passes, submit the form
+        this.submit();
     });
-  </script>
+    document.querySelectorAll(".deleteStepBtn").forEach(button => {
+        button.addEventListener("click", function() {
+            this.closest(".input-group").remove();
+            updateStepNumbers();
+        });
+    });
+</script> 
 </body>
 </html>
