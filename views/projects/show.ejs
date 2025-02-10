@@ -8,13 +8,16 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.8/purify.min.js"></script>
-  <script type="text/javascript"
-  src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
-</script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="/config.js"></script>
   <link rel="stylesheet" href="/showProjects.css" />
 </head>
 <body>
+  <!-- Add the hidden inputs at the top for easy access -->
+  <input type="hidden" id="loggedInUsername" value="<%= loggedInUsername %>">
+  <input type="hidden" id="loggedInUserId" value="<%= loggedInUserId %>">
+  <input type="hidden" id="projectId" value="<%= project.projectId %>">
+
   <div id="project-<%= project.projectId %>" class="container mt-4">
     <div class="card p-3 shadow-sm">
       <div class="d-flex justify-content-between align-items-center">
@@ -22,8 +25,6 @@
           <i class="fas fa-arrow-left"></i>
         </a>
         <div class="icon-buttons">
-          <% const isCreator = project.Creator && project.Creator.username === loggedInUsername; %>
-          <% const isCollaborator = project.Collaborators && project.Collaborators.map(c => c.username).includes(loggedInUsername); %>
           <% if (isCreator || isCollaborator) { %>
             <a href="/projects/<%= project.projectId %>/update" class="btn btn-outline-primary mx-1">
               <i class="fas fa-edit"></i>
@@ -48,68 +49,75 @@
           <% } %>
         </div>
       </div>
+
+      <!-- Project Information -->
       <div class="project-info">
-        <img
-          id="projectImage"
-          src="<%= project.Image && project.Image.link ? project.Image.link : 'https://i.pravatar.cc/150?img=3' %>"
-          alt="<%= project.title %> cover image"
-          class="project-img"
-        />
+       <img
+        id="projectImage"
+        src="<%= project.Image.link %>"
+        alt="<%= project.title %> cover image"
+        class="project-img"
+        /> 
         <h4 class="section-title" style="text-align: center"><%= project.title %></h4>
-        <h5 class="section-subtitle" style="text-align: center">by: <%= project.Creator.username %> </h5>
-        <br>
-        <h5 class="section-subtitle">Collaborators</h5>
+        <h5 class="section-subtitle" style="text-align: center">by: <%= project.Creator.username %></h5>
+
+        <!-- Collaborators Section -->
+        <h5 class="section-subtitle mt-4">Collaborators</h5>
         <% if (collaborators.length < 1) { %>
           <p>No collaborators found.</p>
         <% } else { %>
           <% collaborators.forEach(collaborator => { %>
-            <div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
               <span><%= collaborator.username %></span>
-              <% if (isCreator) { %>
-                <form action="/projects/<%= project.projectId %>/collaborator/<%= collaborator.userId %>/remove" method="POST" style="display:inline;">
-                  <button type="button" onclick="removeCollaborator('<%= project.projectId %>', '<%= collaborator.userId %>')" class="btn btn-outline-danger mx-1">
-                    Remove Collaborator
-                  </button>
-                </form>
+              <% if (isCreator && collaborator.userId !== project.userId) { %>
+                <button type="button" onclick="removeCollaborator('<%= project.projectId %>', '<%= collaborator.userId %>')" class="btn btn-outline-danger btn-sm">
+                  Remove Collaborator
+                </button>
               <% } %>
             </div>
           <% }) %>
         <% } %>
 
-        <h5 class="section-subtitle">Progress</h5>
-        <% let completedSteps = 0;
-        if (project.Steps && project.Steps.length > 0) {
-          completedSteps = project.Steps.filter(step => step.completed).length;
-        }
-        const progressPercentage = project.Steps && project.Steps.length > 0 ? (completedSteps / project.Steps.length) * 100 : 0;
-        %>
-        <div class="card-progress mb-3">
-          <div id="progress-bar" class="card-progress-bar" style="width: <%= progressPercentage %>%;"></div>
-        </div>
-        <p class="card-text">
-          <span id="completed-steps"><%= completedSteps %></span> of <span id="total-steps"><%= project.Steps.length %></span> steps completed - <%= Math.ceil(progressPercentage) %>%
-        </p>
-        <ol class="pl-3">
-          <% if (project.Steps && project.Steps.length > 0) { %>
-            <% project.Steps.forEach((step, index) => { %>
-              <li class="mb-2">
-                <strong>Step <%= index + 1 %>:</strong>
-                <p class="step-description"><%= step.description %></p>
-                <input type="checkbox" <%= step.completed ? 'checked' : '' %> onclick="toggleStepCompletion('<%= step.stepId %>', this.checked)" <%= (isCreator || isCollaborator) ? '' : 'disabled' %>> Completed
-                <input type="hidden" name="steps[<%= index %>][completed]" value="<%= step.completed ? 'true' : 'false' %>">
-              </li>
-            <% }) %>
-          <% } else { %>
-            <li>No steps available</li>
-          <% } %>
-        </ol>
-
+        <!-- Progress Section - Available to creators and collaborators -->
         <% if (isCreator || isCollaborator) { %>
+          <h5 class="section-subtitle mt-4">Progress</h5>
+          <% let completedSteps = project.Steps.filter(step => step.completed).length;
+             let totalSteps = project.Steps.length;
+             let progressPercentage = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
+          %>
+          <div class="card-progress mb-3">
+            <div id="progress-bar" class="card-progress-bar" style="width: <%= progressPercentage %>%;"></div>
+          </div>
+          <p class="card-text">
+            <span id="completed-steps"><%= completedSteps %></span> of 
+            <span id="total-steps"><%= totalSteps %></span> steps completed - 
+            <%= Math.ceil(progressPercentage) %>%
+          </p>
+          <ol class="pl-3">
+            <% if (project.Steps && project.Steps.length > 0) { %>
+              <% project.Steps.forEach((step, index) => { %>
+                <li class="mb-2">
+                  <strong>Step <%= index + 1 %>:</strong>
+                  <p class="step-description"><%= step.description %></p>
+                  <input type="checkbox" 
+                         <%= step.completed ? 'checked' : '' %> 
+                         onclick="toggleStepCompletion('<%= step.stepId %>', this.checked)"> 
+                  Completed
+                </li>
+              <% }) %>
+            <% } else { %>
+              <li>No steps available</li>
+            <% } %>
+          </ol>
+
+          <!-- Chat Section -->
           <div class="chat-section mt-4">
             <h4 class="section-title">Chat</h4>
             <div class="chat-box card">
-              <div class="card-body chat-content" id="chat-content">
-                <!-- Chat messages will appear here -->
+              <div class="card-body">
+                <div id="chat-content" class="chat-messages" style="height: 400px; overflow-y: auto;">
+                  <!-- Chat messages will be displayed here -->
+                </div>
               </div>
               <div class="card-footer">
                 <form id="chat-form">
@@ -123,43 +131,45 @@
               </div>
             </div>
           </div>
+
+          <!-- Mood Board Section -->
+          <div class="project-info mt-4">
+            <h4 class="section-title">Mood Board</h4>
+            <div class='card'>
+              <form id="image-link-form" class="card-body">
+                <input type="text" id="imageLink" name="imageLink" placeholder="Enter image link" class="form-control mb-2" required>
+                <div class="d-flex gap-2">
+                  <button type="submit" class="btn btn-primary">Upload link</button>
+                  <button type="button" id="cancelButton" class="btn btn-secondary">Cancel</button>
+                </div>
+              </form>
+            </div>
+            <div id="mood-board" class="mt-3">
+              <% project.MoodImages.forEach((image) => { %>
+                <div class="card mt-2" data-link="<%= image.link %>">
+                  <div class="card-body">
+                    <img src="<%= image.link %>" alt="Mood Board Image" class="img-fluid rounded" style="max-width: 200px;">
+                    <% if (loggedInUsername === image.uploadedBy) { %>
+                      <button class="btn btn-danger mt-2" onclick="deleteImageLink('<%= image.link %>', '<%= project.projectId %>')">Delete</button>
+                    <% } %>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
         <% } %>
-      </div>
-      <% if (isCreator || isCollaborator) { %>
-        <div class="project-info">
-          <h4 class="section-title">Mood Board</h4>
-          <div class='card'>
-            <form id="image-link-form">
-              <input type="text" id="imageLink" name="imageLink" placeholder="Enter image link" class="form-control mb-2 mr-sm-2" required>
-              <button type="submit" class="btn btn-primary mb-2">Upload link</button>
-              <button type="button" id="cancelButton" class="btn btn-secondary mb-2">Cancel</button>
+
+        <!-- Invite Section - Only for Creator -->
+        <% if (isCreator) { %>
+          <div class="project-info mt-4">
+            <h4 class="section-title">Invite Collaborators</h4>
+            <form id="projectInviteForm" class="form-inline">
+              <input type="email" id="inviteEmail" class="form-control mb-2 mr-sm-2" placeholder="Enter email" required />
+              <button type="submit" class="btn btn-primary mb-2">Send Invite</button>
             </form>
           </div>
-          <div id="mood-board" class="mt-3">
-            <% project.MoodImages.forEach((image) => { %>
-              <div class="card mt-2" data-link="<%= image.link %>">
-                <div class="card-body">
-                  <img src="<%= image.link %>" alt="Mood Board Image" class="img-fluid rounded" style="max-width: 200px;">
-                  <% if (loggedInUsername === image.uploadedBy) { %>
-                    <button class="btn btn-danger mt-2" onclick="deleteImageLink('<%= image.link %>', '<%= project.projectId %>')">Delete</button>
-                  <% } %>
-                </div>
-              </div>
-            <% }) %>
-          </div>
-        </div>
-      <% } %>
-      <% if (isCreator) { %>
-        <div class="project-info mt-4">
-          <h4 class="section-title">Invite Collaborators</h4>
-          <form id="projectInviteForm" class="form-inline">
-            <input type="email" id="inviteEmail" class="form-control mb-2 mr-sm-2" placeholder="Enter email" required />
-            <button type="submit" class="btn btn-primary mb-2">Send Invite</button>
-            <input type="hidden" id="projectId" value="<%= project.projectId %>">
-            <input type="hidden" id="invitedBy" value="<%= loggedInUserId %>"> <!-- Add loggedInUserId here -->
-          </form>
-        </div>
-      <% } %>
+        <% } %>
+      </div>
     </div>
   </div>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -167,14 +177,73 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script>
-   const socket = io();
-  const chatForm = document.getElementById("chat-form");
-  const chatMessage = document.getElementById("chat-message");
-  const chatContent = document.getElementById("chat-content");
-  const loggedInUsername = "<%= loggedInUsername %>";
-  const projectId = "<%= project.projectId %>";
+    const socket = io();
+const chatForm = document.getElementById('chat-form');
+const chatMessage = document.getElementById('chat-message');
+const chatContent = document.getElementById('chat-content');
+const projectId = document.getElementById('projectId').value;
+const loggedInUsername = document.getElementById('loggedInUsername');
+const loggedInUserId = document.getElementById('loggedInUserId');
 
-  emailjs.init(window.config.EMAILJS_USER_ID); 
+  // emailjs.init(window.config.EMAILJS_USER_ID);
+  
+  
+ async function toggleStepCompletion(stepId, isChecked) {
+    try {
+        // First update the step in the database
+        const response = await fetch(`/projects/steps/${stepId}/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ completed: isChecked })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update step completion');
+        }
+
+        // After successful update, update the UI
+        const completedSteps = document.querySelectorAll('input[type="checkbox"]:checked').length;
+        const totalSteps = document.querySelectorAll('input[type="checkbox"]').length;
+        const progressPercentage = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
+
+        // Update the progress bar
+        const progressBar = document.getElementById('progress-bar');
+        if (progressBar) {
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        // Update the completion text
+        document.getElementById('completed-steps').textContent = completedSteps;
+        document.getElementById('total-steps').textContent = totalSteps;
+
+        // Update the percentage text
+        const percentageText = Math.ceil(progressPercentage);
+        const progressText = document.querySelector('.card-text');
+        if (progressText) {
+            progressText.innerHTML = `
+                <span id="completed-steps">${completedSteps}</span> of 
+                <span id="total-steps">${totalSteps}</span> steps completed - 
+                ${percentageText}%
+            `;
+        }
+
+    } catch (error) {
+        console.error('Error updating step completion:', error);
+        // Revert the checkbox state since the update failed
+        const checkbox = document.querySelector(`input[data-step-id="${stepId}"]`);
+        if (checkbox) {
+            checkbox.checked = !isChecked;
+        }
+        
+        Swal.fire({
+            icon: 'error',
+            title: 'Failed to update step',
+            text: 'There was an error updating the step completion status'
+        });
+    }
+} 
 
   document.getElementById("projectInviteForm").addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -249,7 +318,6 @@
             // Clear the form
             imageLinkInput.value = "";
     
-            // Add the new image card to the mood board
             addImageCard(data);
           } else {
             Swal.fire({
@@ -337,82 +405,194 @@
       document.getElementById("imageLink").value = "";
     });
     
-    async function fetchChats(projectId) {
-      try {
+   async function fetchChats(projectId) {
+    try {
         chatContent.innerHTML = "";
         const response = await fetch(`/chats/${projectId}`);
+        if (!response.ok) throw new Error('Failed to fetch chats');
+        
         const chats = await response.json();
-        chats.forEach((chat) => {
-          displayMessage(chat);
-        });
-      } catch (error) {
-        console.error("Error fetching chats:", error);
-      }
+        chats.forEach(displayMessage);
+        scrollToBottom();
+    } catch (error) {
+        console.error('Error fetching chats:', error);
+        showError('Failed to load chat messages');
     }
-    
+}
+
+
     function displayMessage(chat) {
-      const isLiked = chat.likedBy && chat.likedBy.includes(loggedInUsername);
-      const heartClass = isLiked ? "fas" : "far";
+    const messageElement = document.createElement('div');
+    messageElement.id = `chat-${chat.chatId}`;
+    messageElement.className = 'd-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded';
+
+    // Create message content
+    const messageContent = document.createElement('div');
+    const senderElement = document.createElement('strong');
+    senderElement.textContent = `${chat.username}: `;
+    const messageText = document.createTextNode(DOMPurify.sanitize(chat.message));
+    messageContent.appendChild(senderElement);
+    messageContent.appendChild(messageText);
+
+    // Create actions container
+    const actionsContainer = document.createElement('div');
+    actionsContainer.className = 'd-flex gap-2';
+
+    // Add like button
+    const likeButton = document.createElement('button');
+    likeButton.className = 'btn btn-link p-0';
+    const heartIcon = document.createElement('i');
+    heartIcon.className = `fa-heart ${chat.isLiked ? 'fas' : 'far'}`;
+    heartIcon.style.color = chat.isLiked ? 'red' : 'gray';
+    likeButton.appendChild(heartIcon);
+    likeButton.onclick = () => handleLike(chat.chatId, chat.isLiked);
+
+    actionsContainer.appendChild(likeButton);
+
+    const currentUserId = document.getElementById('loggedInUserId').value;
+    if (chat.userId === parseInt(currentUserId)) {
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'btn btn-link p-0 ms-2';
+        deleteButton.innerHTML = '<i class="fas fa-trash text-danger"></i>';
+        deleteButton.onclick = () => handleDelete(chat.chatId);
+        deleteButton.setAttribute('data-toggle', 'tooltip');
+        deleteButton.setAttribute('title', 'Delete message');
+        actionsContainer.appendChild(deleteButton);
+    } 
+
+    messageElement.appendChild(messageContent);
+    messageElement.appendChild(actionsContainer);
+    chatContent.appendChild(messageElement);
+}
+
     
-      const messageElement = document.createElement("div");
-      messageElement.id = `chat-${chat.chatId}`;
-      messageElement.className = "d-flex justify-content-between align-items-center";
-    
-      const messageContent = document.createElement("div");
-      const senderElement = document.createElement("strong");
-      senderElement.textContent = `${chat.Sender.username}: `;
-      const messageText = document.createTextNode(chat.message);
-      messageContent.appendChild(senderElement);
-      messageContent.appendChild(messageText);
-    
-      const iconContainer = document.createElement("div");
-      const likeIcon = document.createElement("i");
-      likeIcon.className = `${heartClass} fa-heart`;
-      likeIcon.style.color = isLiked ? "red" : "white";
-      likeIcon.onclick = () => isLiked ? unlikeChat(chat.chatId) : likeChat(chat.chatId);
-    
-      const deleteIcon = document.createElement("i");
-      deleteIcon.className = "fas fa-trash text-danger";
-      deleteIcon.onclick = () => deleteChat(chat.chatId);
-    
-      iconContainer.appendChild(likeIcon);
-      iconContainer.appendChild(deleteIcon);
-    
-      messageElement.appendChild(messageContent);
-      messageElement.appendChild(iconContainer);
-    
-      chatContent.appendChild(messageElement);
-      chatContent.scrollTop = chatContent.scrollHeight;
-    }
-    
-    socket.on("chat message", function (msg) {
-      if (msg.projectId === projectId) {
-        displayMessage(msg);
-      }
-    });
-    
-    chatForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      if (chatMessage.value) {
-        // Sanitize the input
-        const sanitizedMessage = DOMPurify.sanitize(chatMessage.value);
-    
-        chatMessage.value = "";
-        try {
-          const response = await fetch("/chats", {
-            method: "POST",
+   chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const messageText = chatMessage.value.trim();
+    if (!messageText) return;
+
+    try {
+        const sanitizedMessage = DOMPurify.sanitize(messageText);
+        
+        const response = await fetch('/chats', {
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ message: sanitizedMessage, projectId }),
-          });
-          const chat = await response.json();
-          socket.emit("chat message", { ...chat, projectId });
-        } catch (error) {
-          console.error("Error sending message:", error);
+            body: JSON.stringify({
+                message: sanitizedMessage,
+                projectId
+            })
+        });
+
+        if (!response.ok) throw new Error('Failed to send message');
+
+        const chat = await response.json();
+        chatMessage.value = '';
+        
+        // Message will be displayed through socket event
+        socket.emit('chat message', { ...chat, projectId });
+    } catch (error) {
+        console.error('Error sending message:', error);
+        showError('Failed to send message');
+    }
+});
+
+async function handleLike(chatId, isLiked) {
+    try {
+        const endpoint = isLiked ? 'unlike' : 'like';
+        const response = await fetch(`/chats/${chatId}/${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) throw new Error(`Failed to ${endpoint} message`);
+
+        const chatElement = document.getElementById(`chat-${chatId}`);
+        const heartIcon = chatElement.querySelector('.fa-heart');
+        
+        heartIcon.classList.toggle('far');
+        heartIcon.classList.toggle('fas');
+        heartIcon.style.color = isLiked ? 'gray' : 'red';
+        
+        const button = heartIcon.parentElement;
+        button.onclick = () => handleLike(chatId, !isLiked);
+    } catch (error) {
+        console.error('Error handling like:', error);
+        showError(`Failed to ${isLiked ? 'unlike' : 'like'} message`);
+    }
+}
+
+
+async function handleDelete(chatId) {
+    try {
+        const result = await Swal.fire({
+            title: 'Delete Message?',
+            text: 'This action cannot be undone',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Delete'
+        });
+
+        if (!result.isConfirmed) return;
+
+        const response = await fetch(`/chats/${chatId}/delete`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to delete message');
+
+        const messageElement = document.getElementById(`chat-${chatId}`);
+        if (messageElement) {
+            messageElement.remove();
+            Swal.fire({
+                icon: 'success',
+                title: 'Deleted!',
+                text: 'Message has been deleted'
+            });
         }
-      }
+    } catch (error) {
+        console.error('Error deleting message:', error);
+        showError('Failed to delete message');
+    }
+}
+
+// Socket event listeners
+socket.on('chat message', (chat) => {
+    if (chat.projectId === projectId) {
+        displayMessage(chat);
+        scrollToBottom();
+    }
+});
+
+socket.on('chat deleted', (chatId) => {
+    const messageElement = document.getElementById(`chat-${chatId}`);
+    if (messageElement) {
+        messageElement.remove();
+    }
+});
+
+// Utility functions
+function scrollToBottom() {
+    chatContent.scrollTop = chatContent.scrollHeight;
+}
+
+function showError(message) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: message,
+        timer: 3000,
+        timerProgressBar: true
     });
+}
     
     fetchChats(projectId);
     
@@ -606,34 +786,7 @@
       }
     }
     
-    async function toggleStepCompletion(stepId, completed) {
-      try {
-        console.log(`Toggling completion for step ${stepId} to ${completed}`);
-    
-        const response = await fetch(`/projects/steps/${stepId}/complete`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ completed }),
-        });
-        if (!response.ok) {
-          throw new Error("Failed to update step completion status");
-        }
-        const data = await response.json()
-        .then(() => {
-          location.reload();
-        });
-      } catch (error) {
-        console.error("Error updating step completion status:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Error!",
-          text: error.message || "There was an issue updating the step completion status.",
-        });
-      }
-    }
-    
+   
     async function removeCollaborator(projectId, collaboratorId) {
       try {
         console.log(`Attempting to remove collaborator with ID: ${collaboratorId} from project ID: ${projectId}`);

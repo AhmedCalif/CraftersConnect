@@ -1,132 +1,360 @@
 const express = require('express');
-const { User, Post, Like, Avatar } = require('../database/schema/schemaModel');
-const bcrypt = require('bcryptjs');
+const { eq, and } = require('drizzle-orm');
+const { db } = require('../database/databaseConnection.js');
+const { posts, users, likes, avatars } = require('../database/schema/schemaModel.js')
 
 const router = express.Router();
 
+
 router.get('/', async (req, res) => {
-    console.log("Session Username:", req.session.username);
     try {
         if (!req.session.username) {
             return res.status(403).send("You must be logged in to view posts");
         }
 
-        const user = await User.findOne({
-            where: { username: req.session.username },
-            include: [{ model: Avatar }]
-        });
+        // Get current user data - similar to dashboard approach
+        const userData = await db
+            .select({
+                userId: users.userId,
+                username: users.username,
+                avatarUrl: avatars.imageUrl
+            })
+            .from(users)
+            .leftJoin(avatars, eq(users.userId, avatars.userId))
+            .where(eq(users.username, req.session.username));
+
+        const user = userData[0];
+
         if (!user) {
             return res.status(404).send("User not found");
         }
 
-        const posts = await Post.findAll({
-            include: [{
-                model: User,
-                as: 'creator',
-                attributes: ['userId', 'username'],
-                include: [{ model: Avatar, attributes: ['imageUrl'] }]
-            }]
-        });
+        // Get posts with creator info and avatars - matching dashboard structure
+        const postsData = await db
+            .select({
+                postId: posts.postId,
+                title: posts.title,
+                description: posts.description,
+                currentLikes: posts.currentLikes,
+                createdAt: posts.createdAt,
+                creatorId: users.userId,
+                creatorUsername: users.username,
+                creatorAvatar: avatars.imageUrl
+            })
+            .from(posts)
+            .leftJoin(users, eq(posts.createdBy, users.userId))
+            .leftJoin(avatars, eq(users.userId, avatars.userId));
 
-        const avatarUrl = user.Avatar ? user.Avatar.imageUrl : 'https://i.pravatar.cc/150?img=3';
-        const uniquePosts = [];
-        const postIds = new Set();
-        for (const post of posts) {
-            if (!postIds.has(post.postId)) {
-                const isLiked = await post.isLikedBy(user.userId);
-                uniquePosts.push({ ...post.toJSON(), isLiked });
-                postIds.add(post.postId);
-            }
-        }
+        // Get likes for the current user
+        const userLikes = await db
+            .select({
+                postId: likes.postId
+            })
+            .from(likes)
+            .where(eq(likes.likedBy, user.userId));
+
+        const likedPostIds = new Set(userLikes.map(like => like.postId));
+
+        // Format posts to match dashboard structure
+        const processedPosts = postsData.map(post => ({
+            postId: post.postId,
+            title: post.title,
+            description: post.description,
+            currentLikes: post.currentLikes,
+            createdAt: post.createdAt,
+            creator: {
+                userId: post.creatorId,
+                username: post.creatorUsername,
+                avatar: {
+                    imageUrl: post.creatorAvatar || 'https://i.pravatar.cc/150?img=3'
+                }
+            },
+            isLiked: likedPostIds.has(post.postId)
+        }));
 
         res.render('posts/posts', {
-            posts: uniquePosts,
-            avatarUrl: avatarUrl,
+            posts: processedPosts,
+            avatarUrl: user.avatarUrl,
             username: user.username,
-            currentUser: { userId: user.userId }
+            currentUser: { 
+                userId: user.userId,
+                avatarUrl: user.avatarUrl
+            }
         });
 
     } catch (error) {
         console.error('Failed to fetch posts:', error);
-        res.status(500).send("Error fetching posts");
+        res.render('posts/posts', {
+            posts: [],
+            username: req.session.username,
+            currentUser: { userId: req.session.userId }
+        });
     }
 });
+
+
+router.post("/create", async (req, res) => {
+    try {
+        const { title, description } = req.body;
+        
+        if (!req.session.userId) {
+            return res.status(403).json({ 
+                success: false, 
+                message: "You must be logged in to create a post" 
+            });
+        }
+
+        // Validate required fields
+        if (!title?.trim() || !description?.trim()) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Title and description are required" 
+            });
+        }
+
+        // Add some basic validation for field lengths
+        if (title.length > 200) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Title must be less than 200 characters" 
+            });
+        }
+
+        if (description.length > 2000) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Description must be less than 2000 characters" 
+            });
+        }
+
+    
+        const [newPost] = await db
+            .insert(posts)
+            .values({
+                title: title.trim(),
+                description: description.trim(),
+                currentLikes: 0,
+                createdAt: new Date(),
+                createdBy: req.session.userId  
+            })
+            .returning({
+                postId: posts.postId,
+                title: posts.title,
+                description: posts.description,
+                createdAt: posts.createdAt
+            });
+
+        res.status(201).json({
+            success: true,
+            message: "Post created successfully",
+            post: newPost
+        });
+
+    } catch (error) {
+        console.error("Error creating post:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Failed to create post",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+router.get("/create", (req, res) => {
+    res.render("posts/create")
+})
 
 router.post('/like/:id', async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id) || id <= 0) {
-        console.error('Invalid id:', id);
-        return res.status(404).json({ message: 'Invalid ID' });
+        return res.status(400).json({ 
+            success: false,
+            message: 'Invalid post ID format' 
+        });
     }
 
     try {
-        const post = await Post.findByPk(id);
-        if (!post) {
-            console.error('No post found at this id:', id);
-            return res.status(404).json({ message: 'Post not found' });
-        }
-
-        const username = req.session.username;
         const userId = req.session.userId;
-        if (!username || !userId) {
-            return res.status(403).json({ message: 'You must be logged in to like posts' });
+        if (!userId) {
+            return res.status(401).json({ 
+                success: false,
+                message: 'Authentication required' 
+            });
         }
 
-        const like = await Like.findOne({ where: { postId: id, userId: userId } });
-        if (like) {
-            return res.status(409).json({ message: 'User has already liked this post' });
-        }
+        const result = await db.transaction(async (tx) => {
+            const [post] = await tx
+                .select()
+                .from(posts)
+                .where(eq(posts.postId, id))
+                .limit(1);
 
-        await Like.create({ postId: id, userId: userId, likedBy: username });
-        post.currentLikes += 1;
-        await post.save();
+            if (!post) {
+                throw new Error('POST_NOT_FOUND');
+            }
 
-        console.log('Post liked:', post.title, 'Current likes:', post.currentLikes);
-        res.json({ message: 'Post successfully liked', likes: post.currentLikes });
+            const [existingLike] = await tx
+                .select()
+                .from(likes)
+                .where(
+                    and(
+                        eq(likes.postId, id),
+                        eq(likes.likedBy, userId)
+                    )
+                )
+                .limit(1);
+
+            if (existingLike) {
+                throw new Error('ALREADY_LIKED');
+            }
+
+            await tx
+                .insert(likes)
+                .values({
+                    postId: id,
+                    likedBy: userId,
+                });
+
+            await tx
+                .update(posts)
+                .set({ currentLikes: post.currentLikes + 1 })
+                .where(eq(posts.postId, id));
+
+            return { updatedLikes: post.currentLikes + 1 };
+        });
+
+        return res.json({
+            success: true,
+            message: 'Post liked successfully',
+            likes: result.updatedLikes
+        });
+
     } catch (error) {
-        console.error('Failed to like post:', error);
-        res.status(500).json({ message: `Error liking post: ${error.message}` });
+        console.error('Like operation failed:', error);
+        
+        if (error.message === 'POST_NOT_FOUND') {
+            return res.status(404).json({
+                success: false,
+                message: 'Post not found'
+            });
+        }
+        
+        if (error.message === 'ALREADY_LIKED') {
+            return res.status(409).json({
+                success: false,
+                message: 'You have already liked this post'
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to like post',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 });
 
 router.post('/unlike/:id', async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id) || id <= 0) {
+        return res.status(400).json({ 
+            success: false,
+            message: 'Invalid post ID format' 
+        });
+    }
+
     try {
-        const id = parseInt(req.params.id, 10);
-        if (isNaN(id) || id <= 0) {
-            console.error('Invalid id:', id);
-            return res.status(404).json({ message: 'Invalid ID' });
+        const userId = req.session.userId;
+        if (!userId) {
+            return res.status(401).json({ 
+                success: false,
+                message: 'Authentication required' 
+            });
         }
 
-        const post = await Post.findByPk(id);
-        if (!post) {
-            console.error('No post found at this id:', id);
-            return res.status(404).json({ message: 'Post not found' });
-        }
+        const result = await db.transaction(async (tx) => {
+            const [post] = await tx
+                .select()
+                .from(posts)
+                .where(eq(posts.postId, id))
+                .limit(1);
 
-        const unlike = await Like.findOne({ where: { postId: id, userId: req.session.userId } });
-        if (!unlike) {
-            console.error('No like found for this user and post:', id);
-            return res.status(404).json({ message: 'Like not found' });
-        }
+            if (!post) {
+                throw new Error('POST_NOT_FOUND');
+            }
+            const [existingLike] = await tx
+                .select()
+                .from(likes)
+                .where(
+                    and(
+                        eq(likes.postId, id),
+                        eq(likes.likedBy, userId)
+                    )
+                )
+                .limit(1);
 
-        await unlike.destroy();
-        post.currentLikes -= 1;
-        await post.save();
-        console.log('Post unliked:', 'Current likes:', post.currentLikes);
+            if (!existingLike) {
+                throw new Error('LIKE_NOT_FOUND');
+            }
+            await tx
+                .delete(likes)
+                .where(
+                    and(
+                        eq(likes.postId, id),
+                        eq(likes.likedBy, userId)
+                    )
+                );
 
-        res.json({ likes: post.currentLikes });
+            await tx
+                .update(posts)
+                .set({ currentLikes: post.currentLikes - 1 })
+                .where(eq(posts.postId, id));
+
+            return { updatedLikes: post.currentLikes - 1 };
+        });
+
+        return res.json({
+            success: true,
+            message: 'Post unliked successfully',
+            likes: result.updatedLikes
+        });
+
     } catch (error) {
-        console.error('Failed to unlike post:', error);
-        res.status(500).json({ message: 'Failed to unlike post' });
+        console.error('Unlike operation failed:', error);
+        
+        if (error.message === 'POST_NOT_FOUND') {
+            return res.status(404).json({
+                success: false,
+                message: 'Post not found'
+            });
+        }
+        
+        if (error.message === 'LIKE_NOT_FOUND') {
+            return res.status(404).json({
+                success: false,
+                message: 'You have not liked this post'
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to unlike post',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 });
 
 router.delete('/:postId', async (req, res) => {
-    const postId = req.params.postId;
+    const postId = parseInt(req.params.postId, 10);
     const userId = req.session.userId;
 
     try {
-        const post = await Post.findByPk(postId);
+        const [post] = await db
+            .select()
+            .from(posts)
+            .where(eq(posts.postId, postId))
+            .limit(1);
+
         if (!post) {
             return res.status(404).json({ message: "Post not found." });
         }
@@ -135,7 +363,7 @@ router.delete('/:postId', async (req, res) => {
             return res.status(403).json({ message: "You can only delete your own posts." });
         }
 
-        await post.destroy();
+        await db.delete(posts).where(eq(posts.postId, postId));
         res.json({ message: "Post successfully deleted." });
     } catch (error) {
         console.error("Error deleting post:", error);
@@ -143,44 +371,4 @@ router.delete('/:postId', async (req, res) => {
     }
 });
 
-router.get('/create', (req, res) => {
-    res.render('posts/create', {
-        username: req.session.username,
-    });
-
-    router.post('/create', async (req, res) => {
-        if (!req.session.username) {
-            return res.status(403).send("You must be logged in to create posts");
-        }
-
-        const { title, description, content } = req.body;
-        if (title.length > 100 || description.length > 100) {
-            return res.status(400).send("Title and description must be less than 100 characters");
-        }
-
-        try {
-            const user = await User.findOne({ where: { username: req.session.username } });
-            if (!user) {
-                return res.status(404).send("User not found");
-            }
-
-            const newPost = await Post.create({
-                title: title,
-                description: description,
-                content: content,
-                createdBy: user.userId
-            });
-
-            req.session.lastPostTime = new Date();
-            console.log("New Post Created:", newPost);
-            res.redirect('/posts');
-        } catch (error) {
-            console.error('Failed to create post:', error);
-            res.status(500).send('Error creating post');
-        }
-    });
-});
-
 module.exports = router;
-
-

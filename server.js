@@ -12,7 +12,6 @@ const userProjectsRouter = require('./routes/userProjectsRouter');
 const chatRouter = require('./routes/chatRoute');
 const socket = require('socket.io');
 const http = require('http');
-
 const app = express();
 const server = http.createServer(app);
 const io = socket(server);
@@ -28,6 +27,7 @@ io.on('connection', (socket) => {
       console.log('user disconnected');
     });
   });
+chatRouter.setSocketIO(io);
   
 
 app.use(session({
@@ -39,6 +39,7 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24
     }
 }));
+
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
